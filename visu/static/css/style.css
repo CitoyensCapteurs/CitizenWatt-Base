@@ -1,0 +1,331 @@
+
+/******************************************************************************
+ * 0. Font faces
+ */
+
+/*
+ * 0.1 Open Sans
+ */
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    src:
+        local('Open Sans'),
+        local('OpenSans'),
+        url('../font/OpenSans-Regular.ttf');
+}
+@font-face {
+    font-family: 'Open Sans';
+    src:
+        local('Open Sans Light'),
+        local('OpenSans-Light'),
+        url('../font/OpenSans-Light.ttf');
+    font-style: normal;
+    font-weight: 300;
+}
+@font-face {
+    font-family: 'Open Sans';
+    src:
+        local('Open Sans Semibold'),
+        local('OpenSans-Semibold'),
+        url('../font/OpenSans-Bold.ttf');
+    font-style: normal;
+    font-weight: bold;
+}
+@font-face {
+    font-family: 'Open Sans';
+    src:
+        local('Open Sans Italic'),
+        local('OpenSans-Italic'),
+        url('../font/OpenSans-Italic.ttf');
+    font-style: italic;
+}
+@font-face {
+    font-family: 'Open Sans';
+    src:
+        local('Open Sans Bold Italic'),
+        local('OpenSans-BoldItalic'),
+        url('../font/OpenSans-BoldItalic.ttf');
+    font-style: italic;
+    font-weight: bold;
+}
+
+/*
+ * 0.2 Alex Brush
+ */
+
+@font-face {
+    font-family: 'Alex Brush';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Alex Brush'), local('AlexBrush'), url('../font/AlexBrush-Regular.ttf');
+}
+
+
+/******************************************************************************
+ * 1. Styles de base
+ */
+
+html, body {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
+
+body {
+    background-color: #231f20;
+    color: #d6d6d6;
+    font-family: "Open Sans", sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color: #e3834f;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+main {
+    width: 75%;
+    margin: auto;
+    padding-bottom: 4em;
+    color: #b3abab;
+}
+
+
+/******************************************************************************
+ * 2. Classes
+ */
+
+.yellow {
+    color: #ffd35d;
+}
+
+.orange {
+    color: #ffb43f;
+}
+
+.red {
+    color: #ff7b33;
+}
+
+.dark-yellow {
+    color: #
+}
+
+.dark-orange {
+    color: #f59b20;
+}
+
+.dark-red {
+    color: #f2541b;
+}
+
+.blurry {
+   text-shadow: 0 0 0.5em;
+}
+
+.left {
+    float: left;
+    margin-left: 1em;
+}
+
+.no-day {
+    background-color: transparent !important;
+}
+
+.empty-day {
+    background-color: #363032 !important;
+}
+
+.dark-red-day {
+    background-color: #f2541b !important;
+}
+
+.red-day {
+    background-color: #ff7b33 !important;
+}
+
+.orange-day {
+    background-color: #ffb43f !important;
+}
+
+.yellow-day {
+    background-color: #ffd35d !important;
+}
+
+
+/******************************************************************************
+ * 3. Header
+ */
+
+header {
+    background-color: #5f5557;
+    border-bottom: 5px solid #928688;
+}
+
+header img {
+    margin: 2px 0;
+    margin-left: 3em;
+    vertical-align: top;
+}
+
+/*
+ * 3.1. Menu
+ */
+
+#menu {
+    float: right;
+    font-size: 1.2em;
+}
+
+#menu ul {
+    margin: 0;
+    margin-right: 0.5em;
+    margin-top: 10px;
+    padding: 0;
+    list-style: none outside none;
+}
+
+#menu li {
+	float: left;
+    margin: 0.5em;
+}
+
+#menu a {
+    display: inline-block;
+    color: inherit;
+}
+
+#menu a:hover {
+    color: #e3834f;
+    text-decoration: none;
+}
+
+
+/******************************************************************************
+ * 4. Footer
+ */
+
+
+footer {
+    padding: 0;
+
+    background-color: #5f5557;
+    border-top: 5px solid #928688;
+
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+
+    text-align: right;
+    font-size: 0.7em;
+}
+
+footer p {
+    margin: 0.2em;
+}
+
+
+
+/******************************************************************************
+ * 5. Overview
+ */
+
+#overview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1em;
+}
+
+#overview div {
+    margin-left: 2em;
+    margin-right: 2em;
+    text-align: center;
+}
+
+#now, #day, #week  {
+    font-size: 3em;
+    margin-bottom: 0;
+}
+
+
+/******************************************************************************
+ * 6. Graphe
+ */
+
+
+#graph {
+    background-color: #363032;
+    border-bottom: 3px solid #52484b;
+    margin-bottom: 1em;
+    position: relative;
+    height: 300px;
+}
+
+#graph_values {
+    height: 100%;
+    float: right;
+    overflow: hidden;
+}
+
+#graph_values .rect {
+    float: left;
+    margin-left: 2px;
+    height: 100%;
+    animation-duration: 1s;
+    animation-name: slidein;
+}
+
+#graph_values .rect .color {
+    animation-duration: 1s;
+    animation-name: slidein;
+}
+
+#graph hr {
+    position: absolute;
+    margin: 0;
+    border: 0;
+    height: 2px;
+    width: 100%;
+    background-color: rgba(255,255,255,0.1);
+}
+
+#graph_vertical_axis span {
+    position:absolute;
+}
+
+@keyframes slidein {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 12px;
+    }
+}
+
+
+
+/******************************************************************************
+ * X. Autre
+ */
+
+#page {
+    position: relative;
+    min-height: 100%;
+    margin: 0;
+}
+
+
+@media screen and (max-width: 780px) {
+    #menu {
+        display: none;
+    }
+}
