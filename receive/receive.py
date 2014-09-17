@@ -10,12 +10,14 @@ NRF_CHANNEL = 76
 NRF_SPEED = nrf24.NRF24.BR_1MBPS
 NRF_PA_LEVEL = nrf24.NRF24.PA_MAX
 
-db = sql.create_engine('mysql://root:@localhost:/citizenwatt')
+db = sql.create_engine('mysql+pymysql://root:citizenwatt@localhost/citizenwatt')
 metadata = sql.MetaData()
 measures = sql.Table('measures', metadata,
                      sql.Column('id', sql.Integer, primary_key=True),
-                     sql.Column('date', sql.Datetime),
-                     sql.Column('power', sql.Integer))
+                     sql.Column('date', sql.DateTime),
+                     sql.Column('power', sql.Integer),
+		     mysql_engine='InnoDB',
+             mysql_charset='utf8')
 metadata.create_all(db)
 
 radio = nrf24.NRF24()
