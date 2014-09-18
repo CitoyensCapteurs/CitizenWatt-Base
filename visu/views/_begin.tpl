@@ -10,7 +10,7 @@
     <body>
         <div id="page">
             <header>
-                <a href="index.html"><img src="{{ get_url('static', filename='img/logo.png') }}" alt="Logo CitizenWatt"/></a>
+                <a href="{{ get_url('index') }}"><img src="{{ get_url('static', filename='img/logo.png') }}" alt="Logo CitizenWatt"/></a>
 
                 <nav id="menu">
                     <a {{ !'class="active"' if page=='home' else '' }} href="{{ get_url('index') }}">Accueil</a>
