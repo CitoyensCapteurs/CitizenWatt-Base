@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from random import random
 from math import sin
+from random import random
+from json import dumps
 
 from bottle import abort, Bottle, SimpleTemplate, static_file, redirect, request, run
 from bottle.ext import sqlalchemy
@@ -10,6 +11,18 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
+def to_dict(model):
+    """ Returns a JSON representation of an SQLAlchemy-backed object.
+    TODO : Use runtime inspection API
+    From https://zato.io/blog/posts/converting-sqlalchemy-objects-to-json.html
+    """
+    dict = {}
+    dict['id'] = getattr(model, 'id')
+
+    for col in model._sa_class_manager.mapper.mapped_table.columns:
+        dict[col.name] = getattr(model, col.name)
+
+    return dict
 
 n_values = 0
 def generate_value():
@@ -27,7 +40,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 Base = declarative_base()
-engine = create_engine('sqlite:///tmp.db', echo=True)
+engine = create_engine("sqlite:///tmp.db", echo=True)
 
 app = Bottle()
 plugin = sqlalchemy.Plugin(
@@ -43,43 +56,43 @@ app.install(plugin)
 # DB Structure
 
 class Sensor(Base):
-    __tablename__ = 'sensors'
+    __tablename__ = "sensors"
     id = Column(Integer, primary_key=True)
     name = Column(Text)
     type_id = Column(Integer,
-                     ForeignKey('measures_types.id', ondelete='CASCADE'),
+                     ForeignKey("measures_types.id", ondelete="CASCADE"),
                      nullable=False)
-    measures = relationship('Measures', passive_deletes=True)
+    measures = relationship("Measures", passive_deletes=True)
 
 
 class Measures(Base):
-    __tablename__ = 'measures'
+    __tablename__ = "measures"
     id = Column(Integer, primary_key=True)
     sensor_id = Column(Integer,
-                       ForeignKey('sensors.id', ondelete='CASCADE'),
+                       ForeignKey("sensors.id", ondelete="CASCADE"),
                        nullable=False)
     value = Column(Float)
     timestamp = Column(DateTime)
 
 
 class Provider(Base):
-    __tablename__ = 'providers'
+    __tablename__ = "providers"
     id = Column(Integer, primary_key=True)
     type_id = Column(Integer,
-                     ForeignKey('measures_types.id', ondelete='CASCADE'),
+                     ForeignKey("measures_types.id", ondelete="CASCADE"),
                      nullable=False)
     slope_watt_euros = Column(Float)
     constant_watt_euros = Column(Float)
 
 
 class MeasureType(Base):
-    __tablename__ = 'measures_types'
+    __tablename__ = "measures_types"
     id = Column(Integer, primary_key=True)
     name = Column(Text)
 
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     login = Column(Text)
     password = Column(Text)
@@ -87,51 +100,95 @@ class User(Base):
 
 
 # API
-@app.route('/api/sensors')
+@app.route("/api/sensors")
 def api_sensors(db):
     sensors = db.query(Sensor).all()
     if sensors:
-        print(sensors)
+        return {"data": [to_dict(sensor) for sensor in sensors]}
     else:
-        abort(404, 'No sensors found.')
+        abort(404, "No sensors found.")
 
-@app.route('/api/<sensor:int>/get/by_id/<id1:int>')
+@app.route("/api/<sensor:int>/get/by_id/<id1:int>")
 def api_get_id(sensor, id1):
-    data = [{'power': generate_value()} for i in range(id1)]
-    return {'data': data}
+    # DEBUG
+    data = [{"power": generate_value()} for i in range(id1)]
+    return {"data": data}
+    # /DEBUG
 
-@app.route('/api/<sensor:int>/get/by_id/<id1:int>/<id2:int>')
+    data = db.query(Measures).filter_by(sensor_id=sensor,
+                                        id=id1).first()
+    if data:
+        return {"data": to_dict(data)}
+    else:
+        abort(404,
+              "No measures with id " + id1  +
+              " found for sensor " + sensor + ".")
+
+@app.route("/api/<sensor:int>/get/by_id/<id1:int>/<id2:int>")
 def api_get_ids(sensor, id1, id2):
-    data = [{'power': generate_value()} for i in range(id2)]
-    return {'data': data}
+    # DEBUG
+    data = [{"power": generate_value()} for i in range(id2)]
+    return {"data": data}
+    # /DEBUG
 
-@app.route('/api/<sensor:int>/get/by_time/<time1:int>')
+    data = db.query(Measures).filter(sensor_id == sensor,
+                                        id >= id1,
+                                        id <= id2).all()
+    if data:
+        return {"data": [to_dict(datum) for datum in data]}
+    else:
+        abort(404,
+              "No relevant measures found.")
+
+@app.route("/api/<sensor:int>/get/by_time/<time1:int>")
 def api_get_time(sensor, time1):
     if time1 < 0:
-        abort(404, 'Invalid timestamp.')
+        abort(404, "Invalid timestamp.")
 
-    data = [{'power': generate_value()} for i in range(time1)]
-    return {'data': data}
+    # DEBUG
+    data = [{"power": generate_value()} for i in range(time1)]
+    return {"data": data}
+    # /DEBUG
 
-@app.route('/api/<sensor:int>/get/by_time/<time1:int>/<time2:int>')
+    data = db.query(Measures).filter_by(sensor_id=sensor,
+                                        timestamp=time1).first()
+    if data:
+        return {"data": to_dict(data)}
+    else:
+        abort(404,
+              "No measures at timestamp " + time1 +
+              " found for sensor " + sensor + ".")
+
+@app.route("/api/<sensor:int>/get/by_time/<time1:int>/<time2:int>")
 def api_get_times(sensor, time1, time2):
     if time1 < 0 or time2 > 0:
-        abort(404, 'Invalid timestamps.')
+        abort(404, "Invalid timestamps.")
 
-    data = [{'power': generate_value()} for i in range(time2)]
-    return {'data': data}
+    # DEBUG
+    data = [{"power": generate_value()} for i in range(time2)]
+    return {"data": data}
+    # /DEBUG
 
-@app.route('/api/energy_providers')
+    data = db.query(Measures).filter(sensor_id == sensor,
+                                     timestamp >= time1,
+                                     timestamp <= time2).all()
+    if data:
+        return {"data": [to_dict(datum) for datum in data]}
+    else:
+        abort(404,
+              "No measures between timestamp " + time1 +
+              " and timestamp " + time2 +
+              " found for sensor " + sensor + ".")
+
+@app.route("/api/energy_providers")
 def api_energy_providers(db):
-    # TODO
-    #providers = db.query(Provider).all()
-    #if sensors:
-    #    print(sensors)
-    #else:
-    #    abort(404, 'No sensors found.')
-    abort(501, 'Not implemented.')
+    providers = db.query(Provider).all()
+    if providers:
+        return {"data": [to_dict(provider) for provider in providers]}
+    else:
+        abort(404, 'No providers found.')
 
-@app.route('/api/<energy_provider:int>/watt_euros/<consumption:int>')
+@app.route("/api/<energy_provider:int>/watt_euros/<consumption:int>")
 def api_energy_providers(energy_provider, consumption, db):
     # TODO
     #providers = db.query(Provider).all()
@@ -139,41 +196,41 @@ def api_energy_providers(energy_provider, consumption, db):
     #    print(sensors)
     #else:
     #    abort(404, 'No sensors found.')
-    abort(501, 'Not implemented.')
+    abort(501, "Not implemented.")
 
 # Routes
-@app.route('/static/<filename:path>', name='static')
+@app.route("/static/<filename:path>", name="static")
 def static(filename, db):
-    return static_file(filename, root='static')
+    return static_file(filename, root="static")
 
 
-@app.route('/', name='index', template='index')
+@app.route('/', name="index", template="index")
 def index(db):
     if not db.query(User).all():
-        redirect('/install')
+        redirect("/install")
     return {}
 
 
-@app.route('/conso', name='conso', template='conso')
+@app.route("/conso", name="conso", template="conso")
 def conso():
     return {}
 
 
-@app.route('/install', name='install', template='install')
+@app.route("/install", name="install", template="install")
 def install(db):
     if db.query(User).all():
         redirect('/')
 
-    return {'login': ''}
+    return {"login": ''}
 
-@app.route('/install', name='install', template='install', method='post')
+@app.route("/install", name="install", template="install", method="post")
 def install(db):
     if db.query(User).all():
         redirect('/')
 
-    login = request.forms.get('login').strip()
-    password = request.forms.get('password').strip()
-    password_confirm = request.forms.get('password_confirm')
+    login = request.forms.get("login").strip()
+    password = request.forms.get("password").strip()
+    password_confirm = request.forms.get("password_confirm")
 
     if login and password and password == password_confirm:
         admin = User(login=login, password=password, is_admin=1)
@@ -183,7 +240,7 @@ def install(db):
         db.query(Provider).delete()
         db.query(Sensor).delete()
 
-        electricity_type = MeasureType(name='Électricité')
+        electricity_type = MeasureType(name="Électricité")
         db.add(electricity_type)
         db.flush()
         print(electricity_type.id)
@@ -193,14 +250,14 @@ def install(db):
                                         constant_watt_euros=0.1367)
         db.add(electricity_provider)
 
-        sensor = Sensor(name='CitizenWatt',
+        sensor = Sensor(name="CitizenWatt",
                         type_id=electricity_type.id)
         db.add(sensor)
 
         redirect('/')
     else:
-        return {'login': login}
+        return {"login": login}
 
-SimpleTemplate.defaults['get_url'] = app.get_url
-SimpleTemplate.defaults['API_URL'] = app.get_url('index')
-run(app, host='0.0.0.0', port=8080, debug=True, reloader=True)
+SimpleTemplate.defaults["get_url"] = app.get_url
+SimpleTemplate.defaults["API_URL"] = app.get_url("index")
+run(app, host="0.0.0.0", port=8080, debug=True, reloader=True)
