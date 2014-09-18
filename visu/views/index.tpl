@@ -3,7 +3,7 @@
             <main>
                 <div class="left-column">
                     <div class="menu">
-                        <h1><img alt="" src="{{ get_url('static', filename='img/data.svg') }}" />Consomation</h1>
+                        <h1><img alt="" src="{{ get_url('static', filename='img/data.svg') }}" />Consommation</h1>
                         <a href="{{ get_url('conso') }}">
                             <img alt="" src="{{ get_url('static', filename='img/small-data.svg') }}" />En cours
                         </a>

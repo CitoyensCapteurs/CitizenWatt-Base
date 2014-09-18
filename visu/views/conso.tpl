@@ -1,7 +1,7 @@
-% include('_begin.tpl', title='Consomation', page='conso')
+% include('_begin.tpl', title='Consommation', page='conso')
             <main>
                 <div class="menu">
-                    <h1><img alt="" src="{{ get_url('static', filename='img/data.svg') }}" />Consomation</h1>
+                    <h1><img alt="" src="{{ get_url('static', filename='img/data.svg') }}" />Consommation</h1>
                 </div>
                 <div id="overview">
                     <div>

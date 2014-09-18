@@ -1,4 +1,8 @@
-API :
+## Package needed
+
+* sqlalchemy
+
+## API
 
 * /api/sensors
 	* Returns all the available sensors with their types
