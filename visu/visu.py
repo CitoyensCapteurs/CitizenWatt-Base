@@ -3,7 +3,7 @@
 from random import random
 from math import sin
 
-from bottle import abort, Bottle, SimpleTemplate, static_file, view
+from bottle import abort, Bottle, SimpleTemplate, static_file, view, run
 from bottle.ext import sqlalchemy
 from sqlalchemy import create_engine, Column, DateTime, event, Float, ForeignKey, Integer, Text
 from sqlalchemy.engine import Engine
