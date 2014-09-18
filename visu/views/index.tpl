@@ -50,10 +50,11 @@
                 </div>
 
                 <nav id="scale">
-                    <button id="scale-now">Maintenant</button>
+                    <button id="scale-now" class="active">Maintenant</button>
                     <button id="scale-day">Aujourd'hui</button>
                     <button id="scale-week">Cette semaine</button>
                     <button id="scale-month">Ce mois</button>
+                    <button id="toggle-unit">W/€</button>
                 </nav>
 
                 <p style="text-align: center;">Abonnement EDF Tarif Bleu 06 kVA.</p>
