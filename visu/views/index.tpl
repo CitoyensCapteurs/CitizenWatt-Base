@@ -66,7 +66,7 @@
 
         <script type="text/javascript">
             // Constants set on the server side
-            var API_URL = '{{ API_URL }}api/get';
+            var API_URL = '{{ API_URL }}api';
         </script>
         <script src="{{ get_url('static', filename='js/graph.js') }}"></script>
     </body>

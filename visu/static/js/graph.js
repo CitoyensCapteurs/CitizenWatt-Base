@@ -122,7 +122,7 @@ var DataProvider = function() {
 			nb = 1;
 		}
 
-		req.open('GET', API_URL + '/' + nb, true);
+		req.open('GET', API_URL + '/1/get/by_id/' + nb, true);
 		req.send();
 		req.onreadystatechange = function() {
 			if (req.readyState == 4) {

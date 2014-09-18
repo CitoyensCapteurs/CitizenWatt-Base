@@ -21,19 +21,38 @@ def generate_value():
 app = Bottle()
 SimpleTemplate.defaults['get_url'] = app.get_url
 
+# API
+@app.route('/api/sensors')
+def api_sensors():
+    data = [{'id': 1, 'type': 'power'}]
+    return {'data': data}
+
+@app.route('/api/<sensor:int>/get/by_id/<id1:int>')
+def api_get_id(sensor, id1):
+    data = [{'power': generate_value()} for i in range(id1)]
+    return {'data': data}
+
+@app.route('/api/<sensor:int>/get/by_id/<id1:int>/<id2:int>')
+def api_get_ids(sensor, id1, id2):
+    data = [{'power': generate_value()} for i in range(id2)]
+    return {'data': data}
+
+@app.route('/api/<sensor:int>/get/by_time/<time1:int>')
+def api_get_time(sensor, time1):
+    data = [{'power': generate_value()} for i in range(time1)]
+    return {'data': data}
+
+@app.route('/api/<sensor:int>/get/by_time/<time1:int>/<time2:int>')
+def api_get_times(sensor, time1, time2):
+    data = [{'power': generate_value()} for i in range(time2)]
+    return {'data': data}
+
+
+# Routes
+
 @app.route('/static/<filename:path>', name='static')
 def static(filename):
     return static_file(filename, root='static')
-
-@app.route('/api/get/<nb1:int>')
-def api_get_last(nb1):
-    data = [{'power': generate_value()} for i in range(nb1)]
-    return {'data': data}
-
-@app.route('/api/get/<nb1:int>/<nb2:int>')
-def api_get_items(nb1, nb2):
-    data = [{'power': generate_value()} for i in range(nb2)]
-    return {'data': data}
 
 @app.route('/', name='index')
 @view('index')
