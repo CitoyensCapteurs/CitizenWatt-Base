@@ -101,6 +101,10 @@ main {
  * 2. Classes
  */
 
+/*
+ * 2.1 Color classes
+ */
+
 .yellow {
     color: #ffd35d;
 }
@@ -156,6 +160,30 @@ main {
 
 .yellow-day {
     background-color: #ffd35d !important;
+}
+
+.dark-blue {
+    color: #2332ff;
+}
+
+.blue {
+    color: #196cff;
+}
+
+.light-blue {
+    color: #5d92ff;
+}
+
+.dark-blue-day {
+    background-color: #2332ff;
+}
+
+.blue-day {
+    background-color: #196cff;
+}
+
+.light-blue-day {
+    background-color: #5d92ff;
 }
 
 
@@ -325,10 +353,14 @@ footer p {
     border-bottom: 3px solid #52484b;
 }
 
+#scale button.active {
+    color: white;
+    border-bottom: 3px solid #FFD35D;
+}
+
 #scale button:hover {
     color: white;
     background: #60565A;
-    border-bottom: 3px solid #52484b;
 }
 
 
