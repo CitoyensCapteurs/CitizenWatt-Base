@@ -229,10 +229,10 @@ var Graph = function() {
 	 * Clean graph (remove all values)
 	 */
 	api.clean = function() {
-		if (graph_values.firstChild) {
+		while (graph_values.firstChild)
 			graph_values.removeChild(graph_values.firstChild)
-			api.clean();
-		}
+		while (graph_vertical_axis.firstChild)
+			graph_vertical_axis.removeChild(graph_vertical_axis.firstChild)
 	}
 
 	return api;
@@ -303,6 +303,7 @@ var App = function() {
 		} else {
 			graph = Graph();
 		}
+		graph.init();
 		api.initValues();
 	};
 
