@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32"
+   height="32"
+   id="svg14622"
+   version="1.1"
+   inkscape:version="0.91pre0 r13343"
+   viewBox="0 0 32 32.000001"
+   sodipodi:docname="target-ok.svg">
+  <defs
+     id="defs14624" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="11.2"
+     inkscape:cx="6.7572499"
+     inkscape:cy="12.610921"
+     inkscape:document-units="px"
+     inkscape:current-layer="g12326"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-paths="true"
+     inkscape:snap-page="true"
+     inkscape:snap-object-midpoints="false"
+     inkscape:bbox-nodes="true"
+     inkscape:window-width="1543"
+     inkscape:window-height="876"
+     inkscape:window-x="57"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata14627">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-20.162097,-42.150744)">
+    <g
+       style="stroke:#ffffff;stroke-opacity:1"
+       transform="matrix(0.29207305,0,0,0.29207305,120.82086,1047.1346)"
+       id="g12326">
+      <circle
+         r="54.780827"
+         cy="-3386.084"
+         cx="-289.85474"
+         id="circle16013"
+         style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#63bd51;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:8;stroke-opacity:1;marker:none;enable-background:accumulate" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:89.11461639px;line-height:125%;font-family:Nimbus Sans L;-inkscape-font-specification:Nimbus Sans L;letter-spacing:-4.14955664px;word-spacing:0px;fill:#f1f1f1;fill-opacity:1;stroke:none;stroke-opacity:1"
+         x="-323.99905"
+         y="-3356.2107"
+         id="text16025"
+         sodipodi:linespacing="125%"
+         transform="scale(1.0001094,0.99989062)"><tspan
+           sodipodi:role="line"
+           id="tspan16027"
+           x="-323.99905"
+           y="-3356.2107">✓</tspan></text>
+    </g>
+  </g>
+</svg>

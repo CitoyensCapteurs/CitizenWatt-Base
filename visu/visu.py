@@ -215,6 +215,10 @@ def index(db):
 def conso():
     return {}
 
+@app.route('/target', name='target', template='target')
+def target():
+    return {}
+
 
 @app.route("/install", name="install", template="install")
 def install(db):

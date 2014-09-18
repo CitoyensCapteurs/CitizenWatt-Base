@@ -1,4 +1,5 @@
 % include('_begin.tpl', title='Consommation', page='conso')
+
             <main>
                 <div class="menu">
                     <h1><img alt="" src="{{ get_url('static', filename='img/data.svg') }}" />Consommation</h1>

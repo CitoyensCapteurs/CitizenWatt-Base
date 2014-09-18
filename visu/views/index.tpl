@@ -13,9 +13,15 @@
 
                     <div class="menu">
                         <h1><img alt="" src="{{ get_url('static', filename='img/target.svg') }}" />Objectifs</h1>
-                        <a href=""><img alt="" src="{{ get_url('static', filename='img/tick.svg') }}" />Atteints</a>
-                        <a href=""><img alt="" src="{{ get_url('static', filename='img/loading.svg') }}" />En cours</a>
-                        <a href=""><img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" /></a>
+                        <a href="{{ get_url('target') }}#ok">
+                            <img alt="" src="{{ get_url('static', filename='img/tick.svg') }}" />Atteints
+                        </a>
+                        <a href="{{ get_url('target') }}#wip">
+                            <img alt="" src="{{ get_url('static', filename='img/loading.svg') }}" />En cours
+                        </a>
+                        <a href="{{ get_url('target') }}">
+                            <img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" />
+                        </a>
                     </div>
                 </div>
 
