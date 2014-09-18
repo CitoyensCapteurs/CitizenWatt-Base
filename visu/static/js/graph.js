@@ -149,8 +149,6 @@ var App = function() {
 				graph.addRect(value.power)
 			});
 		});
-		// Uncomment for debugging
-		graph.addRect(Math.random() * MAX_POWER);
 	}
 
 	return api;

@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
+from random import random
+
 from bottle import Bottle, run, SimpleTemplate, static_file, template, view
+
+MAX_POWER = 3500
 
 app = Bottle()
 SimpleTemplate.defaults['get_url'] = app.get_url
@@ -11,7 +15,7 @@ def static(filename):
 
 @app.route('/ajax')
 def ajax():
-    return
+    return template('[{ "power": {{random}} }]', random=random() * MAX_POWER)
 
 @app.route('/')
 @view('index')
