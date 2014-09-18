@@ -5,6 +5,10 @@
         <title>CitizenWatt</title>
         <link rel="stylesheet" href="{{ get_url('static', filename='css/normalize.css') }}">
         <link rel="stylesheet" href="{{ get_url('static', filename='css/style.css') }}">
+        <script type="text/javascript">
+            // Constants set server side
+            var BASE_URL = '{{ BASE_URL }}';
+        </script>
     </head>
 
     <body>

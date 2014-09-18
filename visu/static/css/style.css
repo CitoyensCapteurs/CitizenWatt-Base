@@ -279,11 +279,14 @@ footer p {
     float: left;
     margin-left: 2px;
     height: 100%;
+}
+
+#graph_values .rect.animated {
     animation-duration: 1s;
     animation-name: slidein;
 }
 
-#graph_values .rect .color {
+#graph_values .rect.animated .color {
     animation-duration: 1s;
     animation-name: slidein;
 }
@@ -324,7 +327,7 @@ footer p {
 
 #scale button:hover {
     color: white;
-    background: #363032;
+    background: #60565A;
     border-bottom: 3px solid #52484b;
 }
 

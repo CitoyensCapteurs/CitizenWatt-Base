@@ -1,5 +1,5 @@
 // General params
-var URL = '/ajax' // (Used by DataProvider)
+var URL = BASE_URL + '/ajax' // (Used by DataProvider)
   , MAX_POWER = 3500
   , UPDATE_TIMEOUT = 2000 // En millisecondes
   , SIZE = 12 // Must be identical to @keyframes slidein (Used by Graph)
@@ -38,8 +38,10 @@ var Graph = function() {
 	/**
 	 * Add a new rect to the graph.
 	 * @param power: Power represented by the rect.
+	 * @param animated: (optional) Whether the addition of the value must be animated. Default to True
 	 */
-	api.addRect = function(power) {
+	api.addRect = function(power, animated) {
+		if (animated === undefined) animated = true;
 		var height = parseInt(power) / MAX_POWER * 100;
 		var div = document.createElement('div');
 		var blank = document.createElement('div');
@@ -48,7 +50,7 @@ var Graph = function() {
 		div.appendChild(blank);
 		div.appendChild(color);
 
-		div.className = 'rect';
+		div.className = animated ? 'animated rect' : 'rect';
 		div.style.width = SIZE + 'px';
 
 		var color_class = (height > 33.3 ? (height >= 66.7 ? 'red' : 'orange') : 'yellow');
@@ -72,7 +74,7 @@ var Graph = function() {
 		var timestamp = Math.round((new Date().getTime()) / 1000);
 		day.innerHTML = Math.round(total * 1000)/1000 + 'kWh (' + kWh_to_euros(total)+'€)';
 
-		var max_values = Math.floor(graph.clientWidth / (SIZE + BORDER));
+		var max_values = api.getWidth();
 		if (n_values >= max_values) {
 			graph_values.removeChild(graph_values.firstChild)
 		}
@@ -92,6 +94,13 @@ var Graph = function() {
 		span.innerHTML = power + "W";
 	}
 
+	/**
+	 * Return the width of the graph in number of values that can be displayed
+	 */
+	api.getWidth = function() {
+		return Math.floor(graph.clientWidth / (SIZE + BORDER));
+	};
+
 	return api;
 };
 
@@ -105,7 +114,7 @@ var DataProvider = function() {
 
 	/**
 	 * Get new data from server.
-	 * @param nb: Number of values to requrie
+	 * @param nb: (optional) Number of values to request
 	 * @param callback: callback that take data as first argument
 	 */
 	api.get = function(nb, callback) {
@@ -113,6 +122,7 @@ var DataProvider = function() {
 			callback = nb;
 			nb = 1;
 		}
+
 		req.open('GET', URL + '/' + nb, true);
 		req.send();
 		req.onreadystatechange = function() {
@@ -136,6 +146,11 @@ var App = function() {
 	var provider = DataProvider();
 
 	/**
+	 * Callbacks
+	 */
+	api.oninit = function(){console.log('Not set')}; // called when init is done
+
+	/**
 	 * Init application.
 	 * Add graduation lines
 	 */
@@ -145,10 +160,11 @@ var App = function() {
 			graph.addVerticalGraduation(MAX_POWER * t)
 		});
 
-		provider.get(20, function(data) {
+		provider.get(graph.getWidth(), function(data) {
 			data.map(function(value) {
-				graph.addRect(value.power)
+				graph.addRect(value.power, false)
 			});
+			api.oninit();
 		});
 	}
 
@@ -175,12 +191,12 @@ var App = function() {
 function init() {
 	var app = App();
 
-	app.init();
-	
-	(function() {
+	app.oninit = function() {
 		app.update();
 		setTimeout(arguments.callee, UPDATE_TIMEOUT);
-	})();
+	}
+
+	app.init();
 }
 
 window.onload = init();
