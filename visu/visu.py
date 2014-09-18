@@ -27,7 +27,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 Base = declarative_base()
-engine = create_engine('sqlite:///:memory:', echo=True)
+engine = create_engine('sqlite:///tmp.db', echo=True)
 
 app = Bottle()
 plugin = sqlalchemy.Plugin(
@@ -47,7 +47,8 @@ class Sensor(Base):
     id = Column(Integer, primary_key=True)
     name = Column(Text)
     type_id = Column(Integer,
-                     ForeignKey('measures_types.id', ondelete='CASCADE'))
+                     ForeignKey('measures_types.id', ondelete='CASCADE'),
+                     nullable=False)
     measures = relationship('Measures', passive_deletes=True)
 
 
@@ -55,7 +56,8 @@ class Measures(Base):
     __tablename__ = 'measures'
     id = Column(Integer, primary_key=True)
     sensor_id = Column(Integer,
-                       ForeignKey('sensors.id', ondelete='CASCADE'))
+                       ForeignKey('sensors.id', ondelete='CASCADE'),
+                       nullable=False)
     value = Column(Float)
     timestamp = Column(DateTime)
 
@@ -64,7 +66,8 @@ class Provider(Base):
     __tablename__ = 'providers'
     id = Column(Integer, primary_key=True)
     type_id = Column(Integer,
-                     ForeignKey('measures_types.id', ondelete='CASCADE'))
+                     ForeignKey('measures_types.id', ondelete='CASCADE'),
+                     nullable=False)
     slope_watt_euros = Column(Float)
     constant_watt_euros = Column(Float)
 
@@ -182,6 +185,8 @@ def install(db):
 
         electricity_type = MeasureType(name='Électricité')
         db.add(electricity_type)
+        db.flush()
+        print(electricity_type.id)
 
         electricity_provider = Provider(type_id=electricity_type.id,
                                         slope_watt_euros=0.2317,
