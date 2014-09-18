@@ -15,7 +15,7 @@ def static(filename):
 
 @app.route('/ajax')
 def ajax():
-    return template('[{ "power": {{random}} }]', random=random() * MAX_POWER)
+   return {'data': [{'power': random() * MAX_POWER}]}
 
 @app.route('/')
 @view('index')

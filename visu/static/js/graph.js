@@ -112,7 +112,8 @@ var DataProvider = function() {
 		req.send();
 		req.onreadystatechange = function() {
 			if (req.readyState == 4) {
-				callback(JSON.parse(req.responseText));
+				res = JSON.parse(req.responseText);
+				callback(res.data);
 			}
 		}
 	}
@@ -126,8 +127,8 @@ var DataProvider = function() {
  */
 var App = function() {
 	var api = {};
-	var graph = new Graph();
-	var provider = new DataProvider();
+	var graph = Graph();
+	var provider = DataProvider();
 
 	/**
 	 * Init application.
