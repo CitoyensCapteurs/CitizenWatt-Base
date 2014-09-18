@@ -125,4 +125,9 @@ def static(filename):
 def index():
     return {'API_URL': app.get_url('index')}
 
-app.run(host='0.0.0.0', port=8080, debug=True)
+@app.route('/conso', name='conso')
+@view('conso')
+def visu():
+    return {'API_URL': app.get_url('index')}
+
+run(app, host='0.0.0.0', port=8080, debug=True)

@@ -363,6 +363,48 @@ footer p {
     background: #60565A;
 }
 
+/******************************************************************************
+ * 8. Menu blocks
+ */
+
+.menu {
+    text-transform: uppercase;
+    color: white;
+}
+
+.menu img {
+    margin: 3px 0.5em;
+    vertical-align: middle;
+}
+
+.menu h1 {
+    font-weight: 200;
+}
+
+.menu a {
+    color: white;
+    display: block;
+    margin: 0.5em 5em;
+    line-height: 3em;
+}
+
+.menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu a img {
+    height: 2em;
+}
+
+.right-column {
+    width: 50%;
+    float: right;
+}
+
+.left-column {
+    width: 50%;
+    float: left;
+}
 
 /******************************************************************************
  * X. Autre

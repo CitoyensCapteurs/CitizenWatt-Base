@@ -24,52 +24,45 @@
             </header>
 
             <main>
-                <div id="overview">
-                    <div>
-                        <p id="now" class="blurry red">---W</p>
-                        <p>Consommation actuelle</p>
+                <div class="left-column">
+                    <div class="menu">
+                        <h1><img alt="" src="{{ get_url('static', filename='img/data.svg') }}" />Données</h1>
+                        <a href="{{ get_url('conso') }}">
+                            <img alt="" src="{{ get_url('static', filename='img/small-data.svg') }}" />En cours
+                        </a>
+                        <a href=""><img alt="" src="{{ get_url('static', filename='img/month.svg') }}" />Par mois</a>
+                        <a href=""><img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" /></a>
                     </div>
-                    <div>
-                        <p id="day" class="blurry orange">---kWh (---€)</p>
-                        <p>Consommation totale</p>
-                    </div>
-                    <!--
-                    <div>
-                        <p id="week" class="blurry yellow">80W</p>
-                        <p>Moyenne cette semaine</p>
-                    </div>
-                    -->
-                </div>
 
-                <div id="graph">
-                    <div id="graph_vertical_axis"></div>
-                    <hr style="bottom:33.3%"/>
-                    <hr style="bottom:66.7%"/>
-                    <div id="graph_values">
+                    <div class="menu">
+                        <h1><img alt="" src="{{ get_url('static', filename='img/target.svg') }}" />Objectifs</h1>
+                        <a href=""><img alt="" src="{{ get_url('static', filename='img/tick.svg') }}" />Atteints</a>
+                        <a href=""><img alt="" src="{{ get_url('static', filename='img/loading.svg') }}" />En cours</a>
+                        <a href=""><img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" /></a>
                     </div>
                 </div>
 
-                <nav id="scale">
-                    <button id="scale-now" class="active">Maintenant</button>
-                    <button id="scale-day">Aujourd'hui</button>
-                    <button id="scale-week">Cette semaine</button>
-                    <button id="scale-month">Ce mois</button>
-                    <button id="toggle-unit">W/€</button>
-                </nav>
+                <div class="right-column">
+                    <div class="menu">
+                        <h1><img alt="" src="{{ get_url('static', filename='img/help.svg') }}" />Aide</h1>
+                        <a href=""><img alt="" src="{{ get_url('static', filename='img/wiki.svg') }}" />Wiki</a>
+                        <a href=""><img alt="" src="{{ get_url('static', filename='img/contact.svg') }}" />Contact</a>
+                        <a href=""><img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" /></a>
+                    </div>
 
-                <p style="text-align: center;">Abonnement EDF Tarif Bleu 06 kVA.</p>
+                    <div class="menu">
+                        <h1><img alt="" src="{{ get_url('static', filename='img/results.svg') }}" />Bilan</h1>
+                        <a href=""><img alt="" src="{{ get_url('static', filename='img/bill.svg') }}" />Estimation de facture</a>
+                        <a href=""><img alt="" src="{{ get_url('static', filename='img/progress.svg') }}" />Progrès</a>
+                        <a href=""><img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" /></a>
+                    </div>
+                </div>
             </main>
 
             <footer>
                 <p>Licence GNU GPL | <a href="http://citoyenscapteurs.net/">Citoyens Capteurs</a></p>
             </footer>
         </div>
-
-        <script type="text/javascript">
-            // Constants set on the server side
-            var API_URL = '{{ API_URL }}api';
-        </script>
-        <script src="{{ get_url('static', filename='js/graph.js') }}"></script>
     </body>
 </html>
 
