@@ -1,29 +1,8 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>CitizenWatt</title>
-        <link rel="stylesheet" href="{{ get_url('static', filename='css/normalize.css') }}">
-        <link rel="stylesheet" href="{{ get_url('static', filename='css/style.css') }}">
-    </head>
-
-    <body>
-        <div id="page">
-            <header>
-                <a href="index.html"><img src="{{ get_url('static', filename='img/logo.png') }}" alt="Logo CitizenWatt"/></a>
-
-                <div id="menu">
-                    <ul>
-                        <li><a href="index.html">Accueil</a></li>
-                        <li><a href="">Ma conso</a></li>
-                        <li><a href="">Archives</a></li>
-                        <li><a href="">Guides</a></li>
-                        <li><a href="">À propos</a></li>
-                    </ul>
-                </div>
-            </header>
-
+% include('_begin.tpl', title='Consomation', page='conso')
             <main>
+                <div class="menu">
+                    <h1><img alt="" src="{{ get_url('static', filename='img/data.svg') }}" />Consomation</h1>
+                </div>
                 <div id="overview">
                     <div>
                         <p id="now" class="blurry red">---W</p>
@@ -60,16 +39,4 @@
                 <p style="text-align: center;">Abonnement EDF Tarif Bleu 06 kVA.</p>
             </main>
 
-            <footer>
-                <p>Licence GNU GPL | <a href="http://citoyenscapteurs.net/">Citoyens Capteurs</a></p>
-            </footer>
-        </div>
-
-        <script type="text/javascript">
-            // Constants set on the server side
-            var API_URL = '{{ API_URL }}api';
-        </script>
-        <script src="{{ get_url('static', filename='js/graph.js') }}"></script>
-    </body>
-</html>
-
+% include('_end.tpl', script='graph')

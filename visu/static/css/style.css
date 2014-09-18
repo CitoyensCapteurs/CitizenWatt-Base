@@ -96,6 +96,12 @@ main {
     color: #b3abab;
 }
 
+@media screen and (max-width: 900px) {
+    main {
+        width: 100%;
+    }
+}
+
 
 /******************************************************************************
  * 2. Classes
@@ -194,6 +200,18 @@ main {
 header {
     background-color: #5f5557;
     border-bottom: 5px solid #928688;
+
+    display: -webkit-flex;
+    display: flex;
+    
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+    
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    
+    -webkit-align-items: center;
+    align-items: center;
 }
 
 header img {
@@ -207,31 +225,37 @@ header img {
  */
 
 #menu {
-    float: right;
     font-size: 1.2em;
+
+    display: -webkit-flex;
+    display: flex;
+    
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
 }
 
-#menu ul {
-    margin: 0;
-    margin-right: 0.5em;
-    margin-top: 10px;
-    padding: 0;
-    list-style: none outside none;
-}
-
-#menu li {
-	float: left;
-    margin: 0.5em;
-}
 
 #menu a {
     display: inline-block;
-    color: inherit;
+    margin-right: 1em;
+
+    color: white;
+    text-transform: uppercase;
+    font-weight: 200;
+    border-bottom: 3px solid #5f5557;
 }
 
 #menu a:hover {
-    color: #e3834f;
     text-decoration: none;
+    border-bottom: 3px solid #928688;
+}
+
+#menu a.active {
+    border-bottom: 3px solid #e3834f;
+}
+
+#menu a.active:hover {
+    border-bottom: 3px solid #ad7556;
 }
 
 
@@ -355,12 +379,16 @@ footer p {
 
 #scale button.active {
     color: white;
-    border-bottom: 3px solid #FFD35D;
+    border-bottom: 3px solid #e3834f;
 }
 
 #scale button:hover {
     color: white;
     background: #60565A;
+}
+
+#toggle-unit {
+    float: right;
 }
 
 /******************************************************************************
@@ -396,14 +424,30 @@ footer p {
     height: 2em;
 }
 
-.right-column {
+
+.right-column, .left-column {
     width: 50%;
+}
+
+.right-column {
     float: right;
 }
 
 .left-column {
     width: 50%;
     float: left;
+}
+
+@media screen and (max-width: 780px) {
+    .right-column {
+        width: 100%;
+        float: none;
+    }
+
+    .left-column {
+        width: 100%;
+        float: none;
+    }
 }
 
 /******************************************************************************
