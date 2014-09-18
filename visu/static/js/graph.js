@@ -1,6 +1,5 @@
 // General params
-var URL = BASE_URL + '/ajax' // (Used by DataProvider)
-  , MAX_POWER = 3500
+var MAX_POWER = 3500
   , UPDATE_TIMEOUT = 2000 // En millisecondes
   , SIZE = 12 // Must be identical to @keyframes slidein (Used by Graph)
   , BORDER = 2 // Must be identical to #graph_values .rect (Used by Graph)
@@ -123,7 +122,7 @@ var DataProvider = function() {
 			nb = 1;
 		}
 
-		req.open('GET', URL + '/' + nb, true);
+		req.open('GET', API_URL + '/' + nb, true);
 		req.send();
 		req.onreadystatechange = function() {
 			if (req.readyState == 4) {

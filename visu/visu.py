@@ -25,15 +25,19 @@ SimpleTemplate.defaults['get_url'] = app.get_url
 def static(filename):
     return static_file(filename, root='static')
 
-@app.route('/ajax/:nb')
-def ajax(nb):
-    nb = int(nb)
-    data = [{'power': generate_value()} for i in range(nb)]
+@app.route('/api/get/<nb1:int>')
+def api_get_last(nb1):
+    data = [{'power': generate_value()} for i in range(nb1)]
     return {'data': data}
 
-@app.route('/')
+@app.route('/api/get/<nb1:int>/<nb2:int>')
+def api_get_items(nb1, nb2):
+    data = [{'power': generate_value()} for i in range(nb2)]
+    return {'data': data}
+
+@app.route('/', name='index')
 @view('index')
 def index():
-    return {'BASE_URL': BASE_URL}
+    return {'API_URL': app.get_url('index')}
 
 run(app, host='0.0.0.0', port=8080, debug=True)

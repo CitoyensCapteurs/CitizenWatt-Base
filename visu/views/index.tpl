@@ -5,10 +5,6 @@
         <title>CitizenWatt</title>
         <link rel="stylesheet" href="{{ get_url('static', filename='css/normalize.css') }}">
         <link rel="stylesheet" href="{{ get_url('static', filename='css/style.css') }}">
-        <script type="text/javascript">
-            // Constants set server side
-            var BASE_URL = '{{ BASE_URL }}';
-        </script>
     </head>
 
     <body>
@@ -68,6 +64,10 @@
             </footer>
         </div>
 
+        <script type="text/javascript">
+            // Constants set on the server side
+            var API_URL = '{{ API_URL }}api/get';
+        </script>
         <script src="{{ get_url('static', filename='js/graph.js') }}"></script>
     </body>
 </html>
