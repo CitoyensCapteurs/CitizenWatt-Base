@@ -94,6 +94,25 @@ def api_get_times(sensor, time1, time2):
     data = [{'power': generate_value()} for i in range(time2)]
     return {'data': data}
 
+@app.route('/api/energy_providers')
+def api_energy_providers(db):
+    # TODO
+    #providers = db.query(Provider).all()
+    #if sensors:
+    #    print(sensors)
+    #else:
+    #    abort(404, 'No sensors found.')
+    abort(501, 'Not implemented.')
+
+@app.route('/api/<energy_provider:int>/watt_euros/<consumption:int>')
+def api_energy_providers(energy_provider, consumption, db):
+    # TODO
+    #providers = db.query(Provider).all()
+    #if sensors:
+    #    print(sensors)
+    #else:
+    #    abort(404, 'No sensors found.')
+    abort(501, 'Not implemented.')
 
 # Routes
 

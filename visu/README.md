@@ -16,3 +16,7 @@ API :
 	* Idem as above, but filtering by values
 * /api/<sensor:int>/get/by_value/<value1:float>/<value2:float>
 	* Idem as above, but filtering by values
+* /api/energy_providers/
+    * Returns all available energy providers
+* /api/<provider:int>/watt_euros/<consumption:int>
+    * Returns the price associated to the consumption for the specified provider
