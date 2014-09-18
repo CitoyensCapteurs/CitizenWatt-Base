@@ -105,10 +105,15 @@ var DataProvider = function() {
 
 	/**
 	 * Get new data from server.
+	 * @param nb: Number of values to requrie
 	 * @param callback: callback that take data as first argument
 	 */
-	api.get = function(callback) {
-		req.open('GET', URL, true);
+	api.get = function(nb, callback) {
+		if (callback === undefined) {
+			callback = nb;
+			nb = 1;
+		}
+		req.open('GET', URL + '/' + nb, true);
 		req.send();
 		req.onreadystatechange = function() {
 			if (req.readyState == 4) {
@@ -138,6 +143,12 @@ var App = function() {
 		var graduations = [0.00, 0.33, 0.66, 1.00]; // Graduation positions (relative)
 		graduations.map(function (t) {
 			graph.addVerticalGraduation(MAX_POWER * t)
+		});
+
+		provider.get(20, function(data) {
+			data.map(function(value) {
+				graph.addRect(value.power)
+			});
 		});
 	}
 

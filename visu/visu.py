@@ -13,13 +13,15 @@ SimpleTemplate.defaults['get_url'] = app.get_url
 def static(filename):
     return static_file(filename, root='static')
 
-@app.route('/ajax')
-def ajax():
-   return {'data': [{'power': random() * MAX_POWER}]}
+@app.route('/ajax/:nb')
+def ajax(nb):
+    nb = int(nb)
+    data = [{'power': random() * MAX_POWER} for i in range(nb)]
+    return {'data': data}
 
 @app.route('/')
 @view('index')
 def index():
     return {}
 
-run(app, host='0.0.0.0', port=8080)
+run(app, host='0.0.0.0', port=8080, debug=True)

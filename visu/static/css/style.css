@@ -312,6 +312,22 @@ footer p {
 }
 
 
+/******************************************************************************
+ * 7. Échelle du graphe
+ */
+
+#scale button {
+    background: #363032;
+    border: none;
+    border-bottom: 3px solid #52484b;
+}
+
+#scale button:hover {
+    color: white;
+    background: #363032;
+    border-bottom: 3px solid #52484b;
+}
+
 
 /******************************************************************************
  * X. Autre
