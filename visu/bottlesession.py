@@ -22,11 +22,11 @@ def authenticator(session_manager, login_url='/auth/login'):
             (default: ``'/auth/login'``).
     '''
     def valid_user(login_url=login_url):
-        def decorator(handler, *args, **kargs):
+        def decorator(handler):
             import functools
 
             @functools.wraps(handler)
-            def check_auth(*args, **kargs):
+            def check_auth(*args, **kwargs):
                 try:
                     data = session_manager.get_session()
                     if not data['valid']:
@@ -42,7 +42,7 @@ def authenticator(session_manager, login_url='/auth/login'):
                 if data.get('name'):
                     bottle.request.environ['REMOTE_USER'] = data['name']
 
-                return handler(*args, **kargs)
+                return handler(*args, **kwargs)
             return check_auth
         return decorator
     return(valid_user)

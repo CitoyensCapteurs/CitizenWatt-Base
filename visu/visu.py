@@ -211,7 +211,7 @@ def api_energy_providers(energy_provider, consumption, db):
 
 # Routes
 @app.route("/static/<filename:path>", name="static")
-def static(filename, db):
+def static(filename):
     return static_file(filename, root="static")
 
 
@@ -259,6 +259,8 @@ def login(db):
 def logout():
     session = session_manager.get_session()
     session['valid'] = False
+    del(session['name'])
+    del(session['is_admin'])
     session_manager.save(session)
     redirect('/')
 
