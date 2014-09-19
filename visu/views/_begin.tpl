@@ -16,7 +16,7 @@
                     <a {{ !'class="active"' if page=='home' else '' }} href="{{ get_url('index') }}">Accueil</a>
                     <a {{ !'class="active"' if page=='conso' else '' }} href="{{ get_url('conso') }}">Conso</a>
                     <a {{ !'class="active"' if page=='target' else '' }} href="{{ get_url('target') }}">Objectifs</a>
-                    <a {{ !'class="active"' if page=='help' else '' }} href="">Guide</a>
-                    <a {{ !'class="active"' if page=='results' else '' }} href="">Bilan</a>
+                    <a {{ !'class="active"' if page=='help' else '' }} href="{{ get_url('help') }}">Guide</a>
+                    <a {{ !'class="active"' if page=='results' else '' }} href="{{ get_url('results') }}">Bilan</a>
                 </nav>
             </header>

@@ -219,6 +219,14 @@ def conso():
 def target():
     return {}
 
+@app.route('/results', name='results', template='results')
+def target():
+    return {}
+
+@app.route('/help', name='help', template='help')
+def target():
+    return {}
+
 
 @app.route("/install", name="install", template="install")
 def install(db):
