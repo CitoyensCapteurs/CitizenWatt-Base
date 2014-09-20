@@ -24,3 +24,9 @@
     * Returns all available energy providers
 * /api/<provider:int>/watt_euros/<consumption:int>
     * Returns the price associated to the consumption for the specified provider
+
+## TODO
+
+* Authentication for API
+* Better JSON serialization of SQLAlchemy objects
+* Salt passwords

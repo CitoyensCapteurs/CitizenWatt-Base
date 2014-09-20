@@ -84,7 +84,7 @@ class SQLAlchemyPlugin(object):
         :param commit: If it is true, commit changes after route is executed.
         :param use_kwargs: plugin inject session database even if it is not
                explicitly defined, using **kwargs argument if defined.
-        :param create_session: SQLAlchemy session maker created with the 
+        :param create_session: SQLAlchemy session maker created with the
                 'sessionmaker' function. Will create its own if undefined.
         '''
         self.engine = engine
@@ -110,7 +110,7 @@ class SQLAlchemyPlugin(object):
                 self.name += '_%s' % self.keyword
         if self.create and not self.metadata:
             raise bottle.PluginError('Define metadata value to create database.')
-    
+
     def apply(self, callback, route):
         # hack to support bottle v0.9.x
         if bottle.__version__.startswith('0.9'):
@@ -131,6 +131,7 @@ class SQLAlchemyPlugin(object):
         use_kwargs = g('use_kwargs', self.use_kwargs)
 
         argspec = inspect.getargspec(_callback)
+        print(argspec.args)
         if not ((use_kwargs and argspec.keywords) or keyword in argspec.args):
             return callback
 
@@ -158,6 +159,6 @@ class SQLAlchemyPlugin(object):
             return rv
 
         return wrapper
-    
+
 
 Plugin = SQLAlchemyPlugin

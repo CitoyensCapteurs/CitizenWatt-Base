@@ -6,6 +6,7 @@ from json import dumps
 
 from bottle import abort, Bottle, SimpleTemplate, static_file, redirect, request, run
 from bottle.ext import sqlalchemy
+from bottlesession import PickleSession, authenticator
 from sqlalchemy import create_engine, Column, DateTime, event, Float, ForeignKey, Integer, Text
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -53,12 +54,15 @@ plugin = sqlalchemy.Plugin(
 )
 app.install(plugin)
 
+session_manager = PickleSession()
+valid_user = authenticator(session_manager, login_url='/login')
+
 # DB Structure
 
 class Sensor(Base):
     __tablename__ = "sensors"
     id = Column(Integer, primary_key=True)
-    name = Column(Text)
+    name = Column(Text, unique=True)
     type_id = Column(Integer,
                      ForeignKey("measures_types.id", ondelete="CASCADE"),
                      nullable=False)
@@ -88,19 +92,19 @@ class Provider(Base):
 class MeasureType(Base):
     __tablename__ = "measures_types"
     id = Column(Integer, primary_key=True)
-    name = Column(Text)
+    name = Column(Text, unique=True)
 
 
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    login = Column(Text)
+    login = Column(Text, unique=True)
     password = Column(Text)
     is_admin = Column(Integer)
 
 
 # API
-@app.route("/api/sensors")
+@app.route("/api/sensors", apply=valid_user())
 def api_sensors(db):
     sensors = db.query(Sensor).all()
     if sensors:
@@ -108,7 +112,7 @@ def api_sensors(db):
     else:
         abort(404, "No sensors found.")
 
-@app.route("/api/<sensor:int>/get/by_id/<id1:int>")
+@app.route("/api/<sensor:int>/get/by_id/<id1:int>", apply=valid_user())
 def api_get_id(sensor, id1):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id1)]
@@ -124,7 +128,7 @@ def api_get_id(sensor, id1):
               "No measures with id " + id1  +
               " found for sensor " + sensor + ".")
 
-@app.route("/api/<sensor:int>/get/by_id/<id1:int>/<id2:int>")
+@app.route("/api/<sensor:int>/get/by_id/<id1:int>/<id2:int>", apply=valid_user())
 def api_get_ids(sensor, id1, id2):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id2)]
@@ -140,7 +144,7 @@ def api_get_ids(sensor, id1, id2):
         abort(404,
               "No relevant measures found.")
 
-@app.route("/api/<sensor:int>/get/by_time/<time1:int>")
+@app.route("/api/<sensor:int>/get/by_time/<time1:int>", apply=valid_user())
 def api_get_time(sensor, time1):
     if time1 < 0:
         abort(404, "Invalid timestamp.")
@@ -159,7 +163,8 @@ def api_get_time(sensor, time1):
               "No measures at timestamp " + time1 +
               " found for sensor " + sensor + ".")
 
-@app.route("/api/<sensor:int>/get/by_time/<time1:int>/<time2:int>")
+@app.route("/api/<sensor:int>/get/by_time/<time1:int>/<time2:int>",
+           apply=valid_user())
 def api_get_times(sensor, time1, time2):
     if time1 < 0 or time2 > 0:
         abort(404, "Invalid timestamps.")
@@ -180,7 +185,7 @@ def api_get_times(sensor, time1, time2):
               " and timestamp " + time2 +
               " found for sensor " + sensor + ".")
 
-@app.route("/api/energy_providers")
+@app.route("/api/energy_providers", apply=valid_user())
 def api_energy_providers(db):
     providers = db.query(Provider).all()
     if providers:
@@ -188,7 +193,8 @@ def api_energy_providers(db):
     else:
         abort(404, 'No providers found.')
 
-@app.route("/api/<energy_provider:int>/watt_euros/<consumption:int>")
+@app.route("/api/<energy_provider:int>/watt_euros/<consumption:int>",
+           apply=valid_user())
 def api_energy_providers(energy_provider, consumption, db):
     # TODO
     #providers = db.query(Provider).all()
@@ -200,18 +206,18 @@ def api_energy_providers(energy_provider, consumption, db):
 
 # Routes
 @app.route("/static/<filename:path>", name="static")
-def static(filename, db):
+def static(filename):
     return static_file(filename, root="static")
 
 
-@app.route('/', name="index", template="index")
+@app.route('/', name="index", template="index", apply=valid_user())
 def index(db):
     if not db.query(User).all():
         redirect("/install")
     return {}
 
 
-@app.route("/conso", name="conso", template="conso")
+@app.route("/conso", name="conso", template="conso", apply=valid_user())
 def conso():
     return {}
 
@@ -226,6 +232,42 @@ def target():
 @app.route('/help', name='help', template='help')
 def target():
     return {}
+
+
+@app.route("/login", name="login", template="login")
+def login():
+    session = session_manager.get_session()
+    if session['valid'] is True:
+        redirect('/')
+    else:
+        return {"login": ''}
+
+
+@app.route("/login", name="login", template="login", method="post")
+def login(db):
+    login = request.forms.get("login")
+    user = db.query(User).filter_by(login=login).first()
+    session = session_manager.get_session()
+    session['valid'] = False
+    session_manager.save(session)
+    if user and user.password == request.forms.get("password"):
+        session['valid'] = True
+        session['name'] = login
+        session['is_admin'] = user.is_admin
+        session_manager.save(session)
+        redirect('/')
+    else:
+        return {"login": login}
+
+
+@app.route("/logout", name="logout")
+def logout():
+    session = session_manager.get_session()
+    session['valid'] = False
+    del(session['name'])
+    del(session['is_admin'])
+    session_manager.save(session)
+    redirect('/')
 
 
 @app.route("/install", name="install", template="install")
