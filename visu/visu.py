@@ -104,8 +104,7 @@ class User(Base):
 
 
 # API
-@app.route("/api/sensors")
-@valid_user()
+@app.route("/api/sensors", apply=valid_user())
 def api_sensors(db):
     sensors = db.query(Sensor).all()
     if sensors:
@@ -113,8 +112,7 @@ def api_sensors(db):
     else:
         abort(404, "No sensors found.")
 
-@app.route("/api/<sensor:int>/get/by_id/<id1:int>")
-@valid_user()
+@app.route("/api/<sensor:int>/get/by_id/<id1:int>", apply=valid_user())
 def api_get_id(sensor, id1):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id1)]
@@ -130,8 +128,7 @@ def api_get_id(sensor, id1):
               "No measures with id " + id1  +
               " found for sensor " + sensor + ".")
 
-@app.route("/api/<sensor:int>/get/by_id/<id1:int>/<id2:int>")
-@valid_user()
+@app.route("/api/<sensor:int>/get/by_id/<id1:int>/<id2:int>", apply=valid_user())
 def api_get_ids(sensor, id1, id2):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id2)]
@@ -147,8 +144,7 @@ def api_get_ids(sensor, id1, id2):
         abort(404,
               "No relevant measures found.")
 
-@app.route("/api/<sensor:int>/get/by_time/<time1:int>")
-@valid_user()
+@app.route("/api/<sensor:int>/get/by_time/<time1:int>", apply=valid_user())
 def api_get_time(sensor, time1):
     if time1 < 0:
         abort(404, "Invalid timestamp.")
@@ -167,8 +163,8 @@ def api_get_time(sensor, time1):
               "No measures at timestamp " + time1 +
               " found for sensor " + sensor + ".")
 
-@app.route("/api/<sensor:int>/get/by_time/<time1:int>/<time2:int>")
-@valid_user()
+@app.route("/api/<sensor:int>/get/by_time/<time1:int>/<time2:int>",
+           apply=valid_user())
 def api_get_times(sensor, time1, time2):
     if time1 < 0 or time2 > 0:
         abort(404, "Invalid timestamps.")
@@ -189,8 +185,7 @@ def api_get_times(sensor, time1, time2):
               " and timestamp " + time2 +
               " found for sensor " + sensor + ".")
 
-@app.route("/api/energy_providers")
-@valid_user()
+@app.route("/api/energy_providers", apply=valid_user())
 def api_energy_providers(db):
     providers = db.query(Provider).all()
     if providers:
@@ -198,8 +193,8 @@ def api_energy_providers(db):
     else:
         abort(404, 'No providers found.')
 
-@app.route("/api/<energy_provider:int>/watt_euros/<consumption:int>")
-@valid_user()
+@app.route("/api/<energy_provider:int>/watt_euros/<consumption:int>",
+           apply=valid_user())
 def api_energy_providers(energy_provider, consumption, db):
     # TODO
     #providers = db.query(Provider).all()
@@ -215,16 +210,14 @@ def static(filename):
     return static_file(filename, root="static")
 
 
-@app.route('/', name="index", template="index")
-@valid_user()
+@app.route('/', name="index", template="index", apply=valid_user())
 def index(db):
     if not db.query(User).all():
         redirect("/install")
     return {}
 
 
-@app.route("/conso", name="conso", template="conso")
-@valid_user()
+@app.route("/conso", name="conso", template="conso", apply=valid_user())
 def conso():
     return {}
 
