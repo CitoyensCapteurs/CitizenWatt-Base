@@ -194,7 +194,7 @@ def api_get_time(sensor, watt_euros, time1, db):
         abort(404, "Invalid timestamp.")
 
     # DEBUG
-    data = [{"power": generate_value()} for i in range(time1)]
+    data = [{"power": generate_value()} for i in range(int(time1))]
     if watt_euros == "euros":
         data = [api_watt_euros(0, i["power"], db) for i in data]
     return {"data": data}
