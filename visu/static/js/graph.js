@@ -116,6 +116,25 @@ var Menu = function() {
 	};
 
 	/**
+	 * Get unit.
+	 */
+	api.getUnit = function() {
+		return unit;
+	};
+
+	/**
+	 * Get unit string, which designate unit in ascii chars.
+	 * This is used for example in the API.
+	 * @return unit string.
+	 */
+	api.getUnitString = function() {
+		return {
+			'W': 'watts',
+			'€': 'euros'
+		}[unit];
+	};
+
+	/**
 	 * Toggle unit
 	 * @param callback: (optional)
 	 */
@@ -341,16 +360,11 @@ var DataProvider = function() {
 
 	/**
 	 * Get new data from server.
-	 * @param nb: (optional) Number of values to request
+	 * @param target: Type of data to get (@see API specification)
 	 * @param callback: callback that take data as first argument
 	 */
-	api.get = function(nb, callback) {
-		if (callback === undefined) {
-			callback = nb;
-			nb = 1;
-		}
-
-		req.open('GET', API_URL + '/1/get/by_id/' + nb, true);
+	api.get = function(target, callback) {
+		req.open('GET', API_URL + target, true);
 		req.send();
 		req.onreadystatechange = function() {
 			if (req.readyState == 4) {
@@ -423,7 +437,11 @@ var App = function() {
 	 * @param callback: (optional)
 	 */
 	api.initValues = function(callback) {
-		provider.get(graph.getWidth(), function(data) {
+		var target = '/1/get/';
+		target += menu.getUnitString();
+		target += '/by_id/'
+		target += (-graph.getWidth()).toString();
+		provider.get(target, function(data) {
 			data.map(function(value) {
 				graph.addRect(value.power, false)
 			});
@@ -435,7 +453,17 @@ var App = function() {
 	 * Go and get new values. This function should be called regularely by the main loop.
 	 */
 	api.update = function() {
-		provider.get(function(data) {
+		if (graph.last_call == undefined) {
+			graph.last_call = 0;
+		}
+		var now = Date.now()
+
+		var target = '/1/get/';
+		target += menu.getUnitString();
+		target += '/by_time/'
+		target += graph.last_call + '/' + (graph.last_call = Date.now() / 1000.0);
+
+		provider.get(target, function(data) {
 			data.map(function(value) {
 				graph.addRect(value.power)
 			});
