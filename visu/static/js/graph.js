@@ -31,8 +31,8 @@ var Menu = function() {
 	  , unit = 'W'
 	  ;
 
-	api.onunitchange = function(unit){};
-	api.onmodechange = function(mode){};
+	api.onunitchange = function(unit, callback){};
+	api.onmodechange = function(mode, callback){};
 
 	/**
 	 * Add menu listeners
@@ -54,7 +54,7 @@ var Menu = function() {
 			api.setMode('month');
 		});
 
-		toggle_unit.addEventListener('click', api.toggleUnit);
+		toggle_unit.addEventListener('click', function(ev){api.toggleUnit()});
 	}
 
 	/**
@@ -67,9 +67,10 @@ var Menu = function() {
 	/**
 	 * Set display mode.
 	 * @param mode: New mode
+	 * @param callback: (optional)
 	 * @return boolean Whether the mode is accepted.
 	 */
-	api.setMode = function(new_mode) {
+	api.setMode = function(new_mode, callback) {
 		now_btn.className = '';
 		day_btn.className = '';
 		week_btn.className = '';
@@ -91,20 +92,39 @@ var Menu = function() {
 				return false;
 		}
 		mode = new_mode;
-		api.onmodechange(mode);
+		api.onmodechange(mode, callback);
 		return true;
 	};
 
 	/**
-	 *
+	 * Set unit.
+	 * @param unit: New mode
+	 * @param callback: (optional)
+	 * @return boolean Whether the unit is accepted.
 	 */
-	api.toggleUnit = function() {
-		if (unit == 'W') {
-			unit = '€';
-		} else {
-			unit = 'W';
+	api.setUnit = function(new_unit, callback) {
+		switch(new_unit) {
+			case 'W':
+			case '€':
+				break;
+			default:
+				return false;
 		}
-		api.onunitchange(unit);
+		unit = new_unit;
+		api.onunitchange(unit, callback);
+		return true;
+	};
+
+	/**
+	 * Toggle unit
+	 * @param callback: (optional)
+	 */
+	api.toggleUnit = function(callback) {
+		if (unit == 'W') {
+			api.setUnit('€', callback);
+		} else {
+			api.setUnit('W', callback);
+		}
 	};
 
 	return api;
@@ -116,7 +136,11 @@ var Menu = function() {
 var Graph = function() {
 	var api = {};
 
-	var graph, graph_vertical_axis, graph_values, now, day
+	var graph = document.getElementById('graph')
+	  , graph_vertical_axis = document.getElementById('graph_vertical_axis')
+	  , graph_values = document.getElementById('graph_values')
+	  , now = document.getElementById('now')
+	  , day = document.getElementById('day')
 	  , sum, n_values, mean
 	  ;
 
@@ -140,14 +164,8 @@ var Graph = function() {
 	 * Init graph
 	 */
 	api.init = function() {
-		graph = document.getElementById('graph')
-		graph_vertical_axis = document.getElementById('graph_vertical_axis')
-		graph_values = document.getElementById('graph_values')
-		now = document.getElementById('now')
-		day = document.getElementById('day')
-		sum = 0
-		n_values = 0
-		mean
+		sum = 0;
+		n_values = 0;
 
 		var graduations = [0.00, 0.33, 0.66, 1.00]; // Graduation positions (relative)
 		graduations.map(function (t) {
@@ -311,7 +329,7 @@ var PriceGraph = function() {
 	}
 
 	return api;
-}
+};
 
 
 /**
@@ -351,26 +369,29 @@ var DataProvider = function() {
  */
 var App = function() {
 	var api = {};
-	var graph = Graph();
-	var provider = DataProvider();
-	var menu = Menu(api);
+	var graph = Graph()
+	  , provider = DataProvider()
+	  , menu = Menu()
+	  ;
 
-	menu.onunitchange = function(unit) {
+	menu.onunitchange = function(unit, callback) {
 		graph.clean();
 		if (unit == '€') {
 			graph = PriceGraph();
+			location.hash = '#euros';
 		} else {
 			graph = Graph();
+			location.hash = '#watt';
 		}
 		graph.init();
-		api.initValues();
+		api.initValues(callback);
 	};
 
-	menu.onmodechange = function(mode) {
+	menu.onmodechange = function(mode, callback) {
 		if (mode == 'day') {
 			graph.clean();
 			graph.init();
-			api.initValues();
+			api.initValues(callback);
 		}
 	};
 
@@ -385,8 +406,16 @@ var App = function() {
 	 */
 	api.init = function() {
 		menu.init();
-		graph.init();
-		api.initValues(api.oninit);
+
+		switch (location.hash) {
+			case '#euros':
+				graph = PriceGraph();
+				menu.setUnit('€', api.oninit);
+				break;
+
+			default:
+				menu.setUnit('W', api.oninit);
+		}
 	};
 
 	/**
@@ -400,7 +429,7 @@ var App = function() {
 			});
 			if (callback) callback();
 		});
-	}
+	};
 
 	/**
 	 * Go and get new values. This function should be called regularely by the main loop.
@@ -411,7 +440,7 @@ var App = function() {
 				graph.addRect(value.power)
 			});
 		});
-	}
+	};
 
 	return api;
 };
