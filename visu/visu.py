@@ -407,6 +407,12 @@ def install_post(db):
         provider = (db.query(Provider).filter_by(name=provider).\
                     update({"current":1}))
 
+        session = session_manager.get_session()
+        session['valid'] = True
+        session['login'] = login
+        session['is_admin'] = 1
+        session_manager.save(session)
+
         redirect('/')
     else:
         return {"login": login}
