@@ -166,7 +166,7 @@ def api_get_id(sensor, watt_euros, id1, db):
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|euros>/by_id/<id1:int>/<id2:int>", apply=valid_user())
 def api_get_ids(sensor, watt_euros, id1, id2, db):
     # DEBUG
-    data = [{"power": generate_value()} for i in range(id2)]
+    data = [{"power": generate_value()} for i in range(id1, id2)]
     if watt_euros == "euros":
         data = [api_watt_euros(0, i["power"], db) for i in data]
     return {"data": data}
@@ -227,7 +227,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
         abort(403, "Too many values to return. (Maximum is set to %d)" % (MAX_VALUES,))
 
     # DEBUG
-    data = [{"power": generate_value()} for i in range(int(time2))]
+    data = [{"power": generate_value()} for i in range(int(time1), int(time2))]
     if watt_euros == "euros":
         data = [api_watt_euros(0, i["power"], db) for i in data]
     return {"data": data}
