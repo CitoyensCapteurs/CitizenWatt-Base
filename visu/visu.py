@@ -14,6 +14,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
+MAX_VALUES = 100
+
 def to_dict(model):
     """ Returns a JSON representation of an SQLAlchemy-backed object.
     TODO : Use runtime inspection API
@@ -179,6 +181,9 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
     else:
         abort(404, "Wrong parameters id1 and id2.")
 
+    if (id2 - id1) > MAX_VALUES:
+        abort(403, "Too many values to return. (Maximum is set to %d)" % (MAX_VALUES,))
+
     if data:
         data = to_dict(data)
         if watt_euros == 'euros':
@@ -217,6 +222,9 @@ def api_get_time(sensor, watt_euros, time1, db):
 def api_get_times(sensor, watt_euros, time1, time2, db):
     if time1 < 0 or time2 < time1:
         abort(404, "Invalid timestamps.")
+
+    if (time2 - time1) > MAX_VALUES:
+        abort(403, "Too many values to return. (Maximum is set to %d)" % (MAX_VALUES,))
 
     # DEBUG
     data = [{"power": generate_value()} for i in range(int(time2))]
