@@ -1,6 +1,6 @@
 // General params
 var UPDATE_TIMEOUT = 2000 // En millisecondes
-  , SIZE = 12 // Must be identical to @keyframes slidein (Used by Graph)
+  , DEFAULT_RECT_WIDTH = 12
   , BORDER = 2 // Must be identical to #graph_values .rect (Used by Graph)
   ;
 
@@ -169,6 +169,8 @@ var Graph = function() {
 	api.max_value = 1;
 	api.unit = 'W';
 	api.type = 'energy';
+	api.rect_width = DEFAULT_RECT_WIDTH;
+	api.rect_margin = BORDER;
 
 	/**
 	 * Set color class name from height (between 0.0 and 1.0)
@@ -215,15 +217,13 @@ var Graph = function() {
 
 		div.className = animated ? 'animated rect' : 'rect';
 		div.className += ' ' + api.type;
-		div.style.width = SIZE + 'px';
 
 		var color_class = api.colorize(height);
 		color.className = 'color ' + color_class + '-day';
-		color.style.width = SIZE + 'px';
 		color.style.height = height + '%';
 
 		blank.className = 'blank';
-		blank.style.width = SIZE + 'px';
+		blank.style.width = api.rect_width + 'px';
 		blank.style.height = (100 - height) + '%';
 
 		now.className = 'blurry ' + color_class;
@@ -237,8 +237,18 @@ var Graph = function() {
 
 		var max_values = api.getWidth();
 		if (n_values >= max_values) {
+			/*
+			graph_values.firstChild.style.width = '0';
+			graph_values.firstChild.addEventListener('transitionend', function(){
+				console.log('end');
+				graph_values.removeChild(this);
+			}, false);
+			*/
 			graph_values.removeChild(graph_values.firstChild)
 		}
+
+		div.style.width = api.rect_width + 'px';
+		
 
 		return api;
 	}
@@ -315,7 +325,7 @@ var Graph = function() {
 	 * @return the width of the graph in number of values that can be displayed
 	 */
 	api.getWidth = function() {
-		return Math.floor(graph.clientWidth / (SIZE + BORDER));
+		return Math.floor(graph.clientWidth / (api.rect_width + api.rect_margin));
 	};
 
 	/**
@@ -341,6 +351,16 @@ var PriceGraph = function() {
 	api.colorize = function(t) {
 		return (t > 33.3 ? (t >= 66.7 ? 'dark-blue' : 'blue') : 'light-blue');
 	}
+
+	return api;
+};
+
+
+var StaticGraph = function() {
+	var api = Graph();
+
+	api.type = 'static';
+	api.rect_width = graph.clientWidth / 24;
 
 	return api;
 };
@@ -397,11 +417,14 @@ var App = function() {
 	};
 
 	menu.onmodechange = function(mode, callback) {
-		if (mode == 'day') {
-			graph.clean();
-			graph.init();
-			api.initValues(callback);
+		graph.clean();
+		switch (mode) {
+			case 'day':
+				graph = StaticGraph();
+				break;
 		}
+		graph.init();
+		api.initValues(callback);
 	};
 
 	/**
@@ -432,17 +455,50 @@ var App = function() {
 	 * @param callback: (optional)
 	 */
 	api.initValues = function(callback) {
-		var target = '/1/get/';
-		target += menu.getUnitString();
-		target += '/by_id/';
-		target += (-graph.getWidth()).toString();
-		target += '/0';
-		provider.get(target, function(data) {
-			data.map(function(value) {
-				graph.addRect(value.power, false)
-			});
-			if (callback) callback();
-		});
+		switch (menu.getMode()) {
+			case 'now':
+				var target = '/1/get/';
+				target += menu.getUnitString();
+				target += '/by_id/';
+				target += (-graph.getWidth()).toString();
+				target += '/0';
+				provider.get(target, function(data) {
+					data.map(function(value) {
+						graph.addRect(value.power, false)
+					});
+					if (callback) callback();
+				});
+				break;
+
+			case 'day':
+				var target = '/1/get/mean/';
+				target += menu.getUnitString();
+				target += '/daily';
+				provider.get(target, function(data) {
+					data.hourly.map(function(value) {
+						graph.addRect(value.power, false)
+					});
+					if (callback) callback();
+				});
+				break;
+
+			case 'week':
+			case 'month':
+				var target = '/1/get/mean/';
+				target += menu.getUnitString();
+				target += '/' + menu.getMode() + 'ly';
+				provider.get(target, function(data) {
+					data.daily.map(function(value) {
+						graph.addRect(value.power, false)
+					});
+					if (callback) callback();
+				});
+				break;
+
+			default:
+				if (callback) callback();
+		}
+
 
 		graph.last_call = Date.now() / 1000.0;
 	};
@@ -451,16 +507,18 @@ var App = function() {
 	 * Go and get new values. This function should be called regularely by the main loop.
 	 */
 	api.update = function() {
-		var target = '/1/get/';
-		target += menu.getUnitString();
-		target += '/by_time/'
-		target += graph.last_call + '/' + (graph.last_call = Date.now() / 1000.0);
+		if (menu.getMode() == 'now') {
+			var target = '/1/get/';
+			target += menu.getUnitString();
+			target += '/by_time/'
+			target += graph.last_call + '/' + (graph.last_call = Date.now() / 1000.0);
 
-		provider.get(target, function(data) {
-			data.map(function(value) {
-				graph.addRect(value.power)
+			provider.get(target, function(data) {
+				data.map(function(value) {
+					graph.addRect(value.power)
+				});
 			});
-		});
+		}
 	};
 
 	return api;
