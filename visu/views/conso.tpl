@@ -37,7 +37,7 @@
                     <button id="toggle-unit">W/€</button>
                 </nav>
 
-                <p style="text-align: center;">Abonnement EDF Tarif Bleu 06 kVA.</p>
+                <p style="text-align: center;">{{ provider }}</p>
             </main>
 
 % include('_end.tpl', script='graph')

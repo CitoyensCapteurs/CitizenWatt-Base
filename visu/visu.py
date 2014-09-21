@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import requests
+
 from math import sin
 from random import random
 from json import dumps
@@ -83,6 +85,7 @@ class Measures(Base):
 class Provider(Base):
     __tablename__ = "providers"
     id = Column(Integer, primary_key=True)
+    name = Column(Text, unique=True)
     type_id = Column(Integer,
                      ForeignKey("measures_types.id", ondelete="CASCADE"),
                      nullable=False)
@@ -103,6 +106,20 @@ class User(Base):
     login = Column(Text, unique=True)
     password = Column(Text)
     is_admin = Column(Integer)
+
+
+# Useful functions
+def update_providers(db):
+    json = requests.get("http://pub.phyks.me/tmp/electricity_providers.json")
+    db.query(Provider).delete()
+    providers = json.json()
+    for provider in providers:
+        provider_db = Provider(name=provider["name"],
+                               constant_watt_euros=provider["constant_watt_euros"],
+                               slope_watt_euros=provider["slope_watt_euros"],
+                               type_id=provider["type_id"])
+        db.add(provider_db)
+    return providers
 
 
 # API
@@ -244,8 +261,9 @@ def index():
 
 
 @app.route("/conso", name="conso", template="conso", apply=valid_user())
-def conso():
-    return {}
+def conso(db):
+    provider = db.query(Provider).filter_by(current=1).first()
+    return {"provider": provider.name}
 
 @app.route("/settings", name="settings", template="settings")
 def settings(db):
@@ -258,7 +276,10 @@ def settings(db):
                 } for sensor in sensors]
     else:
         sensors = []
-    return {"sensors": sensors}
+
+    providers = update_providers(db)
+
+    return {"sensors": sensors, "providers": providers}
 
 @app.route("/settings",
            name="settings",
@@ -268,10 +289,18 @@ def settings_post(db):
     password = request.forms.get("password").strip()
     password_confirm = request.forms.get("password_confirm")
 
-    if password and password == password_confirm:
-        session = session_manager.get_session()
-        user = (db.query(User).filter_by(login=session["login"]).
-                update({"password": password},  synchronize_session=False))
+    if password:
+        if password == password_confirm:
+            session = session_manager.get_session()
+            user = (db.query(User).filter_by(login=session["login"]).
+                    update({"password": password},  synchronize_session=False))
+        else:
+            abort(400, "Les mots de passe ne sont pas identiques.")
+
+    provider = request.forms.get("provider")
+    provider = (db.query(Provider).filter_by(name=provider).\
+                update({"current":1}))
+
     redirect("/settings")
 
 @app.route("/results", name="results", template="results")
@@ -332,7 +361,21 @@ def install(db):
     if db.query(User).all():
         redirect('/')
 
-    return {"login": ''}
+    db.query(MeasureType).delete()
+    db.query(Provider).delete()
+    db.query(Sensor).delete()
+
+    electricity_type = MeasureType(name="Électricité")
+    db.add(electricity_type)
+    db.flush()
+
+    providers = update_providers(db)
+
+    sensor = Sensor(name="CitizenWatt",
+                    type_id=electricity_type.id)
+    db.add(sensor)
+
+    return {"login": '', "providers": providers}
 
 @app.route("/install", name="install", template="install", method="post")
 def install_post(db):
@@ -342,27 +385,14 @@ def install_post(db):
     login = request.forms.get("login").strip()
     password = request.forms.get("password").strip()
     password_confirm = request.forms.get("password_confirm")
+    provider = request.forms.get("provider")
 
     if login and password and password == password_confirm:
         admin = User(login=login, password=password, is_admin=1)
         db.add(admin)
 
-        db.query(MeasureType).delete()
-        db.query(Provider).delete()
-        db.query(Sensor).delete()
-
-        electricity_type = MeasureType(name="Électricité")
-        db.add(electricity_type)
-        db.flush()
-
-        electricity_provider = Provider(type_id=electricity_type.id,
-                                        slope_watt_euros=0.2317,
-                                        constant_watt_euros=0.1367)
-        db.add(electricity_provider)
-
-        sensor = Sensor(name="CitizenWatt",
-                        type_id=electricity_type.id)
-        db.add(sensor)
+        provider = (db.query(Provider).filter_by(name=provider).\
+                    update({"current":1}))
 
         redirect('/')
     else:

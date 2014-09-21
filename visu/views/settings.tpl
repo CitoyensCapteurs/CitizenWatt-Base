@@ -9,6 +9,16 @@
                             <legend>Utilisateur</legend>
                             <p class="form-item"><label for="password">Mot de passe&nbsp;: </label><input type="password" name="password" id="password"/></p>
                             <p class="form-item"><label for="password_confirm">Mot de passe (confirmation)&nbsp;: </label><input type="password" name="password_confirm" id="password_confirm"/></p>
+                            <p>Laisser vide pour ne pas modifier le mot de passe.</p>
+
+                            <p class="form-item">
+                                <label for="provider">Fournisseur d'énergie&nbsp;: </label>
+                                <select name="provider" id="provider">
+                                    % for provider in providers:
+                                        <option value="{{ provider["name"] }}">{{ provider["name"] }}</option>
+                                    % end
+                                </select>
+                            </p>
                             <p><input type="submit" value="Sauver"/></p>
                         </fieldset>
                         <fieldset id="sensors">

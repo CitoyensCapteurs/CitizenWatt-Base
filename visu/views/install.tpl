@@ -21,6 +21,15 @@
                     </p>
 
                     <p class="form-item">
+                        <label for="provider">Fournisseur d'énergie&nbsp;: </label>
+                        <select name="provider" id="provider">
+                            % for provider in providers:
+                                <option value="{{ provider["name"]}}">{{ provider["name"] }}</option>
+                            % end
+                        </select>
+                    </p>
+
+                    <p class="form-item">
                         <input type="submit" value="Installer"/>
                     </p>
                 </form>
