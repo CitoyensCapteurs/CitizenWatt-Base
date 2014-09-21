@@ -88,6 +88,7 @@ class Provider(Base):
                      nullable=False)
     slope_watt_euros = Column(Float)
     constant_watt_euros = Column(Float)
+    current = Column(Integer)
 
 
 class MeasureType(Base):
@@ -118,26 +119,33 @@ def api_sensors(db):
     else:
         abort(404, "No sensors found.")
 
-@app.route("/api/<sensor:int>/get/by_id/<id1:int>", apply=valid_user())
-def api_get_id(sensor, id1):
+@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|euros>/by_id/<id1:int>", apply=valid_user())
+def api_get_id(sensor, watt_euros, id1, db):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id1)]
+    if watt_euros == 'euros':
+        data = [api_watt_euros(0, i, db) for i in data]
     return {"data": data}
     # /DEBUG
 
     data = db.query(Measures).filter_by(sensor_id=sensor,
                                         id=id1).first()
     if data:
-        return {"data": to_dict(data)}
+        data = to_dict(data)
+        if watt_euros == 'euros':
+            data = [api_watt_euros(0, i["power"]) for i in data]
+        return {"data": data}
     else:
         abort(404,
-              "No measures with id " + id1  +
-              " found for sensor " + sensor + ".")
+              "No measures with id " + str(id1)  +
+              " found for sensor " + str(sensor) + ".")
 
-@app.route("/api/<sensor:int>/get/by_id/<id1:int>/<id2:int>", apply=valid_user())
-def api_get_ids(sensor, id1, id2):
+@app.route("/api/<sensor:int>/get/<watt_euros:re[watt|euros]>/by_id/<id1:int>/<id2:int>", apply=valid_user())
+def api_get_ids(sensor, watt_euros, id1, id2):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id2)]
+    if watt_euros == 'euros':
+        data = [api_watt_euros(0, i, db) for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -145,38 +153,48 @@ def api_get_ids(sensor, id1, id2):
                                         id >= id1,
                                         id <= id2).all()
     if data:
-        return {"data": [to_dict(datum) for datum in data]}
+        data = to_dict(data)
+        if watt_euros == 'euros':
+            data = [api_watt_euros(0, i["power"]) for i in data]
+        return {"data": data}
     else:
         abort(404,
               "No relevant measures found.")
 
-@app.route("/api/<sensor:int>/get/by_time/<time1:int>", apply=valid_user())
-def api_get_time(sensor, time1):
+@app.route("/api/<sensor:int>/get/<watt_euros:re[watt|euros]>/by_time/<time1:int>", apply=valid_user())
+def api_get_time(sensor, watt_euros, time1):
     if time1 < 0:
         abort(404, "Invalid timestamp.")
 
     # DEBUG
     data = [{"power": generate_value()} for i in range(time1)]
+    if watt_euros == 'euros':
+        data = [api_watt_euros(0, i, db) for i in data]
     return {"data": data}
     # /DEBUG
 
     data = db.query(Measures).filter_by(sensor_id=sensor,
                                         timestamp=time1).first()
     if data:
-        return {"data": to_dict(data)}
+        data = to_dict(data)
+        if watt_euros == 'euros':
+            data = [api_watt_euros(0, i["power"]) for i in data]
+        return {"data": data}
     else:
         abort(404,
-              "No measures at timestamp " + time1 +
-              " found for sensor " + sensor + ".")
+              "No measures at timestamp " + str(time1) +
+              " found for sensor " + str(sensor) + ".")
 
-@app.route("/api/<sensor:int>/get/by_time/<time1:int>/<time2:int>",
+@app.route("/api/<sensor:int>/get/<watt_euros:re[watt|euros]>/by_time/<time1:int>/<time2:int>",
            apply=valid_user())
-def api_get_times(sensor, time1, time2):
+def api_get_times(sensor, watt_euros, time1, time2):
     if time1 < 0 or time2 > 0:
         abort(404, "Invalid timestamps.")
 
     # DEBUG
     data = [{"power": generate_value()} for i in range(time2)]
+    if watt_euros == 'euros':
+        data = [api_watt_euros(0, i, db) for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -184,12 +202,15 @@ def api_get_times(sensor, time1, time2):
                                      timestamp >= time1,
                                      timestamp <= time2).all()
     if data:
-        return {"data": [to_dict(datum) for datum in data]}
+        data = to_dict(data)
+        if watt_euros == 'euros':
+            data = [api_watt_euros(0, i["power"]) for i in data]
+        return {"data": data}
     else:
         abort(404,
-              "No measures between timestamp " + time1 +
-              " and timestamp " + time2 +
-              " found for sensor " + sensor + ".")
+              "No measures between timestamp " + str(time1) +
+              " and timestamp " + str(time2) +
+              " found for sensor " + str(sensor) + ".")
 
 @app.route("/api/energy_providers", apply=valid_user())
 def api_energy_providers(db):
@@ -199,16 +220,17 @@ def api_energy_providers(db):
     else:
         abort(404, 'No providers found.')
 
-@app.route("/api/<energy_provider:int>/watt_euros/<consumption:int>",
+@app.route("/api/<energy_provider:int>/watt_euros/<consumption:float>",
            apply=valid_user())
-def api_energy_providers(energy_provider, consumption, db):
-    # TODO
-    #providers = db.query(Provider).all()
-    #if sensors:
-    #    print(sensors)
-    #else:
-    #    abort(404, 'No sensors found.')
-    abort(501, "Not implemented.")
+def api_watt_euros(energy_provider, consumption, db):
+    if energy_provider != 0:
+        provider = db.query(Provider).filter_by(id=energy_provider).first()
+    else:
+        provider = db.query(Provider).filter_by(current=1).first()
+    if provider:
+        return {"data": provider.slope_watt_euros * consumption + provider.constant_watt_euros}
+    else:
+        abort(404, 'No matching provider found.')
 
 # Routes
 @app.route("/static/<filename:path>", name="static")
