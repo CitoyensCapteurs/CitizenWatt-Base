@@ -176,8 +176,8 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
         data = db.query(Measures).filter(sensor_id == sensor,
                                          id >= id1,
                                          id <= id2).all()
-    elif id1 <= 0 and id2 <= 0 and id1 >= id2:
-        data = db.query(Measures).filter_by(sensor_id=sensor).order_by(desc(Measures.id)).slice(-id1, -id2)
+    elif id1 <= 0 and id2 <= 0 and id2 >= id1:
+        data = db.query(Measures).filter_by(sensor_id=sensor).order_by(desc(Measures.id)).slice(-id2, -id1)
     else:
         abort(404, "Wrong parameters id1 and id2.")
 
