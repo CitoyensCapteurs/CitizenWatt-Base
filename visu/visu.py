@@ -286,6 +286,14 @@ def api_watt_euros(energy_provider, consumption, db):
 def api_mean(sensor_id, watt_euros, day_month, db):
     now = datetime.datetime.now()
     if day_month == "daily":
+        # DEBUG
+        return {"data": {"global_mean": 354, "hourly": [150, 100, 200, 400,
+                                                        2000, 4000, 234, 567,
+                                                        6413, 131, 364, 897,
+                                                        764, 264, 479, 20,
+                                                        274, 2644, 679, 69,
+                                                        264, 724, 274, 987]}}
+        # /DEBUG
         day_start = datetime.datetime(now.year, now.month, now.day, 0, 0, 0, 0)
         day_end = datetime.datetime(now.year, now.month, now.day, 23, 59, 59, 999)
         time_start = int(time.mktime(day_start.timetuple()))
@@ -296,6 +304,10 @@ def api_mean(sensor_id, watt_euros, day_month, db):
         times.append(time_end)
         hour_day = "hourly"
     elif day_month == "weekly":
+        # DEBUG
+        return {"data": {"global_mean": 354, "daily": [150, 100, 200, 400,
+                                                        2000, 4000, 234]}}
+        # /DEBUG
         day_start = datetime.datetime(now.year, now.month, now.day - now.weekday(), 0, 0, 0, 0)
         day_end = datetime.datetime(now.year, now.month, now.day + 6 - now.weekday(), 23, 59, 59, 999)
         time_start = int(time.mktime(day_start.timetuple()))
@@ -306,6 +318,16 @@ def api_mean(sensor_id, watt_euros, day_month, db):
         times.append(time_end)
         hour_day = "daily"
     elif day_month == "monthly":
+        # DEBUG
+        return {"data": {"global_mean": 354, "daily": [150, 100, 200, 400,
+                                                       2000, 4000, 234, 567,
+                                                       6413, 131, 364, 897,
+                                                       764, 264, 479, 20,
+                                                       274, 2644, 679, 69,
+                                                       264, 724, 274, 987,
+                                                       753, 746, 2752, 175,
+                                                       276, 486, 243]}}
+        # /DEBUG
         month_start = datetime.datetime(now.year, now.month, 1, 0, 0, 0, 0)
         month_end = datetime.datetime(now.year, now.month, last_day(now.month, now.year), 23, 59, 59, 999)
         time_start = int(time.mktime(month_start.timetuple()))
