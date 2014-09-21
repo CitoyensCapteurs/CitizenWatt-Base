@@ -21,7 +21,7 @@
                             <img alt="" src="{{ get_url('static', filename='img/tick.svg') }}" />Utilisateur
                         </a>
                         <a href="{{ get_url('settings') }}#sensors">
-                            <img alt="" src="{{ get_url('static', filename='img/loading.svg') }}" />Sensors
+                            <img alt="" src="{{ get_url('static', filename='img/loading.svg') }}" />Capteurs
                         </a>
                         <a href="{{ get_url('settings') }}">
                             <img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" />
