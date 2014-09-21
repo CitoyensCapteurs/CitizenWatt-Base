@@ -8,7 +8,7 @@
 	* Returns all the available sensors with their types
 * /api/<sensor:int>/get/by_id/<nb:int>
 	* Get measure with id nb
-	* Get measure starting from last one if nb < 0 (behaviour of Python lists)
+	* Get measure nth to last measure if nb < 0 (behaviour of Python lists)
 * /api/<sensor:int>/get/by_id/<nb1:int>/<nb2:int>
 	* Get all the measures with id between nb1 and nb2 (nb1 < nb2)
 	* Get all the measures between nb1 and nb2 starting from the end if nb1, nb2 < 0 (behaviour of Python lists)

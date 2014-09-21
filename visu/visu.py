@@ -145,8 +145,12 @@ def api_get_id(sensor, watt_euros, id1, db):
     return {"data": data}
     # /DEBUG
 
-    data = db.query(Measures).filter_by(sensor_id=sensor,
-                                        id=id1).first()
+    if id1 >= 0:
+        data = db.query(Measures).filter_by(sensor_id=sensor,
+                                            id=id1).first()
+    else:
+        data = db.query(Measures).filter_by(sensor_id=sensor).order_by(desc(Measures.id)).slice(id1, id1)
+
     if data:
         data = to_dict(data)
         if watt_euros == 'euros':
@@ -166,9 +170,15 @@ def api_get_ids(sensor, watt_euros, id1, id2):
     return {"data": data}
     # /DEBUG
 
-    data = db.query(Measures).filter(sensor_id == sensor,
-                                        id >= id1,
-                                        id <= id2).all()
+    if id1 >= 0 and id2 >= 0:
+        data = db.query(Measures).filter(sensor_id == sensor,
+                                         id >= id1,
+                                         id <= id2).all()
+    elif id1 <= 0 and id2 <= 0:
+        data = db.query(Measures).filter_by(sensor_id=sensor).order_by(desc(Measures.id)).slice(id1, id2)
+    else:
+        abort(404, "Wrong parameters id1 and id2.")
+
     if data:
         data = to_dict(data)
         if watt_euros == 'euros':
@@ -178,7 +188,7 @@ def api_get_ids(sensor, watt_euros, id1, id2):
         abort(404,
               "No relevant measures found.")
 
-@app.route("/api/<sensor:int>/get/<watt_euros:re[watt|euros]>/by_time/<time1:int>", apply=valid_user())
+@app.route("/api/<sensor:int>/get/<watt_euros:re[watt|euros]>/by_time/<time1:float>", apply=valid_user())
 def api_get_time(sensor, watt_euros, time1):
     if time1 < 0:
         abort(404, "Invalid timestamp.")
@@ -202,7 +212,7 @@ def api_get_time(sensor, watt_euros, time1):
               "No measures at timestamp " + str(time1) +
               " found for sensor " + str(sensor) + ".")
 
-@app.route("/api/<sensor:int>/get/<watt_euros:re[watt|euros]>/by_time/<time1:int>/<time2:int>",
+@app.route("/api/<sensor:int>/get/<watt_euros:re[watt|euros]>/by_time/<time1:float>/<time2:float>",
            apply=valid_user())
 def api_get_times(sensor, watt_euros, time1, time2):
     if time1 < 0 or time2 > 0:
