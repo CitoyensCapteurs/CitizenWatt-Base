@@ -131,7 +131,6 @@ class SQLAlchemyPlugin(object):
         use_kwargs = g('use_kwargs', self.use_kwargs)
 
         argspec = inspect.getargspec(_callback)
-        print(argspec.args)
         if not ((use_kwargs and argspec.keywords) or keyword in argspec.args):
             return callback
 

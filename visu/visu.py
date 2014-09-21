@@ -297,7 +297,6 @@ def install(db):
         electricity_type = MeasureType(name="Électricité")
         db.add(electricity_type)
         db.flush()
-        print(electricity_type.id)
 
         electricity_provider = Provider(type_id=electricity_type.id,
                                         slope_watt_euros=0.2317,
