@@ -1,5 +1,5 @@
 // General params
-var MAX_POWER = 3500
+var DEFAULT_MAX_VALUE = 1500
   , UPDATE_TIMEOUT = 2000 // En millisecondes
   , SIZE = 12 // Must be identical to @keyframes slidein (Used by Graph)
   , BORDER = 2 // Must be identical to #graph_values .rect (Used by Graph)
@@ -32,6 +32,7 @@ var Menu = function() {
 	  ;
 
 	api.onunitchange = function(unit){};
+	api.onmodechange = function(mode){};
 
 	/**
 	 * Add menu listeners
@@ -90,6 +91,7 @@ var Menu = function() {
 				return false;
 		}
 		mode = new_mode;
+		api.onmodechange(mode);
 		return true;
 	};
 
@@ -129,7 +131,7 @@ var Graph = function() {
 	 */
 	api.convertValue = function(v){ return v; };
 
-	api.max_value = MAX_POWER;
+	api.max_value = DEFAULT_MAX_VALUE;
 	api.unit = 'W';
 	api.type = 'energy';
 
@@ -161,6 +163,10 @@ var Graph = function() {
 		if (animated === undefined) animated = true;
 		power = parseInt(api.convertValue(power));
 
+		if (power > api.max_value) {
+			api.scaleVertically(power / api.max_value, 100);
+		}
+
 		var height = power / api.max_value * 100;
 		var div = document.createElement('div');
 		var blank = document.createElement('div');
@@ -188,7 +194,7 @@ var Graph = function() {
 		++n_values;
 		sum += power;
 		total = sum * UPDATE_TIMEOUT / 3600 / 1000000;
-		height = total / MAX_POWER * 100;
+		height = total / api.max_value * 100;
 		color_class = api.colorize(height);
 		day.className = 'blurry ' + color_class;
 		var timestamp = Math.round((new Date().getTime()) / 1000);
@@ -213,10 +219,60 @@ var Graph = function() {
 		graph_vertical_axis.appendChild(span);
 
 		span.style.bottom = height + '%';
-		span.innerHTML = power + api.unit;
+		span.setAttribute('cw-graduation-position', power / api.max_value);
+		api.updateVerticalGraduation(span);
 
 		return api;
 	}
+
+	/**
+	 * Update displayed value of vertical graduation
+	 * @param graduation: graduation to resize
+	 */
+	api.updateVerticalGraduation = function(graduation) {
+		var power = Math.round(graduation.getAttribute('cw-graduation-position') * api.max_value);
+		graduation.innerHTML = power + api.unit;
+		return api;
+	};
+
+	/**
+	 * Change single rect vertical scale without modifying the value it represents.
+	 * @param rect: rect to resize
+	 * @param ratio: Value by which multiply the rect vertical scale
+	 */
+	api.scaleRect = function(rect, ratio) {
+		var color = rect.getElementsByClassName('color')[0]
+		  , blank = rect.getElementsByClassName('blank')[0]
+		  ;
+		height = parseInt(color.style.height.slice(0, -1));
+		new_height = height / ratio;
+		color.style.height = new_height + '%';
+		blank.style.height = (100 - new_height) + '%';
+		return api;
+	};
+
+	/**
+	 * Change graph vertical scale
+	 * @param ratio: Value by which multiply the graph vertical scale
+	 * @param round: (optional) Round ratio for new max_value to be integer.
+	 */
+	api.scaleVertically = function(ratio, round) {
+		if (round !== undefined) {
+			ratio = Math.ceil(ratio * api.max_value / round) / api.max_value * round;
+		}
+		api.max_value = api.max_value * ratio;
+
+		var rects = graph_values.children;
+		for (var i = 0 ; i < rects.length ; i++) {
+			api.scaleRect(rects[i], ratio);
+		}
+		var graduations = graph_vertical_axis.children;
+		for (var i = 0 ; i < graduations.length ; i++) {
+			api.updateVerticalGraduation(graduations[i]);
+		}
+		return api;
+	};
+
 
 	/**
 	 * @return the width of the graph in number of values that can be displayed
@@ -243,7 +299,7 @@ var PriceGraph = function() {
 	var api = Graph();
 
 	api.convertValue = kWh_to_euros;
-	api.max_value = kWh_to_euros(MAX_POWER);
+	api.max_value = kWh_to_euros(api.max_value);
 	api.unit = '€';
 	api.type = 'price';
 
@@ -305,6 +361,12 @@ var App = function() {
 		}
 		graph.init();
 		api.initValues();
+	};
+
+	menu.onmodechange = function(mode) {
+		if (mode == 'day') {
+			graph.scaleVertically(2.0, 100.0);
+		}
 	};
 
 	/**
