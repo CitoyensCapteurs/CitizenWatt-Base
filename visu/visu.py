@@ -286,7 +286,13 @@ def login(db):
         session_manager.save(session)
         redirect('/')
     else:
-        return {"login": login}
+        return {
+            "login": login,
+            "err": {
+                "title": "Identifiants incorrects.",
+                "content": "Aucun utilisateur n'est enregistré à ce nom." if user else "Mot de passe erroné."
+            }
+        }
 
 
 @app.route("/logout", name="logout")
