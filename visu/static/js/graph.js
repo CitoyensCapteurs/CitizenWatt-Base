@@ -1,7 +1,6 @@
 // General params
-var DEFAULT_MAX_VALUE = 1500
-  , UPDATE_TIMEOUT = 2000 // En millisecondes
-  , SIZE = 12 // Must be identical to @keyframes slidein (Used by Graph)
+var UPDATE_TIMEOUT = 2000 // En millisecondes
+  , DEFAULT_RECT_WIDTH = 12
   , BORDER = 2 // Must be identical to #graph_values .rect (Used by Graph)
   ;
 
@@ -27,8 +26,8 @@ var Menu = function() {
 	  , week_btn = document.getElementById('scale-week')
 	  , month_btn = document.getElementById('scale-month')
 	  , toggle_unit = document.getElementById('toggle-unit')
-	  , mode = 'now'
-	  , unit = 'W'
+	  , mode = ''
+	  , unit = ''
 	  ;
 
 	api.onunitchange = function(unit, callback){};
@@ -91,8 +90,10 @@ var Menu = function() {
 			default:
 				return false;
 		}
-		mode = new_mode;
-		api.onmodechange(mode, callback);
+		if (new_mode != mode) {
+			mode = new_mode;
+			api.onmodechange(mode, callback);
+		}
 		return true;
 	};
 
@@ -110,8 +111,10 @@ var Menu = function() {
 			default:
 				return false;
 		}
-		unit = new_unit;
-		api.onunitchange(unit, callback);
+		if (new_unit != unit) {
+			unit = new_unit;
+			api.onunitchange(unit, callback);
+		}
 		return true;
 	};
 
@@ -159,7 +162,7 @@ var Graph = function() {
 	  , graph_vertical_axis = document.getElementById('graph_vertical_axis')
 	  , graph_values = document.getElementById('graph_values')
 	  , now = document.getElementById('now')
-	  , day = document.getElementById('day')
+	  , now_label = document.getElementById('now_label')
 	  , sum, n_values, mean
 	  ;
 
@@ -168,9 +171,11 @@ var Graph = function() {
 	 */
 	api.convertValue = function(v){ return v; };
 
-	api.max_value = DEFAULT_MAX_VALUE;
+	api.max_value = 1;
 	api.unit = 'W';
 	api.type = 'energy';
+	api.rect_width = DEFAULT_RECT_WIDTH;
+	api.rect_margin = BORDER;
 
 	/**
 	 * Set color class name from height (between 0.0 and 1.0)
@@ -183,7 +188,6 @@ var Graph = function() {
 	 * Init graph
 	 */
 	api.init = function() {
-		sum = 0;
 		n_values = 0;
 
 		var graduations = [0.00, 0.33, 0.66, 1.00]; // Graduation positions (relative)
@@ -192,6 +196,24 @@ var Graph = function() {
 		});
 		return api;
 	}
+
+	/**
+	 * Set value disaplyed in overview
+	 * @param power: value to display
+	 */
+	api.setOverview = function(power) {
+		now.innerHTML = Math.round(power) + api.unit;
+		var height = power / api.max_value * 100;
+		now.className = 'blurry ' + api.colorize(height);
+	};
+
+	/**
+	 * Set label under overview field.
+	 * @pram label: new label
+	 */
+	api.setOverviewLabel = function(label) {
+		now_label.innerHTML = label;
+	};
 
 
 	/**
@@ -217,49 +239,45 @@ var Graph = function() {
 
 		div.className = animated ? 'animated rect' : 'rect';
 		div.className += ' ' + api.type;
-		div.style.width = SIZE + 'px';
 
 		var color_class = api.colorize(height);
 		color.className = 'color ' + color_class + '-day';
-		color.style.width = SIZE + 'px';
 		color.style.height = height + '%';
 
 		blank.className = 'blank';
-		blank.style.width = SIZE + 'px';
+		blank.style.width = api.rect_width + 'px';
 		blank.style.height = (100 - height) + '%';
 
-		now.className = 'blurry ' + color_class;
-		now.innerHTML = power + api.unit;
-
 		++n_values;
-		sum += power;
-		total = sum * UPDATE_TIMEOUT / 3600 / 1000000;
-		height = total / api.max_value * 100;
-		color_class = api.colorize(height);
-		day.className = 'blurry ' + color_class;
-		var timestamp = Math.round((new Date().getTime()) / 1000);
-		day.innerHTML = Math.round(total * 1000)/1000 + 'kWh (' + kWh_to_euros(total)+'€)';
 
 		var max_values = api.getWidth();
 		if (n_values >= max_values) {
+			/*
+			graph_values.firstChild.style.width = '0';
+			graph_values.firstChild.addEventListener('transitionend', function(){
+				graph_values.removeChild(this);
+			}, false);
+			*/
 			graph_values.removeChild(graph_values.firstChild)
 		}
+
+		div.style.width = api.rect_width + 'px';
+		
 
 		return api;
 	}
 
 	/**
 	 * Add an horizontal graduation line (so a graduation for the vertical axis)
-	 * @param power: Power at which the graduation is added.
+	 * @param pos: Relative position at which the graduation is placed
 	 */
-	api.addVerticalGraduation = function(power) {
-		power = parseInt(power);
-		var height = power / api.max_value * 100;
+	api.addVerticalGraduation = function(pos) {
+		var height = pos * 100;
 		var span = document.createElement('span');
 		graph_vertical_axis.appendChild(span);
 
 		span.style.bottom = height + '%';
-		span.setAttribute('cw-graduation-position', power / api.max_value);
+		span.setAttribute('cw-graduation-position', pos);
 		api.updateVerticalGraduation(span);
 
 		return api;
@@ -288,6 +306,9 @@ var Graph = function() {
 		new_height = height / ratio;
 		color.style.height = new_height + '%';
 		blank.style.height = (100 - new_height) + '%';
+
+		var color_class = api.colorize(new_height);
+		color.className = 'color ' + color_class + '-day';
 		return api;
 	};
 
@@ -318,7 +339,7 @@ var Graph = function() {
 	 * @return the width of the graph in number of values that can be displayed
 	 */
 	api.getWidth = function() {
-		return Math.floor(graph.clientWidth / (SIZE + BORDER));
+		return Math.floor(graph.clientWidth / (api.rect_width + api.rect_margin));
 	};
 
 	/**
@@ -338,14 +359,22 @@ var Graph = function() {
 var PriceGraph = function() {
 	var api = Graph();
 
-	api.convertValue = kWh_to_euros;
-	api.max_value = kWh_to_euros(api.max_value);
 	api.unit = '€';
 	api.type = 'price';
 
 	api.colorize = function(t) {
 		return (t > 33.3 ? (t >= 66.7 ? 'dark-blue' : 'blue') : 'light-blue');
 	}
+
+	return api;
+};
+
+
+var StaticGraph = function() {
+	var api = Graph();
+
+	api.type = 'static';
+	api.rect_width = graph.clientWidth / 24;
 
 	return api;
 };
@@ -368,7 +397,12 @@ var DataProvider = function() {
 		req.send();
 		req.onreadystatechange = function() {
 			if (req.readyState == 4) {
-				res = JSON.parse(req.responseText);
+				try {
+					res = JSON.parse(req.responseText);
+				}
+				catch (e) {
+					console.log('ERROR', req.responseText);
+				}
 				callback(res.data);
 			}
 		}
@@ -402,17 +436,25 @@ var App = function() {
 	};
 
 	menu.onmodechange = function(mode, callback) {
-		if (mode == 'day') {
-			graph.clean();
-			graph.init();
-			api.initValues(callback);
+		graph.clean();
+		switch (mode) {
+			case 'now':
+				graph = Graph();
+				break;
+			case 'day':
+			case 'week':
+			case 'month':
+				graph = StaticGraph();
+				break;
 		}
+		graph.init();
+		api.initValues(callback);
 	};
 
 	/**
 	 * Callbacks
 	 */
-	api.oninit = function(){console.log('Not set')}; // called when init is done
+	api.oninit = function(){}; // called when init is done
 
 	/**
 	 * Init application.
@@ -424,11 +466,15 @@ var App = function() {
 		switch (location.hash) {
 			case '#euros':
 				graph = PriceGraph();
-				menu.setUnit('€', api.oninit);
+				menu.setUnit('€', function(){
+					menu.setMode('now', api.oninit);
+				});
 				break;
 
 			default:
-				menu.setUnit('W', api.oninit);
+				menu.setUnit('W', function(){
+					menu.setMode('now', api.oninit);
+				});
 		}
 	};
 
@@ -437,18 +483,56 @@ var App = function() {
 	 * @param callback: (optional)
 	 */
 	api.initValues = function(callback) {
-		var target = '/1/get/';
-		target += menu.getUnitString();
-		target += '/by_id/';
-		target += (-graph.getWidth()).toString();
-		target += '/0';
-		console.log(target);
-		provider.get(target, function(data) {
-			data.map(function(value) {
-				graph.addRect(value.power, false)
-			});
-			if (callback) callback();
-		});
+		switch (menu.getMode()) {
+			case 'now':
+				var target = '/1/get/';
+				target += menu.getUnitString();
+				target += '/by_id/';
+				target += (-graph.getWidth()).toString();
+				target += '/0';
+				provider.get(target, function(data) {
+					data.map(function(value) {
+						graph.addRect(value.power, false);
+						graph.setOverview(value.power);
+					});
+					graph.setOverviewLabel('Consommation actuelle');
+					if (callback) callback();
+				});
+				break;
+
+			case 'day':
+				var target = '/1/get/mean/';
+				target += menu.getUnitString();
+				target += '/daily';
+				provider.get(target, function(data) {
+					data.hourly.map(function(value) {
+						graph.addRect(value.power, false);
+					});
+					graph.setOverview(data.global);
+					graph.setOverviewLabel('Moyenne aujourd\'hui');
+					if (callback) callback();
+				});
+				break;
+
+			case 'week':
+			case 'month':
+				var target = '/1/get/mean/';
+				target += menu.getUnitString();
+				target += '/' + menu.getMode() + 'ly';
+				provider.get(target, function(data) {
+					data.daily.map(function(value) {
+						graph.addRect(value.power, false);
+					});
+					graph.setOverview(data.global);
+					graph.setOverviewLabel(menu.getMode() == 'week' ? 'Moyenne cette semaine' : 'Moyenne ce mois');
+					if (callback) callback();
+				});
+				break;
+
+			default:
+				if (callback) callback();
+		}
+
 
 		graph.last_call = Date.now() / 1000.0;
 	};
@@ -457,16 +541,19 @@ var App = function() {
 	 * Go and get new values. This function should be called regularely by the main loop.
 	 */
 	api.update = function() {
-		var target = '/1/get/';
-		target += menu.getUnitString();
-		target += '/by_time/'
-		target += graph.last_call + '/' + (graph.last_call = Date.now() / 1000.0);
+		if (menu.getMode() == 'now') {
+			var target = '/1/get/';
+			target += menu.getUnitString();
+			target += '/by_time/'
+			target += graph.last_call + '/' + (graph.last_call = Date.now() / 1000.0);
 
-		provider.get(target, function(data) {
-			data.map(function(value) {
-				graph.addRect(value.power)
+			provider.get(target, function(data) {
+				data.map(function(value) {
+					graph.addRect(value.power);
+					graph.setOverview(value.power);
+				});
 			});
-		});
+		}
 	};
 
 	return api;

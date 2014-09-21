@@ -357,13 +357,8 @@ footer p {
 }
 
 #graph_values .rect.animated {
-    animation-duration: 1s;
-    animation-name: slidein;
-}
-
-#graph_values .rect.animated .color {
-    animation-duration: 1s;
-    animation-name: slidein;
+    transition: width 1s;
+    width: 0;
 }
 
 #graph hr {
@@ -378,17 +373,6 @@ footer p {
 #graph_vertical_axis span {
     position:absolute;
 }
-
-@keyframes slidein {
-    from {
-        width: 0;
-    }
-
-    to {
-        width: 12px;
-    }
-}
-
 
 /******************************************************************************
  * 7. Échelle du graphe
