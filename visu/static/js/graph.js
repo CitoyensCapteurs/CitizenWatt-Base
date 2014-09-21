@@ -26,8 +26,8 @@ var Menu = function() {
 	  , week_btn = document.getElementById('scale-week')
 	  , month_btn = document.getElementById('scale-month')
 	  , toggle_unit = document.getElementById('toggle-unit')
-	  , mode = 'now'
-	  , unit = 'W'
+	  , mode = ''
+	  , unit = ''
 	  ;
 
 	api.onunitchange = function(unit, callback){};
@@ -90,8 +90,10 @@ var Menu = function() {
 			default:
 				return false;
 		}
-		mode = new_mode;
-		api.onmodechange(mode, callback);
+		if (new_mode != mode) {
+			mode = new_mode;
+			api.onmodechange(mode, callback);
+		}
 		return true;
 	};
 
@@ -109,8 +111,10 @@ var Menu = function() {
 			default:
 				return false;
 		}
-		unit = new_unit;
-		api.onunitchange(unit, callback);
+		if (new_unit != unit) {
+			unit = new_unit;
+			api.onunitchange(unit, callback);
+		}
 		return true;
 	};
 
@@ -251,7 +255,6 @@ var Graph = function() {
 			/*
 			graph_values.firstChild.style.width = '0';
 			graph_values.firstChild.addEventListener('transitionend', function(){
-				console.log('end');
 				graph_values.removeChild(this);
 			}, false);
 			*/
@@ -394,7 +397,12 @@ var DataProvider = function() {
 		req.send();
 		req.onreadystatechange = function() {
 			if (req.readyState == 4) {
-				res = JSON.parse(req.responseText);
+				try {
+					res = JSON.parse(req.responseText);
+				}
+				catch (e) {
+					console.log('ERROR', req.responseText);
+				}
 				callback(res.data);
 			}
 		}
@@ -430,7 +438,12 @@ var App = function() {
 	menu.onmodechange = function(mode, callback) {
 		graph.clean();
 		switch (mode) {
+			case 'now':
+				graph = Graph();
+				break;
 			case 'day':
+			case 'week':
+			case 'month':
 				graph = StaticGraph();
 				break;
 		}
@@ -453,11 +466,15 @@ var App = function() {
 		switch (location.hash) {
 			case '#euros':
 				graph = PriceGraph();
-				menu.setUnit('€', api.oninit);
+				menu.setUnit('€', function(){
+					menu.setMode('now', api.oninit);
+				});
 				break;
 
 			default:
-				menu.setUnit('W', api.oninit);
+				menu.setUnit('W', function(){
+					menu.setMode('now', api.oninit);
+				});
 		}
 	};
 
