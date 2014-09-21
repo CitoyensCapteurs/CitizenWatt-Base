@@ -212,8 +212,6 @@ def static(filename):
 
 @app.route('/', name="index", template="index", apply=valid_user())
 def index(db):
-    if not db.query(User).all():
-        redirect("/install")
     return {}
 
 
@@ -236,6 +234,8 @@ def target():
 
 @app.route("/login", name="login", template="login")
 def login():
+    if not db.query(User).all():
+        redirect("/install")
     session = session_manager.get_session()
     if session['valid'] is True:
         redirect('/')

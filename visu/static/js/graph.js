@@ -14,7 +14,7 @@ var start_time= Math.round((new Date().getTime()) / 1000)
  * Converts energy to price.
  */
 function kWh_to_euros(energy) {
-	return Math.round(100*(0.2317 + (0.1367 * energy)))/100;
+	return Math.round(100*(0.2317 + (0.1367 * energy)))/100;  // TODO: Use API here
 }
 
 /**
@@ -219,7 +219,7 @@ var Graph = function() {
 	}
 
 	/**
-	 * @return the width of the graph in number of values that can be displayed 
+	 * @return the width of the graph in number of values that can be displayed
 	 */
 	api.getWidth = function() {
 		return Math.floor(graph.clientWidth / (SIZE + BORDER));
