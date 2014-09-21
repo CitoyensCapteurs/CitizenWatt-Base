@@ -176,6 +176,7 @@ var Graph = function() {
 	api.type = 'energy';
 	api.rect_width = DEFAULT_RECT_WIDTH;
 	api.rect_margin = BORDER;
+	api.autoremove = true;
 
 	/**
 	 * Set color class name from height (between 0.0 and 1.0)
@@ -251,7 +252,7 @@ var Graph = function() {
 		++n_values;
 
 		var max_values = api.getWidth();
-		if (n_values >= max_values) {
+		if (api.autoremove && n_values > max_values) {
 			/*
 			graph_values.firstChild.style.width = '0';
 			graph_values.firstChild.addEventListener('transitionend', function(){
@@ -336,10 +337,17 @@ var Graph = function() {
 
 
 	/**
+	 * @return the width of the graph in pixels
+	 */
+	api.getPixelWidth = function() {
+		return graph.clientWidth;
+	};
+
+	/**
 	 * @return the width of the graph in number of values that can be displayed
 	 */
 	api.getWidth = function() {
-		return Math.floor(graph.clientWidth / (api.rect_width + api.rect_margin));
+		return Math.floor(api.getPixelWidth() / (api.rect_width + api.rect_margin));
 	};
 
 	/**
@@ -365,16 +373,6 @@ var PriceGraph = function() {
 	api.colorize = function(t) {
 		return (t > 33.3 ? (t >= 66.7 ? 'dark-blue' : 'blue') : 'light-blue');
 	}
-
-	return api;
-};
-
-
-var StaticGraph = function() {
-	var api = Graph();
-
-	api.type = 'static';
-	api.rect_width = graph.clientWidth / 24;
 
 	return api;
 };
@@ -437,16 +435,8 @@ var App = function() {
 
 	menu.onmodechange = function(mode, callback) {
 		graph.clean();
-		switch (mode) {
-			case 'now':
-				graph = Graph();
-				break;
-			case 'day':
-			case 'week':
-			case 'month':
-				graph = StaticGraph();
-				break;
-		}
+		graph = Graph();
+		graph.autoremove = mode == 'now';
 		graph.init();
 		api.initValues(callback);
 	};
@@ -505,8 +495,9 @@ var App = function() {
 				target += menu.getUnitString();
 				target += '/daily';
 				provider.get(target, function(data) {
+					graph.rect_width = graph.getPixelWidth() / data.hourly.length - graph.rect_margin;
 					data.hourly.map(function(value) {
-						graph.addRect(value.power, false);
+						graph.addRect(value, false);
 					});
 					graph.setOverview(data.global);
 					graph.setOverviewLabel('Moyenne aujourd\'hui');
@@ -520,8 +511,9 @@ var App = function() {
 				target += menu.getUnitString();
 				target += '/' + menu.getMode() + 'ly';
 				provider.get(target, function(data) {
+					graph.rect_width = graph.getPixelWidth() / data.daily.length - graph.rect_margin;
 					data.daily.map(function(value) {
-						graph.addRect(value.power, false);
+						graph.addRect(value, false);
 					});
 					graph.setOverview(data.global);
 					graph.setOverviewLabel(menu.getMode() == 'week' ? 'Moyenne cette semaine' : 'Moyenne ce mois');
