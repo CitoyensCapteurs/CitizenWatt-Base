@@ -1,6 +1,5 @@
 // General params
-var DEFAULT_MAX_VALUE = 1500
-  , UPDATE_TIMEOUT = 2000 // En millisecondes
+var UPDATE_TIMEOUT = 2000 // En millisecondes
   , SIZE = 12 // Must be identical to @keyframes slidein (Used by Graph)
   , BORDER = 2 // Must be identical to #graph_values .rect (Used by Graph)
   ;
@@ -168,7 +167,7 @@ var Graph = function() {
 	 */
 	api.convertValue = function(v){ return v; };
 
-	api.max_value = DEFAULT_MAX_VALUE;
+	api.max_value = 1;
 	api.unit = 'W';
 	api.type = 'energy';
 
@@ -250,16 +249,15 @@ var Graph = function() {
 
 	/**
 	 * Add an horizontal graduation line (so a graduation for the vertical axis)
-	 * @param power: Power at which the graduation is added.
+	 * @param pos: Relative position at which the graduation is placed
 	 */
-	api.addVerticalGraduation = function(power) {
-		power = parseInt(power);
-		var height = power / api.max_value * 100;
+	api.addVerticalGraduation = function(pos) {
+		var height = pos * 100;
 		var span = document.createElement('span');
 		graph_vertical_axis.appendChild(span);
 
 		span.style.bottom = height + '%';
-		span.setAttribute('cw-graduation-position', power / api.max_value);
+		span.setAttribute('cw-graduation-position', pos);
 		api.updateVerticalGraduation(span);
 
 		return api;
@@ -288,6 +286,9 @@ var Graph = function() {
 		new_height = height / ratio;
 		color.style.height = new_height + '%';
 		blank.style.height = (100 - new_height) + '%';
+
+		var color_class = api.colorize(new_height);
+		color.className = 'color ' + color_class + '-day';
 		return api;
 	};
 
@@ -338,8 +339,6 @@ var Graph = function() {
 var PriceGraph = function() {
 	var api = Graph();
 
-	api.convertValue = kWh_to_euros;
-	api.max_value = kWh_to_euros(api.max_value);
 	api.unit = '€';
 	api.type = 'price';
 
@@ -412,7 +411,7 @@ var App = function() {
 	/**
 	 * Callbacks
 	 */
-	api.oninit = function(){console.log('Not set')}; // called when init is done
+	api.oninit = function(){}; // called when init is done
 
 	/**
 	 * Init application.
@@ -444,6 +443,7 @@ var App = function() {
 		target += '/0';
 		console.log(target);
 		provider.get(target, function(data) {
+			console.log(data);
 			data.map(function(value) {
 				graph.addRect(value.power, false)
 			});
