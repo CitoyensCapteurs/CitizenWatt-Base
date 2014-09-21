@@ -158,6 +158,7 @@ var Graph = function() {
 	  , graph_vertical_axis = document.getElementById('graph_vertical_axis')
 	  , graph_values = document.getElementById('graph_values')
 	  , now = document.getElementById('now')
+	  , now_label = document.getElementById('now_label')
 	  , sum, n_values, mean
 	  ;
 
@@ -183,7 +184,6 @@ var Graph = function() {
 	 * Init graph
 	 */
 	api.init = function() {
-		sum = 0;
 		n_values = 0;
 
 		var graduations = [0.00, 0.33, 0.66, 1.00]; // Graduation positions (relative)
@@ -192,6 +192,24 @@ var Graph = function() {
 		});
 		return api;
 	}
+
+	/**
+	 * Set value disaplyed in overview
+	 * @param power: value to display
+	 */
+	api.setOverview = function(power) {
+		now.innerHTML = Math.round(power) + api.unit;
+		var height = power / api.max_value * 100;
+		now.className = 'blurry ' + api.colorize(height);
+	};
+
+	/**
+	 * Set label under overview field.
+	 * @pram label: new label
+	 */
+	api.setOverviewLabel = function(label) {
+		now_label.innerHTML = label;
+	};
 
 
 	/**
@@ -226,14 +244,7 @@ var Graph = function() {
 		blank.style.width = api.rect_width + 'px';
 		blank.style.height = (100 - height) + '%';
 
-		now.className = 'blurry ' + color_class;
-		now.innerHTML = power + api.unit;
-
 		++n_values;
-		sum += power;
-		total = sum * UPDATE_TIMEOUT / 3600 / 1000000;
-		height = total / api.max_value * 100;
-		color_class = api.colorize(height);
 
 		var max_values = api.getWidth();
 		if (n_values >= max_values) {
@@ -464,8 +475,10 @@ var App = function() {
 				target += '/0';
 				provider.get(target, function(data) {
 					data.map(function(value) {
-						graph.addRect(value.power, false)
+						graph.addRect(value.power, false);
+						graph.setOverview(value.power);
 					});
+					graph.setOverviewLabel('Consommation actuelle');
 					if (callback) callback();
 				});
 				break;
@@ -476,8 +489,10 @@ var App = function() {
 				target += '/daily';
 				provider.get(target, function(data) {
 					data.hourly.map(function(value) {
-						graph.addRect(value.power, false)
+						graph.addRect(value.power, false);
 					});
+					graph.setOverview(data.global);
+					graph.setOverviewLabel('Moyenne aujourd\'hui');
 					if (callback) callback();
 				});
 				break;
@@ -489,8 +504,10 @@ var App = function() {
 				target += '/' + menu.getMode() + 'ly';
 				provider.get(target, function(data) {
 					data.daily.map(function(value) {
-						graph.addRect(value.power, false)
+						graph.addRect(value.power, false);
 					});
+					graph.setOverview(data.global);
+					graph.setOverviewLabel(menu.getMode() == 'week' ? 'Moyenne cette semaine' : 'Moyenne ce mois');
 					if (callback) callback();
 				});
 				break;
@@ -515,7 +532,8 @@ var App = function() {
 
 			provider.get(target, function(data) {
 				data.map(function(value) {
-					graph.addRect(value.power)
+					graph.addRect(value.power);
+					graph.setOverview(value.power);
 				});
 			});
 		}
