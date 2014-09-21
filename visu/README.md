@@ -24,5 +24,5 @@
     * Returns all available energy providers
 * /api/<provider:int>/watt_euros/<consumption:int>
     * Returns the price associated to the consumption for the specified provider
-* /api/<sensor:int>/mean/[watts|euros]/[daily|monthly]
+* /api/<sensor:int>/mean/[watts|euros]/[daily|weekly|monthly]
     * Returns the mean for the last day/month and for each hour/day for the last day/month

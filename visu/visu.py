@@ -281,7 +281,7 @@ def api_watt_euros(energy_provider, consumption, db):
     else:
         abort(404, 'No matching provider found.')
 
-@app.route("/api/<sensor_id:int>/mean/<watt_euros:re:watts|euros>/<day_month:re:daily|monthly>",
+@app.route("/api/<sensor_id:int>/mean/<watt_euros:re:watts|euros>/<day_month:re:daily|weekly|monthly>",
            apply=valid_user())
 def api_mean(sensor_id, watt_euros, day_month, db):
     now = datetime.datetime.now()
@@ -295,7 +295,16 @@ def api_mean(sensor_id, watt_euros, day_month, db):
             times.append(time_i)
         times.append(time_end)
         hour_day = "hourly"
-
+    elif day_month == "weekly":
+        day_start = datetime.datetime(now.year, now.month, now.day - now.weekday(), 0, 0, 0, 0)
+        day_end = datetime.datetime(now.year, now.month, now.day + 6 - now.weekday(), 23, 59, 59, 999)
+        time_start = int(time.mktime(day_start.timetuple()))
+        time_end = int(time.mktime(day_end.timetuple()))
+        times = []
+        for time_i in range(time_start, time_end, 86400):
+            times.append(time_i)
+        times.append(time_end)
+        hour_day = "daily"
     elif day_month == "monthly":
         month_start = datetime.datetime(now.year, now.month, 1, 0, 0, 0, 0)
         month_end = datetime.datetime(now.year, now.month, last_day(now.month, now.year), 23, 59, 59, 999)
@@ -316,6 +325,9 @@ def api_mean(sensor_id, watt_euros, day_month, db):
 
     global_mean = db.query((func.avg(Measures.value)).label('average')).filter(Measures.timestamp >= times[0],
                                                                                Measures.timestamp <= times[-1]).first()
+    if global_mean == (None,):
+        global_mean = [-1]
+
     if global_mean:
         if watt_euros == 'euros':
             global_mean = api_watt_euros(0, global_mean[0], db)
