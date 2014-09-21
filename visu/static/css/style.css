@@ -465,11 +465,8 @@ footer p {
  * 9. Form
  */
 
-form {
-    text-align: center;
-}
 
-input {
+input, select {
     color: #444;
     border: 0;
     border-radius: 3px;
@@ -508,6 +505,12 @@ input[type="submit"] {
 }
 
 .form-item input {
+}
+
+.form-help {
+    text-transform: none;
+    color: #aaa;
+    margin: 0 1em;
 }
 
 /******************************************************************************
