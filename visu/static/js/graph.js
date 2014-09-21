@@ -158,7 +158,6 @@ var Graph = function() {
 	  , graph_vertical_axis = document.getElementById('graph_vertical_axis')
 	  , graph_values = document.getElementById('graph_values')
 	  , now = document.getElementById('now')
-	  , day = document.getElementById('day')
 	  , sum, n_values, mean
 	  ;
 
@@ -235,9 +234,6 @@ var Graph = function() {
 		total = sum * UPDATE_TIMEOUT / 3600 / 1000000;
 		height = total / api.max_value * 100;
 		color_class = api.colorize(height);
-		day.className = 'blurry ' + color_class;
-		var timestamp = Math.round((new Date().getTime()) / 1000);
-		day.innerHTML = Math.round(total * 1000)/1000 + 'kWh (' + kWh_to_euros(total)+'€)';
 
 		var max_values = api.getWidth();
 		if (n_values >= max_values) {
@@ -441,9 +437,7 @@ var App = function() {
 		target += '/by_id/';
 		target += (-graph.getWidth()).toString();
 		target += '/0';
-		console.log(target);
 		provider.get(target, function(data) {
-			console.log(data);
 			data.map(function(value) {
 				graph.addRect(value.power, false)
 			});
