@@ -18,10 +18,10 @@
                     <div class="menu">
                         <h1><a href="{{get_url('settings') }}"><img alt="" src="{{ get_url('static', filename='img/target.svg') }}" />Configuration</a></h1>
                         <a href="{{ get_url('settings') }}#user">
-                            <img alt="" src="{{ get_url('static', filename='img/tick.svg') }}" />Utilisateur
+                            <img alt="" src="{{ get_url('static', filename='img/user.svg') }}" />Utilisateur
                         </a>
                         <a href="{{ get_url('settings') }}#sensors">
-                            <img alt="" src="{{ get_url('static', filename='img/loading.svg') }}" />Capteurs
+                            <img alt="" src="{{ get_url('static', filename='img/sensor.svg') }}" />Capteurs
                         </a>
                         <a href="{{ get_url('settings') }}">
                             <img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" />

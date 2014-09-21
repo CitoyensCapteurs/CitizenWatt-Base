@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.91pre0 r13343"
    viewBox="0 0 32 32.000001"
-   sodipodi:docname="contact.svg">
+   sodipodi:docname="sensor.svg">
   <defs
      id="defs14624" />
   <sodipodi:namedview
@@ -67,33 +67,17 @@
        transform="matrix(0.29207305,0,0,0.29207305,120.82086,1047.1346)"
        id="g12326">
       <circle
+         id="circle5922"
          style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#5f5557;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:8;marker:none;enable-background:accumulate"
-         id="circle5950"
          cx="-289.85474"
          cy="-3386.084"
          r="54.780827" />
-      <g
-         transform="matrix(17.163012,0,0,17.163012,-463.70373,-1511.7869)"
-         id="g5960">
-        <circle
-           r="1.3624809"
-           cy="-109.19511"
-           cx="10.107313"
-           style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;stroke:#ffffff;stroke-width:0.16933334;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker:none;enable-background:accumulate"
-           id="circle5952"
-           d="m 11.469794,-109.19511 a 1.3624809,1.3624809 0 0 1 -1.362481,1.36248 1.3624809,1.3624809 0 0 1 -1.3624807,-1.36248 1.3624809,1.3624809 0 0 1 1.3624807,-1.36248 1.3624809,1.3624809 0 0 1 1.362481,1.36248 z" />
-        <path
-           sodipodi:nodetypes="ccc"
-           inkscape:connector-curvature="0"
-           id="path5956"
-           d="m 11.35146,-108.7036 c -0.711806,0.26399 -1.4912772,0.0711 -1.4912772,0.0711 0,0 0.4965642,0.52859 1.0854922,0.52141"
-           style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:0.16933334;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-        <path
-           inkscape:connector-curvature="0"
-           id="path5958"
-           d="m 10.241133,-110.03034 c 0.162511,0.17267 0.02031,0.55864 0.02031,0.55864"
-           style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:0.16933334;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      </g>
+      <path
+         style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#f1f1f1;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:5;marker:none;enable-background:accumulate"
+         d="m -306.26477,-3415.4098 c -1.57728,0 -2.85575,1.2778 -2.85575,2.8556 l 0,39.6685 -1.45543,1.2649 1.07098,1.0988 c 0,0 1.43482,-1.2414 1.48631,-1.2918 0.20939,-0.2077 0.28491,-0.4509 0.28491,-2.2514 l 0,-20.0279 9.07545,0 0,-9.1729 c 0,-0.3958 0.32439,-0.7214 0.72256,-0.7214 l 14.83623,0 c 0.39646,0 0.71055,0.3254 0.71055,0.7214 l 0,9.1729 10.21955,0 0,-18.4612 c 0,-1.578 -1.27866,-2.8558 -2.85594,-2.8558 z m -0.0113,22.7446 0,17.9544 c 0,1.578 0.82555,2.8558 2.40367,2.8558 l 0.81697,0 c 1.57728,0 2.86519,1.2778 2.86519,2.8557 l 0,12.0349 c 0,1.578 1.27693,2.8558 2.85576,2.8558 l 22.30727,0 c 1.57728,0 2.85594,-1.2778 2.85594,-2.8558 l 0,-35.7008 -10.21955,0 0,2.7335 c 0,0.3959 -0.31751,0.7115 -0.71056,0.7115 l -14.83639,0 c -0.39646,0 -0.72256,-0.3157 -0.72256,-0.7115 l 0,-2.7335 z"
+         id="path18125"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="sscccssccssssccssscssssssssccsssscc" />
     </g>
   </g>
 </svg>

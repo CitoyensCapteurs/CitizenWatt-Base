@@ -116,14 +116,8 @@ var Menu = function() {
 var Graph = function() {
 	var api = {};
 
-	var graph = document.getElementById('graph')
-	  , graph_vertical_axis = document.getElementById('graph_vertical_axis')
-	  , graph_values = document.getElementById('graph_values')
-	  , now = document.getElementById('now')
-	  , day = document.getElementById('day')
-	  , sum = 0
-	  , n_values = 0
-	  , mean
+	var graph, graph_vertical_axis, graph_values, now, day
+	  , sum, n_values, mean
 	  ;
 
 	/**
@@ -146,6 +140,15 @@ var Graph = function() {
 	 * Init graph
 	 */
 	api.init = function() {
+		graph = document.getElementById('graph')
+		graph_vertical_axis = document.getElementById('graph_vertical_axis')
+		graph_values = document.getElementById('graph_values')
+		now = document.getElementById('now')
+		day = document.getElementById('day')
+		sum = 0
+		n_values = 0
+		mean
+
 		var graduations = [0.00, 0.33, 0.66, 1.00]; // Graduation positions (relative)
 		graduations.map(function (t) {
 			api.addVerticalGraduation(api.max_value * t)
@@ -365,7 +368,9 @@ var App = function() {
 
 	menu.onmodechange = function(mode) {
 		if (mode == 'day') {
-			graph.scaleVertically(2.0, 100.0);
+			graph.clean();
+			graph.init();
+			api.initValues();
 		}
 	};
 
