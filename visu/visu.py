@@ -140,8 +140,8 @@ def api_sensors(db):
 def api_get_id(sensor, watt_euros, id1, db):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id1)]
-    if watt_euros == 'euros':
-        data = [api_watt_euros(0, i, db) for i in data]
+    if watt_euros == "euros":
+        data = [api_watt_euros(0, i["power"], db) for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -153,7 +153,7 @@ def api_get_id(sensor, watt_euros, id1, db):
 
     if data:
         data = to_dict(data)
-        if watt_euros == 'euros':
+        if watt_euros == "euros":
             data = [api_watt_euros(0, i["power"]) for i in data]
         return {"data": data}
     else:
@@ -162,11 +162,11 @@ def api_get_id(sensor, watt_euros, id1, db):
               " found for sensor " + str(sensor) + ".")
 
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|euros>/by_id/<id1:int>/<id2:int>", apply=valid_user())
-def api_get_ids(sensor, watt_euros, id1, id2):
+def api_get_ids(sensor, watt_euros, id1, id2, db):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id2)]
-    if watt_euros == 'euros':
-        data = [api_watt_euros(0, i, db) for i in data]
+    if watt_euros == "euros":
+        data = [api_watt_euros(0, i["power"], db) for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -189,14 +189,14 @@ def api_get_ids(sensor, watt_euros, id1, id2):
               "No relevant measures found.")
 
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|euros>/by_time/<time1:float>", apply=valid_user())
-def api_get_time(sensor, watt_euros, time1):
+def api_get_time(sensor, watt_euros, time1, db):
     if time1 < 0:
         abort(404, "Invalid timestamp.")
 
     # DEBUG
     data = [{"power": generate_value()} for i in range(time1)]
-    if watt_euros == 'euros':
-        data = [api_watt_euros(0, i, db) for i in data]
+    if watt_euros == "euros":
+        data = [api_watt_euros(0, i["power"], db) for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -214,14 +214,14 @@ def api_get_time(sensor, watt_euros, time1):
 
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|euros>/by_time/<time1:float>/<time2:float>",
            apply=valid_user())
-def api_get_times(sensor, watt_euros, time1, time2):
+def api_get_times(sensor, watt_euros, time1, time2, db):
     if time1 < 0 or time2 < time1:
         abort(404, "Invalid timestamps.")
 
     # DEBUG
     data = [{"power": generate_value()} for i in range(int(time2))]
-    if watt_euros == 'euros':
-        data = [api_watt_euros(0, i, db) for i in data]
+    if watt_euros == "euros":
+        data = [api_watt_euros(0, i["power"], db) for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -389,7 +389,10 @@ def install(db):
 
 @app.route("/install", name="install", template="install", method="post")
 def install_post(db):
-    if db.query(User).all():
+    try:
+        if db.query(User).all():
+            redirect('/')
+    except OperationnalError:
         redirect('/')
 
     login = request.forms.get("login").strip()
