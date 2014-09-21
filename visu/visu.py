@@ -287,7 +287,7 @@ def api_mean(sensor_id, watt_euros, day_month, db):
     now = datetime.datetime.now()
     if day_month == "daily":
         # DEBUG
-        return {"data": {"global_mean": 354, "hourly": [150, 100, 200, 400,
+        return {"data": {"global": 354, "hourly": [150, 100, 200, 400,
                                                         2000, 4000, 234, 567,
                                                         6413, 131, 364, 897,
                                                         764, 264, 479, 20,
@@ -305,7 +305,7 @@ def api_mean(sensor_id, watt_euros, day_month, db):
         hour_day = "hourly"
     elif day_month == "weekly":
         # DEBUG
-        return {"data": {"global_mean": 354, "daily": [150, 100, 200, 400,
+        return {"data": {"global": 354, "daily": [150, 100, 200, 400,
                                                         2000, 4000, 234]}}
         # /DEBUG
         day_start = datetime.datetime(now.year, now.month, now.day - now.weekday(), 0, 0, 0, 0)
@@ -319,7 +319,7 @@ def api_mean(sensor_id, watt_euros, day_month, db):
         hour_day = "daily"
     elif day_month == "monthly":
         # DEBUG
-        return {"data": {"global_mean": 354, "daily": [150, 100, 200, 400,
+        return {"data": {"global": 354, "daily": [150, 100, 200, 400,
                                                        2000, 4000, 234, 567,
                                                        6413, 131, 364, 897,
                                                        764, 264, 479, 20,
