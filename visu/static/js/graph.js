@@ -439,25 +439,24 @@ var App = function() {
 	api.initValues = function(callback) {
 		var target = '/1/get/';
 		target += menu.getUnitString();
-		target += '/by_id/'
+		target += '/by_id/';
 		target += (-graph.getWidth()).toString();
+		target += '/0';
+		console.log(target);
 		provider.get(target, function(data) {
 			data.map(function(value) {
 				graph.addRect(value.power, false)
 			});
 			if (callback) callback();
 		});
+
+		graph.last_call = Date.now() / 1000.0;
 	};
 
 	/**
 	 * Go and get new values. This function should be called regularely by the main loop.
 	 */
 	api.update = function() {
-		if (graph.last_call == undefined) {
-			graph.last_call = 0;
-		}
-		var now = Date.now()
-
 		var target = '/1/get/';
 		target += menu.getUnitString();
 		target += '/by_time/'

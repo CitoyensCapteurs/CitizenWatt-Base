@@ -14,7 +14,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
-MAX_VALUES = 100
+MAX_VALUES = 500
 
 def to_dict(model):
     """ Returns a JSON representation of an SQLAlchemy-backed object.
