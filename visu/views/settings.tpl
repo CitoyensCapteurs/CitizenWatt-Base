@@ -7,8 +7,8 @@
                     <form method="post" action="/settings">
                         <fieldset id="user">
                             <legend>Utilisateur</legend>
-                            <p><label for="password">Mot de passe&nbsp;: </label><input type="password" name="password" id="password"/></p>
-                            <p><label for="password_confirm">Mot de passe (confirmation)&nbsp;: </label><input type="password_confirm" name="password_confirm" id="password_confirm"/></p>
+                            <p class="form-item"><label for="password">Mot de passe&nbsp;: </label><input type="password" name="password" id="password"/></p>
+                            <p class="form-item"><label for="password_confirm">Mot de passe (confirmation)&nbsp;: </label><input type="password" name="password_confirm" id="password_confirm"/></p>
                             <p><input type="submit" value="Sauver"/></p>
                         </fieldset>
                         <fieldset id="sensors">

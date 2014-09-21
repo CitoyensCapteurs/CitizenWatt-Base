@@ -1,6 +1,7 @@
 % include('_begin.tpl', title='Accueil', page='home')
 
             <main>
+                <h1>Connexion</h1>
                 <form action="" method="post">
                     <p class="form-item">
                         <label for="login">Identifiant&nbsp;: </label>

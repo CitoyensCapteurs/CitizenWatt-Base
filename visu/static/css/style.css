@@ -458,6 +458,10 @@ footer p {
  * 9. Form
  */
 
+form {
+    text-align: center;
+}
+
 input {
     color: #444;
     border: 0;
@@ -475,6 +479,7 @@ input[type="submit"] {
     background-color: #BF6C3F;
     text-transform: uppercase;
     color: white;
+    margin: auto;
 }
 
 .form-item {
@@ -492,10 +497,40 @@ input[type="submit"] {
 }
 
 .form-item label {
-    width: 250px;
+    width: 275px;
 }
 
 .form-item input {
+}
+
+/******************************************************************************
+ * 10. Tableaux
+ */
+
+table {
+    text-align: center;
+    margin: auto;
+}
+
+table td, table th {
+    padding: 0.5em;
+    border: 1px solid white;
+}
+
+table tr td:first-child, table tr th:first-child {
+    border-left: none;
+}
+
+table tr td:last-child, table tr th:last-child {
+    border-right: none;
+}
+
+table tr:first-child td, table tr:first-child th {
+    border-top: none;
+}
+
+table tr:last-child td, table tr:last-child th {
+    border-bottom: none;
 }
 
 /******************************************************************************

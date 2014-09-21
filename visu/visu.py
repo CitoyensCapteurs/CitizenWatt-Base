@@ -225,7 +225,7 @@ def index():
 def conso():
     return {}
 
-@app.route('/settings', name='settings', template='settings')
+@app.route("/settings", name="settings", template="settings")
 def settings(db):
     sensors = db.query(Sensor).all()
     if sensors:
@@ -238,11 +238,25 @@ def settings(db):
         sensors = []
     return {"sensors": sensors}
 
-@app.route('/results', name='results', template='results')
+@app.route("/settings",
+           name="settings",
+           apply=valid_user(),
+           method="post")
+def settings_post(db):
+    password = request.forms.get("password").strip()
+    password_confirm = request.forms.get("password_confirm")
+
+    if password and password == password_confirm:
+        session = session_manager.get_session()
+        user = (db.query(User).filter_by(login=session["login"]).
+                update({"password": password},  synchronize_session=False))
+    redirect("/settings")
+
+@app.route("/results", name="results", template="results")
 def results():
     return {}
 
-@app.route('/help', name='help', template='help')
+@app.route("/help", name="help", template="help")
 def help():
     return {}
 
@@ -267,7 +281,7 @@ def login(db):
     session_manager.save(session)
     if user and user.password == request.forms.get("password"):
         session['valid'] = True
-        session['name'] = login
+        session['login'] = login
         session['is_admin'] = user.is_admin
         session_manager.save(session)
         redirect('/')
@@ -279,7 +293,7 @@ def login(db):
 def logout():
     session = session_manager.get_session()
     session['valid'] = False
-    del(session['name'])
+    del(session['login'])
     del(session['is_admin'])
     session_manager.save(session)
     redirect('/')
@@ -293,7 +307,7 @@ def install(db):
     return {"login": ''}
 
 @app.route("/install", name="install", template="install", method="post")
-def install(db):
+def install_post(db):
     if db.query(User).all():
         redirect('/')
 
@@ -328,4 +342,5 @@ def install(db):
 
 SimpleTemplate.defaults["get_url"] = app.get_url
 SimpleTemplate.defaults["API_URL"] = app.get_url("index")
+SimpleTemplate.defaults["valid_session"] = lambda : session_manager.get_session()['valid']
 run(app, host="0.0.0.0", port=8080, debug=True, reloader=True)

@@ -12,11 +12,14 @@
             <header>
                 <a href="{{ get_url('index') }}"><img src="{{ get_url('static', filename='img/logo.png') }}" alt="Logo CitizenWatt"/></a>
 
-                <nav id="menu">
-                    <a {{ !'class="active"' if page=='home' else '' }} href="{{ get_url('index') }}">Accueil</a>
-                    <a {{ !'class="active"' if page=='conso' else '' }} href="{{ get_url('conso') }}">Conso</a>
-                    <a {{ !'class="active"' if page=='settings' else '' }} href="{{ get_url('settings') }}">Configuration</a>
-                    <a {{ !'class="active"' if page=='help' else '' }} href="{{ get_url('help') }}">Guide</a>
-                    <a {{ !'class="active"' if page=='results' else '' }} href="{{ get_url('results') }}">Bilan</a>
-                </nav>
+                % if valid_session():
+                    <nav id="menu">
+                        <a {{ !'class="active"' if page=='home' else '' }} href="{{ get_url('index') }}">Accueil</a>
+                        <a {{ !'class="active"' if page=='conso' else '' }} href="{{ get_url('conso') }}">Conso</a>
+                        <a {{ !'class="active"' if page=='settings' else '' }} href="{{ get_url('settings') }}">Configuration</a>
+                        <a {{ !'class="active"' if page=='help' else '' }} href="{{ get_url('help') }}">Guide</a>
+                        <a {{ !'class="active"' if page=='results' else '' }} href="{{ get_url('results') }}">Bilan</a>
+                        <a href="{{ get_url('logout') }}">Déconnexion</a>
+                    </nav>
+                % end
             </header>
