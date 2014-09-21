@@ -143,7 +143,7 @@ def api_get_id(sensor, watt_euros, id1, db):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id1)]
     if watt_euros == "euros":
-        data = [api_watt_euros(0, i["power"], db) for i in data]
+        data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -156,7 +156,7 @@ def api_get_id(sensor, watt_euros, id1, db):
     if data:
         data = to_dict(data)
         if watt_euros == "euros":
-            data = [api_watt_euros(0, i["power"]) for i in data]
+            data = [{"power": api_watt_euros(0, i["power"])["data"]} for i in data]
         return {"data": data}
     else:
         abort(404,
@@ -168,7 +168,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id1, id2)]
     if watt_euros == "euros":
-        data = [api_watt_euros(0, i["power"], db) for i in data]
+        data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -187,7 +187,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
     if data:
         data = to_dict(data)
         if watt_euros == 'euros':
-            data = [api_watt_euros(0, i["power"]) for i in data]
+            data = [{"power": api_watt_euros(0, i["power"])["data"]} for i in data]
         return {"data": data}
     else:
         abort(404,
@@ -201,7 +201,7 @@ def api_get_time(sensor, watt_euros, time1, db):
     # DEBUG
     data = [{"power": generate_value()} for i in range(int(time1))]
     if watt_euros == "euros":
-        data = [api_watt_euros(0, i["power"], db) for i in data]
+        data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -210,7 +210,7 @@ def api_get_time(sensor, watt_euros, time1, db):
     if data:
         data = to_dict(data)
         if watt_euros == 'euros':
-            data = [api_watt_euros(0, i["power"]) for i in data]
+            data = [{"power": api_watt_euros(0, i["power"])["data"]} for i in data]
         return {"data": data}
     else:
         abort(404,
@@ -229,7 +229,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     # DEBUG
     data = [{"power": generate_value()} for i in range(int(time1), int(time2))]
     if watt_euros == "euros":
-        data = [api_watt_euros(0, i["power"], db) for i in data]
+        data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -239,7 +239,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     if data:
         data = to_dict(data)
         if watt_euros == 'euros':
-            data = [api_watt_euros(0, i["power"]) for i in data]
+            data = [{"power": api_watt_euros(0, i["power"])["data"]} for i in data]
         return {"data": data}
     else:
         abort(404,
