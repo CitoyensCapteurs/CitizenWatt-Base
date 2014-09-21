@@ -32,6 +32,7 @@ var Menu = function() {
 	  ;
 
 	api.onunitchange = function(unit){};
+	api.onmodechange = function(mode){};
 
 	/**
 	 * Add menu listeners
@@ -90,6 +91,7 @@ var Menu = function() {
 				return false;
 		}
 		mode = new_mode;
+		api.onmodechange(mode);
 		return true;
 	};
 
@@ -219,6 +221,53 @@ var Graph = function() {
 	}
 
 	/**
+	 * Change single vertical graduation scale
+	 * @param graduation: graduation to resize
+	 * @param ratio: Value by which multiply the vertical scale
+	 */
+	api.scaleVerticalGraduation = function(graduation, ratio) {
+		var value = parseInt(graduation.innerHTML.slice(0, -api.unit.length))
+		  , new_value = value * ratio;
+		graduation.innerHTML = new_value + api.unit;
+		return api;
+	};
+
+	/**
+	 * Change single rect vertical scale without modifying the value it represents.
+	 * @param rect: rect to resize
+	 * @param ratio: Value by which multiply the rect vertical scale
+	 */
+	api.scaleRect = function(rect, ratio) {
+		var color = rect.getElementsByClassName('color')[0]
+		  , blank = rect.getElementsByClassName('blank')[0]
+		  ;
+		height = parseInt(color.style.height.slice(0, -1));
+		new_height = height / ratio;
+		color.style.height = new_height + '%';
+		blank.style.height = (100 - new_height) + '%';
+		return api;
+	};
+
+	/**
+	 * Change graph vertical scale
+	 * @param ratio: Value by which multiply the graph vertical scale
+	 */
+	api.scaleVertically = function(ratio) {
+		var rects = graph_values.children;
+		for (var i = 0 ; i < rects.length ; i++) {
+			api.scaleRect(rects[i], ratio);
+		}
+		var graduations = graph_vertical_axis.children;
+		console.log(graduations);
+		for (var i = 0 ; i < graduations.length ; i++) {
+			console.log(graduations[i]);
+			api.scaleVerticalGraduation(graduations[i], ratio);
+		}
+		return api;
+	};
+
+
+	/**
 	 * @return the width of the graph in number of values that can be displayed
 	 */
 	api.getWidth = function() {
@@ -305,6 +354,12 @@ var App = function() {
 		}
 		graph.init();
 		api.initValues();
+	};
+
+	menu.onmodechange = function(mode) {
+		if (mode == 'day') {
+			graph.scaleVertically(2.0);
+		}
 	};
 
 	/**
