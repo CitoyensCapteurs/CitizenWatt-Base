@@ -8,7 +8,7 @@
                             <img alt="" src="{{ get_url('static', filename='img/small-data.svg') }}" />En cours
                         </a>
                         <a href="{{ get_url('conso') }}">
-                            <img alt="" src="{{ get_url('static', filename='img/month.svg') }}" />Par mois
+                            <img alt="" src="{{ get_url('static', filename='img/month.svg') }}" />Aperçu global
                         </a>
                         <a href="{{ get_url('conso') }}">
                             <img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" />
