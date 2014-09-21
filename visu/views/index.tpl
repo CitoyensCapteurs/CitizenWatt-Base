@@ -16,14 +16,14 @@
                     </div>
 
                     <div class="menu">
-                        <h1><a href="{{get_url('target') }}"><img alt="" src="{{ get_url('static', filename='img/target.svg') }}" />Objectifs</a></h1>
-                        <a href="{{ get_url('target') }}#ok">
-                            <img alt="" src="{{ get_url('static', filename='img/tick.svg') }}" />Atteints
+                        <h1><a href="{{get_url('settings') }}"><img alt="" src="{{ get_url('static', filename='img/target.svg') }}" />Configuration</a></h1>
+                        <a href="{{ get_url('settings') }}#user">
+                            <img alt="" src="{{ get_url('static', filename='img/tick.svg') }}" />Utilisateur
                         </a>
-                        <a href="{{ get_url('target') }}#wip">
-                            <img alt="" src="{{ get_url('static', filename='img/loading.svg') }}" />En cours
+                        <a href="{{ get_url('settings') }}#sensors">
+                            <img alt="" src="{{ get_url('static', filename='img/loading.svg') }}" />Sensors
                         </a>
-                        <a href="{{ get_url('target') }}">
+                        <a href="{{ get_url('settings') }}">
                             <img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" />
                         </a>
                     </div>

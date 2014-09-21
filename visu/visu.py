@@ -67,6 +67,7 @@ class Sensor(Base):
                      ForeignKey("measures_types.id", ondelete="CASCADE"),
                      nullable=False)
     measures = relationship("Measures", passive_deletes=True)
+    type = relationship("MeasureType", lazy="joined")
 
 
 class Measures(Base):
@@ -108,7 +109,12 @@ class User(Base):
 def api_sensors(db):
     sensors = db.query(Sensor).all()
     if sensors:
-        return {"data": [to_dict(sensor) for sensor in sensors]}
+        sensors = [{"id": sensor.id,
+                    "name": sensor.name,
+                    "type": sensor.type.name,
+                    "type_id": sensor.type_id
+                } for sensor in sensors]
+        return {"data": sensors}
     else:
         abort(404, "No sensors found.")
 
@@ -219,16 +225,25 @@ def index():
 def conso():
     return {}
 
-@app.route('/target', name='target', template='target')
-def target():
-    return {}
+@app.route('/settings', name='settings', template='settings')
+def settings(db):
+    sensors = db.query(Sensor).all()
+    if sensors:
+        sensors = [{"id": sensor.id,
+                    "name": sensor.name,
+                    "type": sensor.type.name,
+                    "type_id": sensor.type_id
+                } for sensor in sensors]
+    else:
+        sensors = []
+    return {"sensors": sensors}
 
 @app.route('/results', name='results', template='results')
-def target():
+def results():
     return {}
 
 @app.route('/help', name='help', template='help')
-def target():
+def help():
     return {}
 
 
