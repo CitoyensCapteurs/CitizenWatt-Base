@@ -9,7 +9,7 @@
                             <legend>Utilisateur</legend>
                             <p class="form-item"><label for="password">Mot de passe&nbsp;: </label><input type="password" name="password" id="password"/></p>
                             <p class="form-item"><label for="password_confirm">Mot de passe (confirmation)&nbsp;: </label><input type="password" name="password_confirm" id="password_confirm"/></p>
-                            <p>Laisser vide pour ne pas modifier le mot de passe.</p>
+                            <p class="form-help">Laisser vide pour ne pas modifier le mot de passe.</p>
 
                             <p class="form-item">
                                 <label for="provider">Fournisseur d'énergie&nbsp;: </label>

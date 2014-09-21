@@ -501,7 +501,7 @@ var App = function() {
 				break;
 
 			case 'day':
-				var target = '/1/get/mean/';
+				var target = '/1/mean/';
 				target += menu.getUnitString();
 				target += '/daily';
 				provider.get(target, function(data) {
@@ -516,7 +516,7 @@ var App = function() {
 
 			case 'week':
 			case 'month':
-				var target = '/1/get/mean/';
+				var target = '/1/mean/';
 				target += menu.getUnitString();
 				target += '/' + menu.getMode() + 'ly';
 				provider.get(target, function(data) {
