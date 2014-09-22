@@ -298,8 +298,11 @@ footer {
     bottom: 0;
     width: 100%;
 
-    text-align: right;
     font-size: 0.7em;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 footer p {
@@ -427,8 +430,9 @@ footer p {
     line-height: 3em;
 }
 
-.menu a:hover {
+.menu>a:hover {
     background-color: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
 }
 
 .menu a img {
@@ -486,6 +490,18 @@ input[type="submit"] {
     margin: auto;
 }
 
+fieldset {
+    border-radius: 3px;
+    border: none;
+    margin: 3em 0;
+}
+
+legend {
+    color: white;
+    font-size: 1.5em;
+}
+
+
 .form-item {
     display: -webkit-flex;
     display: flex;
@@ -509,8 +525,10 @@ input[type="submit"] {
 
 .form-help {
     text-transform: none;
-    color: #aaa;
+    color: #888;
     margin: 0 1em;
+    font-size: 0.9em;
+    margin-bottom: 2em;
 }
 
 /******************************************************************************

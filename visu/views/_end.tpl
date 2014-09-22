@@ -1,6 +1,15 @@
 
             <footer>
-                <p>Licence GNU GPL | <a href="http://citoyenscapteurs.net/">Citoyens Capteurs</a></p>
+                <p>
+                    % if valid_session():
+                    <a href="{{ get_url('logout') }}">
+                        <img alt="" src="{{ get_url('static', filename='img/logout.svg') }}" />Déconnexion
+                    </a>
+                    % end
+                </p>
+                <p>
+                    Licence GNU GPL | <a href="http://citoyenscapteurs.net/">Citoyens Capteurs</a>
+                </p>
             </footer>
         </div>
 

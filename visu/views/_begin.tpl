@@ -19,7 +19,6 @@
                         <a {{ !'class="active"' if page=='settings' else '' }} href="{{ get_url('settings') }}">Config</a>
                         <a {{ !'class="active"' if page=='help' else '' }} href="{{ get_url('help') }}">Guide</a>
                         <a {{ !'class="active"' if page=='results' else '' }} href="{{ get_url('results') }}">Bilan</a>
-                        <a href="{{ get_url('logout') }}">Déconnexion</a>
                     </nav>
                 % end
             </header>
