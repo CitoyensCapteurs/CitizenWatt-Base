@@ -116,13 +116,15 @@ class User(Base):
 # Useful functions
 def update_providers(db):
     json = requests.get("http://pub.phyks.me/tmp/electricity_providers.json")
+    old_current = db.query(Provider).filter_by(current=1).first()
     db.query(Provider).delete()
     providers = json.json()
     for provider in providers:
         provider_db = Provider(name=provider["name"],
                                constant_watt_euros=provider["constant_watt_euros"],
                                slope_watt_euros=provider["slope_watt_euros"],
-                               type_id=provider["type_id"])
+                               type_id=provider["type_id"],
+                               current=(1 if old_current.name == provider["name"] else 0))
         db.add(provider_db)
     return providers
 
