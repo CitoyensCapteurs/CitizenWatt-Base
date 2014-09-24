@@ -20,8 +20,8 @@ var Graph = function() {
 	api.max_value = 1;
 	api.unit = 'W';
 	api.type = 'energy';
-	api.rect_width = DEFAULT_RECT_WIDTH;
-	api.rect_margin = BORDER;
+	api.rect_width = Config.rect_width;
+	api.rect_margin = Config.rect_margin;
 	api.autoremove = true;
 
 	/**

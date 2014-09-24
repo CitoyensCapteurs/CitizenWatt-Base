@@ -6,8 +6,8 @@ function init() {
 	var app = App();
 
 	app.oninit = function() {
-		//app.update();
-		setTimeout(arguments.callee, UPDATE_TIMEOUT);
+		app.update();
+		setTimeout(arguments.callee, Config.update_timeout);
 	}
 
 	app.init();

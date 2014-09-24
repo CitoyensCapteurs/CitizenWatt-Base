@@ -43,11 +43,11 @@
 
 <%
     scripts = [
-        'conso/head',
         'conso/Menu',
         'conso/Graph',
         'conso/DataProvider',
         'conso/App',
+        'conso/Config',
         'conso/tail'
     ]
     include('_end.tpl', scripts=scripts)
