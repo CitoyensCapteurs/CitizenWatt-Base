@@ -271,6 +271,22 @@ def api_energy_providers(db):
     else:
         abort(404, 'No providers found.')
 
+@app.route("/api/energy_providers/<id:re:current|\d*>", apply=valid_user())
+def api_specific_energy_providers(id, db):
+    if id == "current":
+        provider = db.query(Provider).filter_by(current=1).first()
+    else:
+        try:
+            id = int(id)
+        except ValueError:
+            abort(404, "Invalid parameter.")
+
+        provider = db.query(Provider).filter_by(id=id).first()
+    if provider:
+        return {"data": to_dict(provider)}
+    else:
+        abort(404, 'No providers found.')
+
 @app.route("/api/<energy_provider:int>/watt_euros/<consumption:float>",
            apply=valid_user())
 def api_watt_euros(energy_provider, consumption, db):

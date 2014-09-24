@@ -22,6 +22,8 @@
 	* Idem as above, but filtering by values
 * /api/energy_providers/
     * Returns all available energy providers
+* /api/energy_providers/<current|<int>>
+    * Returns the targeted energy provider
 * /api/<provider:int>/watt_euros/<consumption:int>
     * Returns the price associated to the consumption for the specified provider
 * /api/<sensor:int>/mean/[watts|euros]/[daily|weekly|monthly]
