@@ -23,7 +23,7 @@ var App = function() {
 
 	menu.onmodechange = function(mode, callback) {
 		graph.clean();
-		graph = Graph();
+		graph = menu.getUnit() == 'W' ? Graph() : PriceGraph();
 		graph.autoremove = mode == 'now';
 		graph.init();
 		api.initValues(callback);
