@@ -124,7 +124,7 @@ def update_providers(db):
                                constant_watt_euros=provider["constant_watt_euros"],
                                slope_watt_euros=provider["slope_watt_euros"],
                                type_id=provider["type_id"],
-                               current=(1 if old_current.name == provider["name"] else 0))
+                               current=(1 if old_current and old_current.name == provider["name"] else 0))
         db.add(provider_db)
     return providers
 
