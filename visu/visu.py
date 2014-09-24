@@ -61,14 +61,19 @@ def get_rate_type(db):
         else:
             return "day"
 
-@event.listens_for(Engine, "connect")
-def set_sqlite_pragma(dbapi_connection, connection_record):
-    cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
+#@event.listens_for(Engine, "connect")
+#def set_sqlite_pragma(dbapi_connection, connection_record):
+#    """Enables foreign keys in SQLite"""
+#    cursor = dbapi_connection.cursor()
+#    cursor.execute("PRAGMA foreign_keys=ON")
+#    cursor.close()
 
 Base = declarative_base()
-engine = create_engine("sqlite:///tmp.db", echo=True)
+username = "citizenwatt"
+password = "citizenwatt"
+database = "citizenwatt"
+host = "localhost"
+engine = create_engine("mysql+pymysql://"+username+":"+password+"@"+host+"/"+database, echo=True)
 
 app = Bottle()
 plugin = sqlalchemy.Plugin(
@@ -89,7 +94,7 @@ valid_user = authenticator(session_manager, login_url='/login')
 class Sensor(Base):
     __tablename__ = "sensors"
     id = Column(Integer, primary_key=True)
-    name = Column(Text, unique=True)
+    name = Column(VARCHAR(255), unique=True)
     type_id = Column(Integer,
                      ForeignKey("measures_types.id", ondelete="CASCADE"),
                      nullable=False)
@@ -111,7 +116,7 @@ class Measures(Base):
 class Provider(Base):
     __tablename__ = "providers"
     id = Column(Integer, primary_key=True)
-    name = Column(Text, unique=True)
+    name = Column(VARCHAR(length=255), unique=True)
     type_id = Column(Integer,
                      ForeignKey("measures_types.id", ondelete="CASCADE"),
                      nullable=False)
@@ -123,13 +128,13 @@ class Provider(Base):
 class MeasureType(Base):
     __tablename__ = "measures_types"
     id = Column(Integer, primary_key=True)
-    name = Column(Text, unique=True)
+    name = Column(VARCHAR(255), unique=True)
 
 
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    login = Column(Text, unique=True)
+    login = Column(VARCHAR(length=255), unique=True)
     password = Column(Text)
     is_admin = Column(Integer)
     start_night_rate = Column(Integer)  # Stored as seconds since beginning of day
