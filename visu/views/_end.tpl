@@ -3,7 +3,7 @@
                 <p>
                     % if valid_session():
                     <a href="{{ get_url('logout') }}">
-                        <img alt="" src="{{ get_url('static', filename='img/logout.svg') }}" />Déconnexion
+                        Déconnexion
                     </a>
                     % end
                 </p>

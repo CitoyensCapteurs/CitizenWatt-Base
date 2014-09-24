@@ -1,3 +1,36 @@
+var HashManager = function() {
+	var api = {};
+	var unit, mode;
+
+	components = location.hash.slice(1).split('-');
+	unit = components[0];
+	mode = components[1] || 'now';
+
+	api.updateHash= function(){
+		location.hash = '#' + unit + '-' + mode;
+	};
+
+	api.setUnit = function(new_unit) {
+		unit = new_unit;
+		api.updateHash();
+	};
+
+	api.getUnit = function() {
+		return unit;
+	};
+
+	api.setMode = function(new_mode) {
+		mode = new_mode;
+		api.updateHash();
+	};
+
+	api.getMode = function() {
+		return mode;
+	};
+
+	return api;
+};
+
 /**
  * Core application
  */
@@ -6,16 +39,17 @@ var App = function() {
 	var graph = Graph()
 	  , provider = DataProvider()
 	  , menu = Menu()
+	  , hash = HashManager()
 	  ;
 
 	menu.onunitchange = function(unit, callback) {
 		graph.clean();
 		if (unit == '€') {
 			graph = PriceGraph();
-			location.hash = '#euros';
+			hash.setUnit('euros');
 		} else {
 			graph = Graph();
-			location.hash = '#watt';
+			hash.setUnit('watt');
 		}
 		graph.init();
 		api.initValues(callback);
@@ -23,9 +57,10 @@ var App = function() {
 
 	menu.onmodechange = function(mode, callback) {
 		graph.clean();
-		graph = menu.getUnit() == 'W' ? Graph() : PriceGraph();
+		graph = hash.getUnit() == 'watt' ? Graph() : PriceGraph();
 		graph.autoremove = mode == 'now';
 		graph.init();
+		hash.setMode(mode);
 		api.initValues(callback);
 	};
 
@@ -41,17 +76,17 @@ var App = function() {
 	api.init = function() {
 		menu.init();
 
-		switch (location.hash) {
-			case '#euros':
+		switch (hash.getUnit()) {
+			case 'euros':
 				graph = PriceGraph();
 				menu.setUnit('€', function(){
-					menu.setMode('now', api.oninit);
+					menu.setMode(hash.getMode(), api.oninit);
 				});
 				break;
 
 			default:
 				menu.setUnit('W', function(){
-					menu.setMode('now', api.oninit);
+					menu.setMode(hash.getMode(), api.oninit);
 				});
 		}
 	};
