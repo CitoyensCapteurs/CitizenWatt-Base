@@ -78,27 +78,21 @@ var Graph = function() {
 
 		var height = power / api.max_value * 100;
 		var div = document.createElement('div');
-		var blank = document.createElement('div');
-		var color = document.createElement('div');
 		graph_values.appendChild(div);
-		div.appendChild(blank);
-		div.appendChild(color);
 
-		div.className = animated ? 'animated rect' : 'rect';
-		div.className += ' ' + api.type;
+		var width_div = document.createElement('div');
+		div.appendChild(width_div);
 
 		var color_class = api.colorize(height);
-		color.className = 'color ' + color_class + '-day';
-		color.style.height = height + '%';
-
-		blank.className = 'blank';
-		blank.style.width = api.rect_width + 'px';
-		blank.style.height = (100 - height) + '%';
+		div.className = animated ? 'animated rect' : 'rect';
+		div.className += ' ' + color_class + '-day';
+		div.className += ' ' + api.type;
+		div.style.height = height + '%';
 
 		++n_values;
 
 		var max_values = api.getWidth();
-		if (api.autoremove && n_values > max_values) {
+		if (api.autoremove && n_values > max_values + 2) {
 			/*
 			graph_values.firstChild.style.width = '0';
 			graph_values.firstChild.addEventListener('transitionend', function(){
@@ -109,7 +103,8 @@ var Graph = function() {
 		}
 
 		div.style.width = api.rect_width + 'px';
-		
+		width_div.style.width = api.rect_width + 'px';
+
 
 		return api;
 	}
@@ -146,16 +141,12 @@ var Graph = function() {
 	 * @param ratio: Value by which multiply the rect vertical scale
 	 */
 	api.scaleRect = function(rect, ratio) {
-		var color = rect.getElementsByClassName('color')[0]
-		  , blank = rect.getElementsByClassName('blank')[0]
-		  ;
-		height = parseInt(color.style.height.slice(0, -1));
+		height = parseInt(rect.style.height.slice(0, -1));
 		new_height = height / ratio;
-		color.style.height = new_height + '%';
-		blank.style.height = (100 - new_height) + '%';
+		rect.style.height = new_height + '%';
 
 		var color_class = api.colorize(new_height);
-		color.className = 'color ' + color_class + '-day';
+		rect.className = rect.className.replace(/\w*-day/, color_class + '-day');
 		return api;
 	};
 
