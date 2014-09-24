@@ -11,7 +11,7 @@ from json import load, dumps
 from bottle import abort, Bottle, SimpleTemplate, static_file, redirect, request, run
 from bottle.ext import sqlalchemy
 from bottlesession import PickleSession, authenticator
-from sqlalchemy import create_engine, Column, DateTime, desc, event, Float, ForeignKey, Integer, Text
+from sqlalchemy import create_engine, Column, DateTime, desc, event, Float, ForeignKey, Integer, Text, VARCHAR
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -187,8 +187,10 @@ def api_sensors(db):
 @app.route("/api/<sensor:int>/get/watts/by_id/<id1:int>", apply=valid_user())
 def api_get_id(sensor, watt_euros, id1, db):
     # DEBUG
-    data = [{"power": generate_value()} for i in range(id1)]
-    return {"data": data, "rate": get_rate_type(db)}
+    #data = [{"power": generate_value()} for i in range(id1)]
+    #if watt_euros == "euros":
+    #    data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
+    #return {"data": data, "rate": get_rate_type(db)}
     # /DEBUG
 
     if id1 >= 0:
@@ -208,10 +210,10 @@ def api_get_id(sensor, watt_euros, id1, db):
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|euros>/by_id/<id1:int>/<id2:int>", apply=valid_user())
 def api_get_ids(sensor, watt_euros, id1, id2, db):
     # DEBUG
-    data = [{"power": generate_value()} for i in range(id1, id2)]
-    if watt_euros == "euros":
-        data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
-    return {"data": data, "rate": get_rate_type(db)}
+    #data = [{"power": generate_value()} for i in range(id1, id2)]
+    #if watt_euros == "euros":
+    #    data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
+    #return {"data": data, "rate": get_rate_type(db)}
     # /DEBUG
 
     if id1 >= 0 and id2 >= 0 and id2 >= id1:
@@ -219,7 +221,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
                                          id >= id1,
                                          id <= id2).all()
     elif id1 <= 0 and id2 <= 0 and id2 >= id1:
-        data = db.query(Measures).filter_by(sensor_id=sensor).order_by(desc(Measures.id)).slice(-id2, -id1)
+        data = db.query(Measures).filter_by(sensor_id=sensor).order_by(desc(Measures.id)).slice(-id2,-id1).all()
     else:
         abort(404, "Wrong parameters id1 and id2.")
 
@@ -246,8 +248,10 @@ def api_get_time(sensor, watt_euros, time1, db):
         abort(404, "Invalid timestamp.")
 
     # DEBUG
-    data = [{"power": generate_value()} for i in range(int(time1))]
-    return {"data": data, "rate": get_rate_type(db)}
+    #data = [{"power": generate_value()} for i in range(int(time1))]
+    #if watt_euros == "euros":
+    #    data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
+    #return {"data": data, "rate": get_rate_type(db)}
     # /DEBUG
 
     data = db.query(Measures).filter_by(sensor_id=sensor,
@@ -270,10 +274,10 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
         abort(403, "Too many values to return. (Maximum is set to %d)" % (MAX_VALUES,))
 
     # DEBUG
-    data = [{"power": generate_value()} for i in range(int(time1), int(time2))]
-    if watt_euros == "euros":
-        data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
-    return {"data": data, "rate": get_rate_type(db)}
+    #data = [{"power": generate_value()} for i in range(int(time1), int(time2))]
+    #if watt_euros == "euros":
+    #    data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
+    #return {"data": data, "rate": get_rate_type(db)}
     # /DEBUG
 
     data = db.query(Measures).filter(sensor_id == sensor,
@@ -338,12 +342,12 @@ def api_mean(sensor_id, watt_euros, day_month, db):
     now = datetime.datetime.now()
     if day_month == "daily":
         # DEBUG
-        return {"data": {"global": 354, "hourly": [150, 100, 200, 400,
-                                                        2000, 4000, 234, 567,
-                                                        6413, 131, 364, 897,
-                                                        764, 264, 479, 20,
-                                                        274, 2644, 679, 69,
-                                                        264, 724, 274, 987]}, "rate": get_rate_type(db)}
+        #return {"data": {"global": 354, "hourly": [150, 100, 200, 400,
+        #                                                2000, 4000, 234, 567,
+        #                                                6413, 131, 364, 897,
+        #                                                764, 264, 479, 20,
+        #                                                274, 2644, 679, 69,
+        #                                                264, 724, 274, 987]}, "rate": get_rate_type(db)}
         # /DEBUG
         length_step = 3600
         day_start = datetime.datetime(now.year, now.month, now.day, 0, 0, 0, 0)
@@ -357,8 +361,8 @@ def api_mean(sensor_id, watt_euros, day_month, db):
         hour_day = "hourly"
     elif day_month == "weekly":
         # DEBUG
-        return {"data": {"global": 354, "daily": [150, 100, 200, 400,
-                                                        2000, 4000, 234]}, "rate": get_rate_type(db)}
+        #return {"data": {"global": 354, "daily": [150, 100, 200, 400,
+        #                                                2000, 4000, 234]}, "rate": get_rate_type(db)}
         # /DEBUG
         length_step = 86400
         day_start = datetime.datetime(now.year, now.month, now.day - now.weekday(), 0, 0, 0, 0)
@@ -372,14 +376,14 @@ def api_mean(sensor_id, watt_euros, day_month, db):
         hour_day = "daily"
     elif day_month == "monthly":
         # DEBUG
-        return {"data": {"global": 354, "daily": [150, 100, 200, 400,
-                                                       2000, 4000, 234, 567,
-                                                       6413, 131, 364, 897,
-                                                       764, 264, 479, 20,
-                                                       274, 2644, 679, 69,
-                                                       264, 724, 274, 987,
-                                                       753, 746, 2752, 175,
-                                                       276, 486, 243]}, "rate": get_rate_type(db)}
+        #return {"data": {"global": 354, "daily": [150, 100, 200, 400,
+        #                                               2000, 4000, 234, 567,
+        #                                               6413, 131, 364, 897,
+        #                                               764, 264, 479, 20,
+        #                                               274, 2644, 679, 69,
+        #                                               264, 724, 274, 987,
+        #                                               753, 746, 2752, 175,
+        #                                               276, 486, 243]}, "rate": get_rate_type(db)}
         # /DEBUG
         length_step = 86400
         month_start = datetime.datetime(now.year, now.month, 1, 0, 0, 0, 0)
