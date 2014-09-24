@@ -3,7 +3,6 @@
  */
 var DataProvider = function() {
 	var api = {};
-	var req = new XMLHttpRequest();
 
 	/**
 	 * Get new data from server.
@@ -11,6 +10,7 @@ var DataProvider = function() {
 	 * @param callback: callback that take data as first argument
 	 */
 	api.get = function(target, callback) {
+		var req = new XMLHttpRequest();
 		req.open('GET', API_URL + target, true);
 		req.send();
 		req.onreadystatechange = function() {

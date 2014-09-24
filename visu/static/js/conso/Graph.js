@@ -92,7 +92,7 @@ var Graph = function() {
 		++n_values;
 
 		var max_values = api.getWidth();
-		if (api.autoremove && n_values > max_values + 2) {
+		if (api.autoremove && n_values > max_values + 1) {
 			/*
 			graph_values.firstChild.style.width = '0';
 			graph_values.firstChild.addEventListener('transitionend', function(){
@@ -146,7 +146,7 @@ var Graph = function() {
 		rect.style.height = new_height + '%';
 
 		var color_class = api.colorize(new_height);
-		rect.className = rect.className.replace(/\w*-day/, color_class + '-day');
+		rect.className = rect.className.replace(/[^ ]*-day/, color_class + '-day');
 		return api;
 	};
 
