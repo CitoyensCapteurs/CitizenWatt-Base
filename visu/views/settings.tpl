@@ -46,4 +46,4 @@
             
             </main>
 
-% include('_end.tpl', script='settings')
+% include('_end.tpl', scripts=['settings'])
