@@ -80,14 +80,18 @@ var Graph = function() {
 		var div = document.createElement('div');
 		graph_values.appendChild(div);
 
-		var width_div = document.createElement('div');
-		div.appendChild(width_div);
+		var info = document.createElement('div');
+		div.appendChild(info);
+
+		info.className = 'rect-info';
+		info.innerHTML = Math.round(power) + api.unit;
 
 		var color_class = api.colorize(height);
 		div.className = animated ? 'animated rect' : 'rect';
 		div.className += ' ' + color_class + '-day';
 		div.className += ' ' + api.type;
 		div.style.height = height + '%';
+		
 
 		++n_values;
 
@@ -103,7 +107,6 @@ var Graph = function() {
 		}
 
 		div.style.width = api.rect_width + 'px';
-		width_div.style.width = api.rect_width + 'px';
 
 
 		return api;

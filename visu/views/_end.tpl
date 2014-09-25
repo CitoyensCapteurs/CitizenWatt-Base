@@ -1,4 +1,5 @@
-
+            
+            <div class="clearfix pre-footer"></>
             <footer>
                 <p>
                     % if valid_session():

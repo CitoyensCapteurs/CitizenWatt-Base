@@ -215,6 +215,14 @@ main {
     font-weight: 200;
 }
 
+/*
+ * 2.x Other
+ */
+
+.clearfix {
+    clear: both;
+}
+
 
 /******************************************************************************
  * 3. Header
@@ -309,6 +317,10 @@ footer p {
     margin: 0.2em;
 }
 
+.pre-footer {
+    margin-bottom: 2em;
+}
+
 
 
 /******************************************************************************
@@ -381,6 +393,20 @@ footer p {
 #graph_values .rect.animated {
     transition: width 1s;
     width: 0;
+}
+
+#graph_values .rect-info {
+    color: #ddd;
+    background-color: rgba(0,0,0,0.8);
+    border-radius: 3px;
+    padding: 3px;
+    position: absolute;
+    margin: auto;
+    display: none;
+}
+
+#graph_values .rect:hover .rect-info {
+    display: block;
 }
 
 #graph hr {
@@ -587,6 +613,7 @@ table tr:last-child td, table tr:last-child th {
     position: relative;
     min-height: 100%;
     margin: 0;
+    overflow: hidden;
 }
 
 
