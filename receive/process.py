@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import binascii
 import datetime
 import os
 import struct
@@ -55,6 +56,23 @@ class MeasureType(Base):
     name = Column(VARCHAR(255), unique=True)
 
 
+# Test
+cipher = [0xFE, 0xE4, 0xD1, 0x5D,
+          0xD2, 0xB3, 0x68, 0x1B,
+          0xDE, 0x1D, 0xBC, 0xBD,
+          0xFF, 0x49, 0x37, 0xF8]
+clear = [0x58, 0x2A, 0x00, 0x00,
+         0x74, 0x0D, 0x8C, 0x11,
+         0x00, 0x00, 0x00, 0x00,
+         0x00, 0x00, 0x00, 0x00]
+clear = struct.pack("<16B", *clear)
+cipher = struct.pack("<16B", *cipher)
+decryptor = AES.new(key, AES.MODE_ECB)
+print(decryptor.encrypt(clear))
+print(decryptor.decrypt(cipher))
+sys.exit()
+# /Test
+
 try:
     os.mkfifo(namedfifo)
 except OSError:
@@ -77,11 +95,11 @@ with open(namedfifo, 'rb') as fifo:
     if not sensor or not type:
         warning("Got packet "+str(measure)+" but install is not complete ! " +
                 "Visit http://citizenwatt first.")
-        continue
-    measure_db = Measures(sensor_id=sensor.id,
-                          type_id=type.id,
-                          measures=power,
-                          timestamp=datetime.datetime.now)
-    db.add(measure_db)
-    db.commit()
-    print("Saved successfully.")
+    else:
+        measure_db = Measures(sensor_id=sensor.id,
+                            type_id=type.id,
+                            measures=power,
+                            timestamp=datetime.datetime.now)
+        db.add(measure_db)
+        db.commit()
+        print("Saved successfully.")
