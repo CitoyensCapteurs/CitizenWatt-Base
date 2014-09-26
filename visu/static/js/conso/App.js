@@ -101,7 +101,7 @@ var App = function() {
 				var target = '/1/get/';
 				target += menu.getUnitString();
 				target += '/by_id/';
-				target += (-graph.getWidth()).toString();
+				target += (-graph.getWidth()-1).toString();
 				target += '/0';
 				provider.get(target, function(data) {
 					data.map(function(value) {

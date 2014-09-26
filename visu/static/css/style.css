@@ -402,10 +402,18 @@ footer p {
     background-color: rgba(0,0,0,0.8);
     border-radius: 3px;
     padding: 3px;
+    box-sizing: border-box;
+    text-align: center;
+
     position: absolute;
-    margin: auto;
-    display: none;
+    top: 0;
+    
+    width: 6em;
+    left: 50%;
+    margin-left: -3em;
+    
     z-index: 20;
+    display: none;
 }
 
 #graph_values .rect:hover .rect-info {
@@ -420,6 +428,7 @@ footer p {
     position: absolute;
     bottom: 0;
     width: 100%;
+    z-index: 10;
 }
 
 #graph hr {

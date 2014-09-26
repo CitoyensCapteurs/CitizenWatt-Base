@@ -111,7 +111,10 @@ var Graph = function() {
 		++n_values;
 
 		var max_values = api.getWidth();
-		if (api.autoremove && n_values > max_values + 1) {
+		// Le +10 c'est pour prendre de la marge. On ne peut pas mettre
+		// simplement 1 sinon ça se voit lorsque plusieurs nouvelles mesures
+		// arrivent en même temps.
+		if (api.autoremove && n_values > max_values + 10) {
 			/*
 			graph_values.firstChild.style.width = '0';
 			graph_values.firstChild.addEventListener('transitionend', function(){
