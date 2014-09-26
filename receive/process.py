@@ -56,23 +56,6 @@ class MeasureType(Base):
     name = Column(VARCHAR(255), unique=True)
 
 
-# Test
-cipher = [0xFE, 0xE4, 0xD1, 0x5D,
-          0xD2, 0xB3, 0x68, 0x1B,
-          0xDE, 0x1D, 0xBC, 0xBD,
-          0xFF, 0x49, 0x37, 0xF8]
-clear = [0x58, 0x2A, 0x00, 0x00,
-         0x74, 0x0D, 0x8C, 0x11,
-         0x00, 0x00, 0x00, 0x00,
-         0x00, 0x00, 0x00, 0x00]
-clear = struct.pack("<16B", *clear)
-cipher = struct.pack("<16B", *cipher)
-decryptor = AES.new(key, AES.MODE_ECB)
-print(decryptor.encrypt(clear))
-print(decryptor.decrypt(cipher))
-sys.exit()
-# /Test
-
 try:
     os.mkfifo(namedfifo)
 except OSError:
@@ -80,10 +63,10 @@ except OSError:
 
 with open(namedfifo, 'rb') as fifo:
     measure = fifo.read(16)
-    print("New incoming measure:" + measure)
     decryptor = AES.new(key, AES.MODE_ECB)
     measure = decryptor.decrypt(measure)
     measure = struct.unpack("<HHHLlH", measure)
+    print("New incoming measure:" + measure)
     power = measure[0]
     voltage = measure[1]
     battery = measure[2]
