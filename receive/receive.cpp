@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
-#include "../RF24.h"
+#include <RF24.h>
 
 volatile sig_atomic_t flag = 0;
 void quit(int sig) {
@@ -91,5 +91,5 @@ int main() {
             // Maybe needed ? fflush(fd)
         }
     }
-    close(fd)
+    close(fd);
 }
