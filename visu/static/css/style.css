@@ -246,7 +246,7 @@ header {
     align-items: center;
 }
 
-header img {
+.header-logo img {
     margin: 2px 0;
     margin-left: 3em;
     vertical-align: top;
@@ -288,6 +288,37 @@ header img {
 
 #menu a.active:hover {
     border-bottom: 3px solid #ad7556;
+}
+
+/*
+ * 3.2. Rate logo
+ */
+
+.rate-logo {
+    cursor: help;
+    position: relative;
+    margin-left: 2em;
+    margin-right: auto;
+}
+
+.rate-logo img {
+    width: 2em;
+}
+
+.rate-logo span {
+    position: absolute;
+    width: 8em;
+    left: 50%;
+    margin-left: -4em;
+    background-color: rgba(0,0,0,0.7);
+    border-radius: 3px;
+    padding: 3px;
+    text-align: center;
+    display: none;
+}
+
+.rate-logo:hover span {
+    display: block;
 }
 
 

@@ -10,7 +10,13 @@
     <body>
         <div id="page">
             <header>
-                <a href="{{ get_url('index') }}"><img src="{{ get_url('static', filename='img/logo.png') }}" alt="Logo CitizenWatt"/></a>
+                <a href="{{ get_url('index') }}" class="header-logo">
+                    <img src="{{ get_url('static', filename='img/logo.png') }}" alt="Logo CitizenWatt"/>
+                </a>
+                <div class="rate-logo">
+                    <img src="{{ get_url('static', filename='img/moon.svg') }}" alt="Tarif de nuit"/>
+                    <span>Tarif de nuit</span>
+                </div>
 
                 % if valid_session():
                     <nav id="menu">
