@@ -2,8 +2,11 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <time>
-#include "./RF24.h"
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include "../RF24.h"
 
 const bool DEBUG = true;
 
@@ -14,40 +17,35 @@ const rf24_datarate_e NRF_SPEED = RF24_1MBPS;
 
 // PreAmplifier level for the nRF
 // Lower this to reduce power consumption. This will reduce range.
-const rf24_pa_dbm_e NRF_PA_LEVEL = RF24_PA_MAX;
+const rf24_pa_dbm_e NRF_PA_LEVEL = RF24_PA_LOW;
 
 // Channel for the nrf module
 // 76 is default safe channel in RF24
-const int NRF_CHANNEL = 76;
+const int NRF_CHANNEL = 0x4c;
 
-const uint64_t pipe = 0xE056D446D0LL;
+const uint64_t addr = 0xE056D446D0LL;
 
-// Struct to receive RF data
-typedef struct {
-    int power;
-} PayloadTX;
+//RF24 radio(RPI_V2_GPIO_P1_15, RPI_V2_GPIO_P1_24, BCM2835_SPI_SPEED_8MHZ);
+RF24 radio("/dev/spidev0.0",8000000 , 25);
 
-RF24 radio(RPI_V2_GPIO_P1_15, RPI_V2_GPIO_P1_24, BCM2835_SPI_SPEED_8MHZ);
-
-void handlePayload(PayloadTX payload) {
-    if(DEBUG) {
-        time(&timer);
-
-        std::cout << "[" << difftime(start, timer) << "]" << "Packet received.\n";
-        std::cout << "Power : " << payload.power << "\t";
-    }
-}
+// Named pipe
+int fd;
+char * myfifo = "/tmp/sensor";
 
 int main() {
-    PayloadTX payload = {0, 0, 0};
-    time_t start = time(NULL);
-    time_t timer;
+    uint8_t payload[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    // Create FIFO
+    mkfifo(myfifo, 0666);
+
+    // Open FIFO - while wait here until another thread opens the same fifo
+    fd = open(myfifo, O_WRONLY);
 
     // Initialize nRF
     radio.begin();
-    radio.setChannel(NRF_CHANNEL);
     // Max number of retries and max delay between them
     radio.setRetries(15, 15);
+    radio.setChannel(NRF_CHANNEL);
     // Reduce payload size to improve reliability
     radio.setPayloadSize(8);
     // Set the datarate
@@ -59,15 +57,24 @@ int main() {
     // Use the best PA level
     radio.setPALevel(NRF_PA_LEVEL);
     // Open reading pipe
-    radio.openReadingPipe(pipe);
+    radio.openReadingPipe(1, addr);
 
     radio.startListening();
 
     while(1) {
         if(radio.available()) {
-            radio.read(&payload, sizeof(PayloadTX));
+            radio.read(&payload, sizeof(payload));
 
-            handlePayload(payload);
+            if(DEBUG) {
+                std::cout << "Received : ";
+                for(int i=0; i<sizeof(payload); i++)
+                    std::cout << hex << (int) payload[i];
+                std::cout << "\n";
+            }
+
+            // Send to fifo
+            write(fd, payload, sizeof(payload));
+            // Maybe needed ? fflush(fd)
         }
     }
 }
