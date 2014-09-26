@@ -181,15 +181,15 @@ main {
 }
 
 .dark-blue-day {
-    background-color: #2332ff;
+    background-color: #2332ff !important;
 }
 
 .blue-day {
-    background-color: #196cff;
+    background-color: #196cff !important;
 }
 
 .light-blue-day {
-    background-color: #5d92ff;
+    background-color: #5d92ff !important;
 }
 
 /*
@@ -438,10 +438,15 @@ footer p {
     height: 2px;
     width: 100%;
     background-color: rgba(255,255,255,0.1);
+    z-index: 20;
 }
 
 #graph_vertical_axis span {
     position:absolute;
+    z-index: 20;
+    /*text-shadow:  1px  1px 0px rgba(  0,  0,  0,0.5),
+                 -1px -1px 0px rgba(255,255,255,0.5);
+    background-color: #363032;*/
 }
 
 /******************************************************************************
@@ -466,6 +471,11 @@ footer p {
 
 #toggle-unit {
     float: right;
+    color: white;
+}
+
+#toggle-unit:hover {
+    border-color: white;
 }
 
 /******************************************************************************
