@@ -88,7 +88,10 @@ var Menu = function() {
 	api.setUnit = function(new_unit, callback) {
 		switch(new_unit) {
 			case 'W':
+				toggle_unit.innerHTML = 'Watts';
+				break;
 			case '€':
+				toggle_unit.innerHTML = 'Euros';
 				break;
 			default:
 				return false;
