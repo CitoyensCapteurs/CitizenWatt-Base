@@ -41,6 +41,17 @@ var Graph = function() {
 		graduations.map(function (t) {
 			api.addVerticalGraduation(api.max_value * t)
 		});
+
+		/*
+		graph.addEventListener('mouseover', function() {
+			now.innerHTML = 'blabla';
+		});
+
+		graph.addEventListener('mouseout', function() {
+			now.innerHTML = 'blo';
+		});
+		*/
+
 		return api;
 	}
 
@@ -86,11 +97,15 @@ var Graph = function() {
 		info.className = 'rect-info';
 		info.innerHTML = Math.round(power) + api.unit;
 
+		var color = document.createElement('div');
+		div.appendChild(color);
+
 		var color_class = api.colorize(height);
 		div.className = animated ? 'animated rect' : 'rect';
-		div.className += ' ' + color_class + '-day';
 		div.className += ' ' + api.type;
-		div.style.height = height + '%';
+
+		color.className = 'rect-color ' + color_class + '-day';
+		color.style.height = height + '%';
 		
 
 		++n_values;
@@ -144,12 +159,13 @@ var Graph = function() {
 	 * @param ratio: Value by which multiply the rect vertical scale
 	 */
 	api.scaleRect = function(rect, ratio) {
-		height = parseInt(rect.style.height.slice(0, -1));
+		var color = rect.getElementsByClassName('rect-color')[0];
+		height = parseInt(color.style.height.slice(0, -1));
 		new_height = height / ratio;
-		rect.style.height = new_height + '%';
+		color.style.height = new_height + '%';
 
 		var color_class = api.colorize(new_height);
-		rect.className = rect.className.replace(/[^ ]*-day/, color_class + '-day');
+		color.className = color.className.replace(/[^ ]*-day/, color_class + '-day');
 		return api;
 	};
 

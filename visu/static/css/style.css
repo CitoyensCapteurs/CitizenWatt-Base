@@ -388,6 +388,8 @@ footer p {
 
 #graph_values .rect {
     margin-left: 2px;
+    height: 100%;
+    position: relative;
 }
 
 #graph_values .rect.animated {
@@ -403,10 +405,21 @@ footer p {
     position: absolute;
     margin: auto;
     display: none;
+    z-index: 20;
 }
 
 #graph_values .rect:hover .rect-info {
     display: block;
+}
+
+#graph_values .rect:hover {
+    background-color: rgba(0,0,0,0.2);
+}
+
+#graph_values .rect-color {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
 
 #graph hr {
