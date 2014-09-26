@@ -709,6 +709,18 @@ table tr:last-child td, table tr:last-child th {
 }
 
 /******************************************************************************
+ * 12. Content
+ */
+
+.content {
+    color: #d7d7d7;
+    max-width: 50em;
+    margin: auto;
+    padding: 0 2em;
+    text-align: justify;
+}
+
+/******************************************************************************
  * X. Autre
  */
 
