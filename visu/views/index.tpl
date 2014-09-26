@@ -7,11 +7,8 @@
                         <a href="{{ get_url('conso') }}">
                             <img alt="" src="{{ get_url('static', filename='img/small-data.svg') }}" />En cours
                         </a>
-                        <a href="{{ get_url('conso') }}">
+                        <a href="{{ get_url('conso') }}#watt-day">
                             <img alt="" src="{{ get_url('static', filename='img/month.svg') }}" />Aperçu global
-                        </a>
-                        <a href="{{ get_url('conso') }}">
-                            <img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" />
                         </a>
                     </div>
 
@@ -22,9 +19,6 @@
                         </a>
                         <a href="{{ get_url('settings') }}#sensors">
                             <img alt="" src="{{ get_url('static', filename='img/sensor.svg') }}" />Capteurs
-                        </a>
-                        <a href="{{ get_url('settings') }}">
-                            <img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" />
                         </a>
                     </div>
                 </div>
@@ -38,9 +32,6 @@
                         <a href="{{ get_url('help') }}#contact">
                             <img alt="" src="{{ get_url('static', filename='img/contact.svg') }}" />Contact
                         </a>
-                        <a href="{{ get_url('help') }}">
-                            <img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" />
-                        </a>
                     </div>
 
                     <div class="menu">
@@ -50,9 +41,6 @@
                         </a>
                         <a href="{{ get_url('results') }}">
                             <img alt="" src="{{ get_url('static', filename='img/progress.svg') }}" />Progrès
-                        </a>
-                        <a href="{{ get_url('results') }}">
-                            <img alt="More" src="{{ get_url('static', filename='img/more.svg') }}" />
                         </a>
                     </div>
                 </div>
