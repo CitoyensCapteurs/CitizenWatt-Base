@@ -5,10 +5,10 @@
                     <div class="menu">
                         <h1><a href="{{ get_url('conso') }}"><img alt="" src="{{ get_url('static', filename='img/data.svg') }}" />Consommation</a></h1>
                         <a href="{{ get_url('conso') }}">
-                            <img alt="" src="{{ get_url('static', filename='img/small-data.svg') }}" />En cours
+                            <img alt="" src="{{ get_url('static', filename='img/progress.svg') }}" />En cours
                         </a>
                         <a href="{{ get_url('conso') }}#watt-day">
-                            <img alt="" src="{{ get_url('static', filename='img/month.svg') }}" />Aperçu global
+                            <img alt="" src="{{ get_url('static', filename='img/small-data.svg') }}" />Aperçu global
                         </a>
                     </div>
 
@@ -35,12 +35,9 @@
                     </div>
 
                     <div class="menu">
-                        <h1><a href="{{ get_url('results') }}"><img alt="" src="{{ get_url('static', filename='img/results.svg') }}" />Bilan</a></h1>
-                        <a href="{{ get_url('results') }}">
-                            <img alt="" src="{{ get_url('static', filename='img/bill.svg') }}" />Estimation de facture
-                        </a>
-                        <a href="{{ get_url('results') }}">
-                            <img alt="" src="{{ get_url('static', filename='img/progress.svg') }}" />Progrès
+                        <h1><a href="{{ get_url('store') }}"><img alt="" src="{{ get_url('static', filename='img/store.svg') }}" />Store</a></h1>
+                        <a href="{{ get_url('store') }}">
+                            <img alt="" src="{{ get_url('static', filename='img/loading.svg') }}" />À venir…
                         </a>
                     </div>
                 </div>

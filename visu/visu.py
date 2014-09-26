@@ -435,8 +435,8 @@ def settings_post(db):
 
     redirect("/settings")
 
-@app.route("/results", name="results", template="results")
-def results():
+@app.route("/store", name="store", template="store")
+def store():
     return {}
 
 @app.route("/help", name="help", template="help")
