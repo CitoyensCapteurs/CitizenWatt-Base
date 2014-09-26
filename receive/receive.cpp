@@ -6,7 +6,13 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <signal.h>
 #include "../RF24.h"
+
+volatile sig_atomic_t flag = 0;
+void quit(int sig) {
+  flag = 1;
+}
 
 const bool DEBUG = true;
 
@@ -37,6 +43,7 @@ int main() {
 
     // Create FIFO
     mkfifo(myfifo, 0666);
+    signal(SIGINT, quit);
 
     // Open FIFO - while wait here until another thread opens the same fifo
     fd = open(myfifo, O_WRONLY);
@@ -62,6 +69,13 @@ int main() {
     radio.startListening();
 
     while(1) {
+        if(flag) {
+            close(fd);
+            unlink(myfifo);
+            std::cout << "Exiting…\n";
+            return 0;
+        }
+
         if(radio.available()) {
             radio.read(&payload, sizeof(payload));
 
@@ -77,4 +91,5 @@ int main() {
             // Maybe needed ? fflush(fd)
         }
     }
+    close(fd)
 }

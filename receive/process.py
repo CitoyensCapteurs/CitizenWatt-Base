@@ -3,6 +3,7 @@
 import binascii
 import datetime
 import os
+import stat
 import struct
 import sys
 
@@ -57,32 +58,31 @@ class MeasureType(Base):
 
 
 try:
-    os.mkfifo(namedfifo)
-except OSError:
-    pass
+    assert(stat.S_ISFIFO(os.stat(namedfifo).st_mode))
+except (AssertionError, FileNotFoundError):
+    sys.exit("Unable to open fifo "+namedfifo+".")
 
 with open(namedfifo, 'rb') as fifo:
     measure = fifo.read(16)
     decryptor = AES.new(key, AES.MODE_ECB)
     measure = decryptor.decrypt(measure)
     measure = struct.unpack("<HHHLlH", measure)
-    print("New incoming measure:" + measure)
+    print("New incoming measure:" + str(measure))
     power = measure[0]
     voltage = measure[1]
     battery = measure[2]
     timer = measure[3]
 
-    db = sessionmaker(bind=engine)
+    create_session = sessionmaker(bind=engine)
+    db = create_session()
     sensor = db.query(Sensor).filter_by(name="CitizenWatt").first()
-    type = db.query(MeasureType).filter_by(name="Électricité").first()
     if not sensor or not type:
         warning("Got packet "+str(measure)+" but install is not complete ! " +
                 "Visit http://citizenwatt first.")
     else:
         measure_db = Measures(sensor_id=sensor.id,
-                            type_id=type.id,
-                            measures=power,
-                            timestamp=datetime.datetime.now)
+                            value=power,
+                            timestamp=datetime.datetime.now())
         db.add(measure_db)
         db.commit()
         print("Saved successfully.")
