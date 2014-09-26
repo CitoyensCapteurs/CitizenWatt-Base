@@ -46,6 +46,7 @@
         'conso/Menu',
         'conso/Graph',
         'conso/DataProvider',
+        'conso/RateDisplay',
         'conso/App',
         'conso/Config',
         'conso/tail'

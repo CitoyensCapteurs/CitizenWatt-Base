@@ -40,6 +40,7 @@ var App = function() {
 	  , provider = DataProvider()
 	  , menu = Menu()
 	  , hash = HashManager()
+	  , rate = RateDisplay()
 	  ;
 
 	menu.onunitchange = function(unit, callback) {
@@ -63,6 +64,8 @@ var App = function() {
 		hash.setMode(mode);
 		api.initValues(callback);
 	};
+
+	provider.onratechange = rate.setRate;
 
 	/**
 	 * Callbacks

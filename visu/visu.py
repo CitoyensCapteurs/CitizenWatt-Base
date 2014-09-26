@@ -246,7 +246,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     data = [{"power": generate_value()} for i in range(int(time1), int(time2))]
     if watt_euros == "euros":
         data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
-    return {"data": data}
+    return {"data": data, "rate":'day'}
     # /DEBUG
 
     data = db.query(Measures).filter(sensor_id == sensor,

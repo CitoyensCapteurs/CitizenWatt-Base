@@ -13,7 +13,11 @@
                 <a href="{{ get_url('index') }}" class="header-logo">
                     <img src="{{ get_url('static', filename='img/logo.png') }}" alt="Logo CitizenWatt"/>
                 </a>
-                <div class="rate-logo">
+                <div id="rate-logo-day" class="rate-logo">
+                    <img src="{{ get_url('static', filename='img/sun.svg') }}" alt="Tarif de jour"/>
+                    <span>Tarif de jour</span>
+                </div>
+                <div id="rate-logo-night" class="rate-logo">
                     <img src="{{ get_url('static', filename='img/moon.svg') }}" alt="Tarif de nuit"/>
                     <span>Tarif de nuit</span>
                 </div>

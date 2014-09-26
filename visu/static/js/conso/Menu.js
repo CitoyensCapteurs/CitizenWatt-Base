@@ -89,11 +89,11 @@ var Menu = function() {
 		switch(new_unit) {
 			case 'W':
 				toggle_unit.innerHTML = 'Watts';
-				toggle_unit.className = 'orange-day';
+				toggle_unit.className = 'red-day';
 				break;
 			case '€':
 				toggle_unit.innerHTML = 'Euros';
-				toggle_unit.className = 'dark-blue-day';
+				toggle_unit.className = 'blue-day';
 				break;
 			default:
 				return false;

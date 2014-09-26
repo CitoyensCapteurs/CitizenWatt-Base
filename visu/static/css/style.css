@@ -299,6 +299,7 @@ header {
     position: relative;
     margin-left: 2em;
     margin-right: auto;
+    display: none;
 }
 
 .rate-logo img {

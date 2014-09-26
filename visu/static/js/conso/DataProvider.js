@@ -5,6 +5,8 @@ var DataProvider = function() {
 	var api = {};
 	var slope_watt_euro, constant_watt_euros;
 
+	api.onratechange = function(rate){};
+
 	/**
 	 * Get new data from server.
 	 * @param target: Type of data to get (@see API specification)
@@ -21,6 +23,9 @@ var DataProvider = function() {
 				}
 				catch (e) {
 					console.log('ERROR', req.responseText);
+				}
+				if (res.rate !== undefined) {
+					api.onratechange(res.rate);
 				}
 				callback(res.data);
 			}
