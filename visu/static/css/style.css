@@ -671,6 +671,44 @@ table tr:last-child td, table tr:last-child th {
 }
 
 /******************************************************************************
+ * 11. Coming soon
+ */
+
+.coming-soon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: -webkit-flex;
+    display: flex;
+
+    -webkit-flex-flow: column wrap;
+    flex-flow: column wrap;
+
+    -webkit-justify-content: center;
+    justify-content: center;
+
+    -webkit-align-items: center;
+    align-items: center;
+
+    z-index: -10;
+}
+
+.coming-soon img {
+    width: 10em;
+}
+
+.coming-soon span {
+    display: block;
+    text-transform: uppercase;
+    color: white;
+    font-size: 2em;
+    font-weight: 300;
+}
+
+/******************************************************************************
  * X. Autre
  */
 
