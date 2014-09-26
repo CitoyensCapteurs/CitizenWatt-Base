@@ -25,6 +25,7 @@ host = "localhost"
 engine = create_engine("mysql+pymysql://"+username+":"+password+"@"+host+"/"+database, echo=True)
 
 
+
 def warning(*objs):
     """Write warnings to stderr"""
     print("WARNING: ", *objs, file=sys.stderr)
@@ -55,6 +56,9 @@ class MeasureType(Base):
     __tablename__ = "measures_types"
     id = Column(Integer, primary_key=True)
     name = Column(VARCHAR(255), unique=True)
+
+
+Base.metadata.create_all(engine)
 
 
 try:
