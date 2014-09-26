@@ -197,22 +197,23 @@ main {
  */
 
 .dialog-err {
-    background-color: rgba(255,255,255,0.2);
-    border-left: 3px solid #ff5533;
-    border-radius: 3px;
+    background-color: rgba(255,255,255,0.1);
+    border-left: 3px solid #cc624d;
+    
     margin: 10px 0;
-    padding: 0 10px;
+    padding: 5px 10px;
 }
 
 .dialog-err h4 {
     font-weight: 500;
     margin: 0;
-    color: #ff5533;
+    color: #cc624d;
 }
 
 .dialog-err p {
     margin: 3px 0;
     font-weight: 200;
+    color: white;
 }
 
 /*

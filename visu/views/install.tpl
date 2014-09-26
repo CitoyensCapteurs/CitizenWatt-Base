@@ -5,6 +5,14 @@
                     <h1><img title="" src="{{ get_url('static', filename='img/install.svg') }}" />Installation</h1>
                 </div>
                 <form action="" method="post">
+                    % if defined('err'):
+                    <div class="dialog-err">
+                        <h4>{{ err['title'] }}</h4>
+                        <p>
+                            {{ err['content'] }}
+                        </p>
+                    </div>
+                    % end
                     <p class="form-item">
                         <label for="login">Identifiant&nbsp;: </label>
                         <input type="text" name="login" id="login" value="{{login}}"/>
