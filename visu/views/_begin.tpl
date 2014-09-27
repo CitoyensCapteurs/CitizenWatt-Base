@@ -28,7 +28,7 @@
                         <a {{ !'class="active"' if page=='conso' else '' }} href="{{ get_url('conso') }}">Conso</a>
                         <a {{ !'class="active"' if page=='settings' else '' }} href="{{ get_url('settings') }}">Config</a>
                         <a {{ !'class="active"' if page=='help' else '' }} href="{{ get_url('help') }}">Guide</a>
-                        <a {{ !'class="active"' if page=='store' else '' }} href="{{ get_url('store') }}">Store</a>
+                        <a {{ !'class="active"' if page=='store' else '' }} href="{{ get_url('store') }}">Communauté</a>
                     </nav>
                 % end
             </header>

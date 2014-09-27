@@ -38,6 +38,16 @@
                     </p>
 
                     <p class="form-item">
+                        <label for="start_night_rate">Début des heures creuses&nbsp;: </label>
+                        <input type="input" name="start_night_rate" id="start_night_rate" value="{{ start_night_rate }}" placeholder="hh:mm"/>
+                    </p>
+
+                    <p class="form-item">
+                        <label for="end_night_rate">Fin des heures creuses&nbsp;: </label>
+                        <input type="input" name="end_night_rate" id="end_night_rate" value="{{ end_night_rate }}" placeholder="hh:mm"/>
+                    </p>
+
+                    <p class="form-item">
                         <input type="submit" value="Installer"/>
                     </p>
                 </form>
