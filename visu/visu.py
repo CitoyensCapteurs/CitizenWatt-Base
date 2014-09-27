@@ -302,7 +302,7 @@ def api_watt_euros(energy_provider, consumption, db):
     else:
         abort(404, 'No matching provider found.')
 
-@app.route("/api/<sensor_id:int>/mean/<watt_euros:re:watts|euros>/<day_month:re:daily|weekly|monthly>",
+@app.route("/api/<sensor_id:int>/mean/<watt_euros:re:watts|kwatthours|euros>/<day_month:re:daily|weekly|monthly>",
            apply=valid_user())
 def api_mean(sensor_id, watt_euros, day_month, db):
     now = datetime.datetime.now()
@@ -376,10 +376,12 @@ def api_mean(sensor_id, watt_euros, day_month, db):
         global_mean = [-1]
 
     if global_mean:
-        if watt_euros == 'euros':
+        if watt_euros == "euros" or watt_euros == "kwatthours":
             global_mean = global_mean[0] * (times[-1] - times[0])
-            global_mean = api_watt_euros(0, global_mean, db)
-            means = [api_watt_euros(0, means[i][0] * length_step / 1000 / 3600, db)["data"] if mean[0] != -1 else -1 for i in range(len(means))]
+            means = [mean[0] * length_step / 1000 / 3600 for mean in means]
+            if watt_euros == "euros":
+                global_mean = api_watt_euros(0, global_mean, db)
+                means = [api_watt_euros(0, mean, db)["data"] if mean[0] != -1 else -1 for mean in mean]
         else:
             global_mean = global_mean[0]
             means = [mean[0] for mean in means]
