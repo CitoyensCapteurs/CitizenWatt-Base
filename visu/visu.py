@@ -47,7 +47,7 @@ def get_rate_type(db):
     session = session_manager.get_session()
     user = db.query(User).filter_by(login=session["login"]).first()
     now = datetime.datetime.now()
-    now = 3600 * now.hours + 60 * now.minutes
+    now = 3600 * now.hour + 60 * now.minute
     if user is None:
         return -1
     elif user.end_night_rate > user.start_night_rate:
@@ -557,10 +557,13 @@ def install_post(db):
     password = request.forms.get("password").strip()
     password_confirm = request.forms.get("password_confirm")
     provider = request.forms.get("provider")
-    start_night_rate = requests.forms.get("start_night_rate")
-    end_night_rate = requests.forms.get("end_night_rate")
+    raw_start_night_rate = request.forms.get("start_night_rate")
+    raw_end_night_rate = request.forms.get("end_night_rate")
+
+    error = None
+
     try:
-        start_night_rate = start_night_rate.split(":")
+        start_night_rate = raw_start_night_rate.split(":")
         assert(len(start_night_rate) == 2)
         start_night_rate = [int(i) for i in start_night_rate]
         assert(start_night_rate[0] >= 0 and start_night_rate[0] <= 23)
@@ -569,7 +572,7 @@ def install_post(db):
         error = {"title":"Format invalide",
                  "content": "La date de début d'heures creuses doit être au format hh:mm."}
     try:
-        end_night_rate = end_night_rate.split(":")
+        end_night_rate = raw_end_night_rate.split(":")
         assert(len(end_night_rate) == 2)
         end_night_rate = [int(i) for i in end_night_rate]
         assert(end_night_rate[0] >= 0 and end_night_rate[0] <= 23)
@@ -578,10 +581,11 @@ def install_post(db):
         error = {"title":"Format invalide",
                  "content": "La date de fin d'heures creuses doit être au format hh:mm."}
 
-    start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
-    end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
 
-    if login and password and password == password_confirm:
+    if login and password and password == password_confirm and not error:
+        start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
+        end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
+
         admin = User(login=login, password=password, is_admin=1,
                      start_night_rate=start_night_rate,
                      end_night_rate=end_night_rate)
@@ -598,8 +602,12 @@ def install_post(db):
 
         redirect('/')
     else:
-        return {"login": login, "start_night_rate": start_night_rate,
-                "end_night_rate": end_night_rate, "err": error}
+        providers = update_providers(db)
+        ret = {"login": login, "providers": providers, "start_night_rate": raw_start_night_rate,
+                "end_night_rate": raw_end_night_rate}
+        if error:
+            ret['err'] = error
+        return ret
 
 SimpleTemplate.defaults["get_url"] = app.get_url
 SimpleTemplate.defaults["API_URL"] = app.get_url("index")
