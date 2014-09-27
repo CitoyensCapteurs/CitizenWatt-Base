@@ -11,7 +11,7 @@ from json import dumps
 from bottle import abort, Bottle, SimpleTemplate, static_file, redirect, request, run
 from bottle.ext import sqlalchemy
 from bottlesession import PickleSession, authenticator
-from sqlalchemy import create_engine, Column, DateTime, event, Float, ForeignKey, Integer, Text
+from sqlalchemy import create_engine, Column, DateTime, desc, event, Float, ForeignKey, Integer, Text
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -40,6 +40,26 @@ def generate_value():
     n_values += 1
     return sin(n_values / 10.0) ** 2 * MAX_POWER
     return random() * MAX_POWER
+
+def get_rate_type(db):
+    """Returns "day" or "night"
+    """
+    session = session_manager.get_session()
+    user = db.query(User).filter_by(login=session["login"]).first()
+    now = datetime.datetime.now()
+    now = 3600 * now.hours + 60 * now.minutes
+    if user is None:
+        return -1
+    elif user.end_night_rate > user.start_night_rate:
+        if now > user.start_night_rate and now < user.end_night_rate:
+            return "night"
+        else:
+            return "day"
+    else:
+        if now > user.start_night_rate or now < user.end_night_rate:
+            return "night"
+        else:
+            return "day"
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -85,6 +105,7 @@ class Measures(Base):
                        nullable=False)
     value = Column(Float)
     timestamp = Column(DateTime)
+    night_rate = Column(Integer)  # Boolean, 1 if night_rate
 
 
 class Provider(Base):
@@ -111,6 +132,8 @@ class User(Base):
     login = Column(Text, unique=True)
     password = Column(Text)
     is_admin = Column(Integer)
+    start_night_rate = Column(Integer)  # Stored as seconds since beginning of day
+    end_night_rate = Column(Integer)  # Stored as seconds since beginning of day
 
 
 # Useful functions
@@ -158,7 +181,7 @@ def api_sensors(db):
 def api_get_id(sensor, watt_euros, id1, db):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id1)]
-    return {"data": data}
+    return {"data": data, "rate": get_rate_type(db)}
     # /DEBUG
 
     if id1 >= 0:
@@ -169,7 +192,7 @@ def api_get_id(sensor, watt_euros, id1, db):
 
     if data:
         data = to_dict(data)
-        return {"data": data}
+        return {"data": data, "rate": get_rate_type(db)}
     else:
         abort(404,
               "No measures with id " + str(id1)  +
@@ -181,7 +204,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
     data = [{"power": generate_value()} for i in range(id1, id2)]
     if watt_euros == "euros":
         data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
-    return {"data": data}
+    return {"data": data, "rate": get_rate_type(db)}
     # /DEBUG
 
     if id1 >= 0 and id2 >= 0 and id2 >= id1:
@@ -205,7 +228,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
                 energy += i["power"] / 1000 * (i["timestamp"] - old_timestamp) / 3600
                 old_timestamp = i["timestamp"]
             data = [{"power": api_watt_euros(0, energy, db)["data"]} for i in data]
-        return {"data": data}
+        return {"data": data, "rate": get_rate_type(db)}
     else:
         abort(404,
               "No relevant measures found.")
@@ -217,14 +240,14 @@ def api_get_time(sensor, watt_euros, time1, db):
 
     # DEBUG
     data = [{"power": generate_value()} for i in range(int(time1))]
-    return {"data": data}
+    return {"data": data, "rate": get_rate_type(db)}
     # /DEBUG
 
     data = db.query(Measures).filter_by(sensor_id=sensor,
                                         timestamp=time1).first()
     if data:
         data = to_dict(data)
-        return {"data": data}
+        return {"data": data, "rate": get_rate_type(db)}
     else:
         abort(404,
               "No measures at timestamp " + str(time1) +
@@ -243,7 +266,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     data = [{"power": generate_value()} for i in range(int(time1), int(time2))]
     if watt_euros == "euros":
         data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
-    return {"data": data, "rate":'day'}
+    return {"data": data, "rate": get_rate_type(db)}
     # /DEBUG
 
     data = db.query(Measures).filter(sensor_id == sensor,
@@ -258,7 +281,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
                 energy += i["power"] / 1000 * (i["timestamp"] - old_timestamp) / 3600
                 old_timestamp = i["timestamp"]
             data = [{"power": api_watt_euros(0, energy, db)["data"]} for i in data]
-        return {"data": data}
+        return {"data": data, "rate": get_rate_type(db)}
     else:
         abort(404,
               "No measures between timestamp " + str(time1) +
@@ -313,7 +336,7 @@ def api_mean(sensor_id, watt_euros, day_month, db):
                                                         6413, 131, 364, 897,
                                                         764, 264, 479, 20,
                                                         274, 2644, 679, 69,
-                                                        264, 724, 274, 987]}}
+                                                        264, 724, 274, 987]}, "rate": get_rate_type(db)}
         # /DEBUG
         length_step = 3600
         day_start = datetime.datetime(now.year, now.month, now.day, 0, 0, 0, 0)
@@ -328,7 +351,7 @@ def api_mean(sensor_id, watt_euros, day_month, db):
     elif day_month == "weekly":
         # DEBUG
         return {"data": {"global": 354, "daily": [150, 100, 200, 400,
-                                                        2000, 4000, 234]}}
+                                                        2000, 4000, 234]}, "rate": get_rate_type(db)}
         # /DEBUG
         length_step = 86400
         day_start = datetime.datetime(now.year, now.month, now.day - now.weekday(), 0, 0, 0, 0)
@@ -349,7 +372,7 @@ def api_mean(sensor_id, watt_euros, day_month, db):
                                                        274, 2644, 679, 69,
                                                        264, 724, 274, 987,
                                                        753, 746, 2752, 175,
-                                                       276, 486, 243]}}
+                                                       276, 486, 243]}, "rate": get_rate_type(db)}
         # /DEBUG
         length_step = 86400
         month_start = datetime.datetime(now.year, now.month, 1, 0, 0, 0, 0)
@@ -385,10 +408,10 @@ def api_mean(sensor_id, watt_euros, day_month, db):
         else:
             global_mean = global_mean[0]
             means = [mean[0] for mean in means]
-        return {"data": {"global": global_mean, hour_day: means }}
+        return {"data": {"global": global_mean, hour_day: means }, "rate": get_rate_type(db)}
     else:
         abort(404,
-              "No measures available for sensor " + str(sensor) + " to " +
+              "No measures available for sensor " + str(sensor_id) + " to " +
               "compute the "+day_month+" mean.")
 
 # Routes
@@ -517,7 +540,8 @@ def install(db):
                     type_id=electricity_type.id)
     db.add(sensor)
 
-    return {"login": '', "providers": providers}
+    return {"login": '', "providers": providers,
+            "start_night_rate": '', "end_night_rate": ''}
 
 @app.route("/install", name="install", template="install", method="post")
 def install_post(db):
@@ -531,9 +555,34 @@ def install_post(db):
     password = request.forms.get("password").strip()
     password_confirm = request.forms.get("password_confirm")
     provider = request.forms.get("provider")
+    start_night_rate = requests.forms.get("start_night_rate")
+    end_night_rate = requests.forms.get("end_night_rate")
+    try:
+        start_night_rate = start_night_rate.split(":")
+        assert(len(start_night_rate) == 2)
+        start_night_rate = [int(i) for i in start_night_rate]
+        assert(start_night_rate[0] >= 0 and start_night_rate[0] <= 23)
+        assert(start_night_rate[1] >= 0 and start_night_rate[1] <= 59)
+    except (AssertionError,ValueError):
+        error = {"title":"Format invalide",
+                 "content": "La date de début d'heures creuses doit être au format hh:mm."}
+    try:
+        end_night_rate = end_night_rate.split(":")
+        assert(len(end_night_rate) == 2)
+        end_night_rate = [int(i) for i in end_night_rate]
+        assert(end_night_rate[0] >= 0 and end_night_rate[0] <= 23)
+        assert(end_night_rate[1] >= 0 and end_night_rate[1] <= 59)
+    except (AssertionError, ValueError):
+        error = {"title":"Format invalide",
+                 "content": "La date de fin d'heures creuses doit être au format hh:mm."}
+
+    start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
+    end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
 
     if login and password and password == password_confirm:
-        admin = User(login=login, password=password, is_admin=1)
+        admin = User(login=login, password=password, is_admin=1,
+                     start_night_rate=start_night_rate,
+                     end_night_rate=end_night_rate)
         db.add(admin)
 
         provider = (db.query(Provider).filter_by(name=provider).\
@@ -547,7 +596,8 @@ def install_post(db):
 
         redirect('/')
     else:
-        return {"login": login}
+        return {"login": login, "start_night_rate": start_night_rate,
+                "end_night_rate": end_night_rate, "err": error}
 
 SimpleTemplate.defaults["get_url"] = app.get_url
 SimpleTemplate.defaults["API_URL"] = app.get_url("index")
