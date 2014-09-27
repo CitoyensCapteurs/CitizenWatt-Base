@@ -6,7 +6,7 @@ import time
 
 from math import sin
 from random import random
-from json import dumps
+from json import load, dumps
 
 from bottle import abort, Bottle, SimpleTemplate, static_file, redirect, request, run
 from bottle.ext import sqlalchemy
@@ -138,10 +138,12 @@ class User(Base):
 
 # Useful functions
 def update_providers(db):
-    json = requests.get("http://pub.phyks.me/tmp/electricity_providers.json")
+    # json = requests.get("http://pub.phyks.me/tmp/electricity_providers.json")
+    with open("electricity_providers.json", "r") as fh:
+        providers = load(fh)
     old_current = db.query(Provider).filter_by(current=1).first()
     db.query(Provider).delete()
-    providers = json.json()
+    #providers = json.json()
     for provider in providers:
         provider_db = Provider(name=provider["name"],
                                constant_watt_euros=provider["constant_watt_euros"],
@@ -548,7 +550,7 @@ def install_post(db):
     try:
         if db.query(User).all():
             redirect('/')
-    except OperationnalError:
+    except OperationalError:
         redirect('/')
 
     login = request.forms.get("login").strip()
