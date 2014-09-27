@@ -154,12 +154,10 @@ def api_sensors(db):
     else:
         abort(404, "No sensors found.")
 
-@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|euros>/by_id/<id1:int>", apply=valid_user())
+@app.route("/api/<sensor:int>/get/watts/by_id/<id1:int>", apply=valid_user())
 def api_get_id(sensor, watt_euros, id1, db):
     # DEBUG
     data = [{"power": generate_value()} for i in range(id1)]
-    if watt_euros == "euros":
-        data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -171,8 +169,6 @@ def api_get_id(sensor, watt_euros, id1, db):
 
     if data:
         data = to_dict(data)
-        if watt_euros == "euros":
-            data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
         return {"data": data}
     else:
         abort(404,
@@ -203,21 +199,24 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
     if data:
         data = to_dict(data)
         if watt_euros == 'euros':
-            data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
+            energy = 0
+            old_timestamp = 0
+            for i in data:
+                energy += i["power"] / 1000 * (i["timestamp"] - old_timestamp) / 3600
+                old_timestamp = i["timestamp"]
+            data = [{"power": api_watt_euros(0, energy, db)["data"]} for i in data]
         return {"data": data}
     else:
         abort(404,
               "No relevant measures found.")
 
-@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|euros>/by_time/<time1:float>", apply=valid_user())
+@app.route("/api/<sensor:int>/get/watts/by_time/<time1:float>", apply=valid_user())
 def api_get_time(sensor, watt_euros, time1, db):
     if time1 < 0:
         abort(404, "Invalid timestamp.")
 
     # DEBUG
     data = [{"power": generate_value()} for i in range(int(time1))]
-    if watt_euros == "euros":
-        data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
     return {"data": data}
     # /DEBUG
 
@@ -225,8 +224,6 @@ def api_get_time(sensor, watt_euros, time1, db):
                                         timestamp=time1).first()
     if data:
         data = to_dict(data)
-        if watt_euros == 'euros':
-            data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
         return {"data": data}
     else:
         abort(404,
@@ -255,7 +252,12 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     if data:
         data = to_dict(data)
         if watt_euros == 'euros':
-            data = [{"power": api_watt_euros(0, i["power"], db)["data"]} for i in data]
+            energy = 0
+            old_timestamp = 0
+            for i in data:
+                energy += i["power"] / 1000 * (i["timestamp"] - old_timestamp) / 3600
+                old_timestamp = i["timestamp"]
+            data = [{"power": api_watt_euros(0, energy, db)["data"]} for i in data]
         return {"data": data}
     else:
         abort(404,
@@ -290,6 +292,7 @@ def api_specific_energy_providers(id, db):
 @app.route("/api/<energy_provider:int>/watt_euros/<consumption:float>",
            apply=valid_user())
 def api_watt_euros(energy_provider, consumption, db):
+    # Consumption should be in kWh !!!
     if energy_provider != 0:
         provider = db.query(Provider).filter_by(id=energy_provider).first()
     else:
@@ -312,12 +315,13 @@ def api_mean(sensor_id, watt_euros, day_month, db):
                                                         274, 2644, 679, 69,
                                                         264, 724, 274, 987]}}
         # /DEBUG
+        length_step = 3600
         day_start = datetime.datetime(now.year, now.month, now.day, 0, 0, 0, 0)
         day_end = datetime.datetime(now.year, now.month, now.day, 23, 59, 59, 999)
         time_start = int(time.mktime(day_start.timetuple()))
         time_end = int(time.mktime(day_end.timetuple()))
         times = []
-        for time_i in range(time_start, time_end, 3600):
+        for time_i in range(time_start, time_end, length_step):
             times.append(time_i)
         times.append(time_end)
         hour_day = "hourly"
@@ -326,12 +330,13 @@ def api_mean(sensor_id, watt_euros, day_month, db):
         return {"data": {"global": 354, "daily": [150, 100, 200, 400,
                                                         2000, 4000, 234]}}
         # /DEBUG
+        length_step = 86400
         day_start = datetime.datetime(now.year, now.month, now.day - now.weekday(), 0, 0, 0, 0)
         day_end = datetime.datetime(now.year, now.month, now.day + 6 - now.weekday(), 23, 59, 59, 999)
         time_start = int(time.mktime(day_start.timetuple()))
         time_end = int(time.mktime(day_end.timetuple()))
         times = []
-        for time_i in range(time_start, time_end, 86400):
+        for time_i in range(time_start, time_end, length_step):
             times.append(time_i)
         times.append(time_end)
         hour_day = "daily"
@@ -346,12 +351,13 @@ def api_mean(sensor_id, watt_euros, day_month, db):
                                                        753, 746, 2752, 175,
                                                        276, 486, 243]}}
         # /DEBUG
+        length_step = 86400
         month_start = datetime.datetime(now.year, now.month, 1, 0, 0, 0, 0)
         month_end = datetime.datetime(now.year, now.month, last_day(now.month, now.year), 23, 59, 59, 999)
         time_start = int(time.mktime(month_start.timetuple()))
         time_end = int(time.mktime(month_end.timetuple()))
         times = []
-        for time_i in range(time_start, time_end, 86400):
+        for time_i in range(time_start, time_end, length_step):
             times.append(time_i)
         times.append(time_end)
         hour_day = "daily"
@@ -363,6 +369,7 @@ def api_mean(sensor_id, watt_euros, day_month, db):
         if not means or means[-1] == (None,):
             means[-1] = [-1]
 
+    # TODO : global_mean is mean of mean
     global_mean = db.query((func.avg(Measures.value)).label('average')).filter(Measures.timestamp >= times[0],
                                                                                Measures.timestamp <= times[-1]).first()
     if global_mean == (None,):
@@ -370,8 +377,9 @@ def api_mean(sensor_id, watt_euros, day_month, db):
 
     if global_mean:
         if watt_euros == 'euros':
-            global_mean = api_watt_euros(0, global_mean[0], db)
-            means = [api_watt_euros(0, mean[0], db)["data"] if mean[0] != -1 else -1 for mean in means]
+            global_mean = global_mean[0] * (times[-1] - times[0])
+            global_mean = api_watt_euros(0, global_mean, db)
+            means = [api_watt_euros(0, means[i][0] * length_step / 1000 / 3600, db)["data"] if mean[0] != -1 else -1 for i in range(len(means))]
         else:
             global_mean = global_mean[0]
             means = [mean[0] for mean in means]
