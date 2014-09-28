@@ -8,7 +8,7 @@ import sys
 
 from Crypto.Cipher import AES
 from sqlalchemy import create_engine, Column, DateTime
-from sqlalchemy import Float, ForeignKey, Integer, VARCHAR
+from sqlalchemy import Float, ForeignKey, Integer, Text, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -67,6 +67,17 @@ class MeasureType(Base):
     name = Column(VARCHAR(255), unique=True)
 
 
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True)
+    login = Column(VARCHAR(length=255), unique=True)
+    password = Column(Text)
+    is_admin = Column(Integer)
+    # Stored as seconds since beginning of day
+    start_night_rate = Column(Integer)
+    end_night_rate = Column(Integer)
+
+
 Base.metadata.create_all(engine)
 
 
@@ -91,19 +102,38 @@ try:
             battery = measure[2]
             timer = measure[3]
 
+            now = datetime.datetime.now()
+            now_rate = 3600 * now.hour + 60 * now.minute
+
             if timer < last_timer:
                 warning("Invalid timer in the last packet, skipping it")
             else:
                 db = create_session()
                 sensor = db.query(Sensor).filter_by(name="CitizenWatt").first()
-                if not sensor or not type:
+                user = db.query(User).filter_by(admin=1).first()
+                if not sensor or not type or not user:
                     warning("Got packet "+str(measure)+" but install is not " +
                             "complete ! Visit http://citizenwatt first.")
                     db.close()
                 else:
+                    # Day or night rate ?
+                    if user.end_night_rate > user.start_night_rate:
+                        if(now_rate > user.start_night_rate and
+                           now_rate < user.end_night_rate):
+                            night_rate = 1
+                        else:
+                            night_rate = 0
+                    else:
+                        if(now_rate > user.start_night_rate or
+                           now_rate < user.end_night_rate):
+                            night_rate = 1
+                        else:
+                            night_rate = 0
+
                     measure_db = Measures(sensor_id=sensor.id,
                                           value=power,
-                                          timestamp=datetime.datetime.now())
+                                          timestamp=now,
+                                          night_rate=night_rate)
                     db.add(measure_db)
                     db.commit()
                     print("Saved successfully.")
