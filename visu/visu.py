@@ -45,7 +45,7 @@ def update_providers(db):
         providers = requests.get(config.get("url_energy_providers"))
         providers = providers.json()
     except requests.ConnectionError:
-        return db.query(database.Provider).all()
+        return tools.to_dict(db.query(database.Provider).all())
 
     old_current = db.query(database.Provider).filter_by(current=1).first()
     db.query(database.Provider).delete()
