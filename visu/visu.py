@@ -13,6 +13,7 @@ from bottle.ext import sqlalchemy
 from bottlesession import PickleSession, authenticator
 from sqlalchemy import create_engine, Column, DateTime, asc, event, Float, ForeignKey, Integer, Text, VARCHAR
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.sql import func
@@ -21,16 +22,23 @@ MAX_VALUES = 500
 
 def to_dict(model):
     """ Returns a JSON representation of an SQLAlchemy-backed object.
+    Returns a timestamp for DateTime fields, to be easily JSON serializable.
     TODO : Use runtime inspection API
     From https://zato.io/blog/posts/converting-sqlalchemy-objects-to-json.html
     """
-    dict = {}
-    dict['id'] = getattr(model, 'id')
+    if isinstance(model, list):
+        return [to_dict(i) for i in model]
+    else:
+        dict = {}
+        dict['id'] = getattr(model, 'id')
 
-    for col in model._sa_class_manager.mapper.mapped_table.columns:
-        dict[col.name] = getattr(model, col.name)
+        for col in model._sa_class_manager.mapper.mapped_table.columns:
+            if str(col.type) == "DATETIME":
+                dict[col.name] = getattr(model, col.name).timestamp()
+            else:
+                dict[col.name] = getattr(model, col.name)
 
-    return dict
+        return dict
 
 n_values = 0
 def generate_value():
@@ -280,9 +288,9 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     #return {"data": data, "rate": get_rate_type(db)}
     # /DEBUG
 
-    data = db.query(Measures).filter(sensor_id == sensor,
-                                     timestamp >= time1,
-                                     timestamp <= time2).all()
+    data = db.query(Measures).filter(Measures.sensor_id == sensor,
+                                     Measures.timestamp >= time1,
+                                     Measures.timestamp <= time2).all()
     if data:
         data = to_dict(data)
         if watt_euros == 'euros':
