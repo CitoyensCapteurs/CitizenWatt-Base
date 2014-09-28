@@ -9,7 +9,7 @@ apt-get --yes upgrade
 echo "deb http://mirrordirector.raspbian.org/raspbian/ jessie main" > /etc/apt/sources.list.d/jessie.list
 
 # Pinning
-echo -e "Package: *\nPin: release a=testing\nPin-Priority: 300" > /etc/apt/preferences.d/jessie.list
+echo -e "Package: *\nPin: release a=testing\nPin-Priority: 300" > /etc/apt/preferences.d/jessie
 
 # Update
 apt-get update
@@ -20,3 +20,6 @@ apt-get -t jessie --yes install python3 gcc python3-pip python3-dev
 # Python modules
 pip3 install requests sqlalchemy rpi.gpio
 pip3 install --allow-external mysql-connector-python mysql-connector-python
+
+# Remove unused packets
+apt-get --yes autoremove --purge
