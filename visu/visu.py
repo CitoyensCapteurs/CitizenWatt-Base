@@ -11,7 +11,7 @@ from json import load, dumps
 from bottle import abort, Bottle, SimpleTemplate, static_file, redirect, request, run
 from bottle.ext import sqlalchemy
 from bottlesession import PickleSession, authenticator
-from sqlalchemy import create_engine, Column, DateTime, desc, event, Float, ForeignKey, Integer, Text, VARCHAR
+from sqlalchemy import create_engine, Column, DateTime, asc, event, Float, ForeignKey, Integer, Text, VARCHAR
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -197,7 +197,7 @@ def api_get_id(sensor, watt_euros, id1, db):
         data = db.query(Measures).filter_by(sensor_id=sensor,
                                             id=id1).first()
     else:
-        data = db.query(Measures).filter_by(sensor_id=sensor).order_by(desc(Measures.id)).slice(id1, id1)
+        data = db.query(Measures).filter_by(sensor_id=sensor).order_by(asc(Measures.id)).slice(id1, id1)
 
     if data:
         data = to_dict(data)
@@ -221,7 +221,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
                                          id >= id1,
                                          id <= id2).all()
     elif id1 <= 0 and id2 <= 0 and id2 >= id1:
-        data = db.query(Measures).filter_by(sensor_id=sensor).order_by(desc(Measures.id)).slice(-id2,-id1).all()
+        data = db.query(Measures).filter_by(sensor_id=sensor).order_by(asc(Measures.id)).slice(-id2,-id1).all()
     else:
         abort(404, "Wrong parameters id1 and id2.")
 
