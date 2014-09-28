@@ -33,7 +33,14 @@ class Config():
         self.config[param] = value
 
     def initialize(self):
-        self.set("ignore_fields", ["file", "doi", "tag"])
+        self.set("max_returned_values", 500)
+        self.set("username", "citizenwatt")
+        self.set("password", "citizenwatt")
+        self.set("database", "citizenwatt")
+        self.set("host", "localhost")
+        self.set("debug", True)
+        self.set("url_energy_providers",
+                 "http://pub.phyks.me/tmp/electricity_providers.json")
         self.save()
 
     def load(self):
