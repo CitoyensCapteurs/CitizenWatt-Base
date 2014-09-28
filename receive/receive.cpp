@@ -81,8 +81,9 @@ int main() {
 
             if(DEBUG) {
                 std::cout << "Received : ";
-                for(int i=0; i<sizeof(payload); i++)
-                    std::cout << hex << (int) payload[i];
+                for(int i=0; i<sizeof(payload); i++) {
+                    std::cout << std::hex << (int) payload[i];
+                }
                 std::cout << "\n";
             }
 
