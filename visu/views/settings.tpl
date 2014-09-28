@@ -20,6 +20,17 @@
                                 % end
                             </select>
                         </p>
+
+                        <p class="form-item">
+                            <label for="start_night_rate">Début des heures creuses&nbsp;: </label>
+                            <input type="time" name="start_night_rate" id="start_night_rate" value="{{ start_night_rate }}" placeholder="hh:mm"/>
+                        </p>
+
+                        <p class="form-item">
+                            <label for="end_night_rate">Fin des heures creuses&nbsp;: </label>
+                            <input type="time" name="end_night_rate" id="end_night_rate" value="{{ end_night_rate }}" placeholder="hh:mm"/>
+                        </p>
+
                         <p><input type="submit" value="Sauver"/></p>
                     </fieldset>
                     <fieldset id="sensors">
@@ -43,7 +54,7 @@
                         % end
                     </fieldset>
                 </form>
-            
+
             </main>
 
 % include('_end.tpl', scripts=['settings'])

@@ -455,7 +455,17 @@ def settings(db):
 
     providers = update_providers(db)
 
-    return {"sensors": sensors, "providers": providers}
+    session = session_manager.get_session()
+    user = db.query(User).filter_by(login=session["login"]).first()
+    start_night_rate = ("%02d" % (user.start_night_rate // 3600) + ":" +
+                        "%02d" % (user.start_night_rate % 3600))
+    end_night_rate = ("%02d" % (user.end_night_rate // 3600) + ":" +
+                      "%02d" % (user.end_night_rate % 3600))
+
+    return {"sensors": sensors,
+            "providers": providers,
+            "start_night_rate": start_night_rate,
+            "end_night_rate": end_night_rate}
 
 @app.route("/settings",
            name="settings",
@@ -476,6 +486,36 @@ def settings_post(db):
     provider = request.forms.get("provider")
     provider = (db.query(Provider).filter_by(name=provider).\
                 update({"current":1}))
+
+    raw_start_night_rate = request.forms.get("start_night_rate")
+    raw_end_night_rate = request.forms.get("end_night_rate")
+
+    error = None
+
+    try:
+        start_night_rate = raw_start_night_rate.split(":")
+        assert(len(start_night_rate) == 2)
+        start_night_rate = [int(i) for i in start_night_rate]
+        assert(start_night_rate[0] >= 0 and start_night_rate[0] <= 23)
+        assert(start_night_rate[1] >= 0 and start_night_rate[1] <= 59)
+        start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
+    except (AssertionError,ValueError):
+        error = {"title":"Format invalide",
+                 "content": "La date de début d'heures creuses doit être au format hh:mm."}
+    try:
+        end_night_rate = raw_end_night_rate.split(":")
+        assert(len(end_night_rate) == 2)
+        end_night_rate = [int(i) for i in end_night_rate]
+        assert(end_night_rate[0] >= 0 and end_night_rate[0] <= 23)
+        assert(end_night_rate[1] >= 0 and end_night_rate[1] <= 59)
+        end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
+    except (AssertionError, ValueError):
+        error = {"title":"Format invalide",
+                 "content": "La date de fin d'heures creuses doit être au format hh:mm."}
+
+    session = session_manager.get_session()
+    user = db.query(User).filter_by(login=session["login"]).update({"start_night_rate": start_night_rate,
+                                                                    "end_night_rate": end_night_rate})
 
     redirect("/settings")
 
@@ -577,6 +617,7 @@ def install_post(db):
         start_night_rate = [int(i) for i in start_night_rate]
         assert(start_night_rate[0] >= 0 and start_night_rate[0] <= 23)
         assert(start_night_rate[1] >= 0 and start_night_rate[1] <= 59)
+        start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
     except (AssertionError,ValueError):
         error = {"title":"Format invalide",
                  "content": "La date de début d'heures creuses doit être au format hh:mm."}
@@ -586,14 +627,13 @@ def install_post(db):
         end_night_rate = [int(i) for i in end_night_rate]
         assert(end_night_rate[0] >= 0 and end_night_rate[0] <= 23)
         assert(end_night_rate[1] >= 0 and end_night_rate[1] <= 59)
+        end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
     except (AssertionError, ValueError):
         error = {"title":"Format invalide",
                  "content": "La date de fin d'heures creuses doit être au format hh:mm."}
 
 
     if login and password and password == password_confirm and not error:
-        start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
-        end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
 
         admin = User(login=login, password=password, is_admin=1,
                      start_night_rate=start_night_rate,
