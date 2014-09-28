@@ -20,3 +20,6 @@ apt-get -t jessie --yes install python3 gcc python3-pip python3-dev
 # Python modules
 pip3 install requests sqlalchemy rpi.gpio
 pip3 install --allow-external mysql-connector-python mysql-connector-python
+
+# Remove unused packets
+apt-get --yes autoremove --purge
