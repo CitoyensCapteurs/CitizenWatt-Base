@@ -3,6 +3,7 @@ import database
 import datetime
 import hashlib
 import requests
+import statistics
 import time
 import tools
 
@@ -285,98 +286,145 @@ def api_watt_euros(energy_provider, consumption, db):
 @app.route("/api/<sensor_id:int>/mean/<watt_euros:re:watts|kwatthours|euros>/<day_month:re:daily|weekly|monthly>",
            apply=valid_user())
 def api_mean(sensor_id, watt_euros, day_month, db):
+    """Returns the means in watts over the specified periods, or the sum in
+    kWh or euros over the specified periods.
+    """
     now = datetime.datetime.now()
     if day_month == "daily":
         length_step = 3600
-        day_start = datetime.datetime(now.year, now.month, now.day, 0, 0, 0, 0)
-        day_end = datetime.datetime(now.year, now.month, now.day, 23, 59, 59, 999)
+        hour_day = "hourly"
+        day_start = datetime.datetime(now.year,
+                                      now.month,
+                                      now.day,
+                                      0,
+                                      0,
+                                      0,
+                                      0)
+        day_end = datetime.datetime(now.year,
+                                    now.month,
+                                    now.day,
+                                    23,
+                                    59,
+                                    59,
+                                    999)
         time_start = int(time.mktime(day_start.timetuple()))
         time_end = int(time.mktime(day_end.timetuple()))
-        times = []
-        for time_i in range(time_start, time_end, length_step):
-            times.append(time_i)
-        times.append(time_end)
-        hour_day = "hourly"
+
     elif day_month == "weekly":
         length_step = 86400
-        day_start = datetime.datetime(now.year, now.month, now.day - now.weekday(), 0, 0, 0, 0)
-        day_end = datetime.datetime(now.year, now.month, now.day + 6 - now.weekday(), 23, 59, 59, 999)
-        time_start = int(time.mktime(day_start.timetuple()))
-        time_end = int(time.mktime(day_end.timetuple()))
-        times = []
-        for time_i in range(time_start, time_end, length_step):
-            times.append(time_i)
-        times.append(time_end)
         hour_day = "daily"
+        week_start = datetime.datetime(now.year,
+                                       now.month,
+                                       now.day - now.weekday(),
+                                       0,
+                                       0,
+                                       0,
+                                       0)
+        week_end = datetime.datetime(now.year,
+                                     now.month,
+                                     now.day + 6 - now.weekday(),
+                                     23,
+                                     59,
+                                     59,
+                                     999)
+        time_start = int(time.mktime(week_start.timetuple()))
+        time_end = int(time.mktime(week_end.timetuple()))
+
     elif day_month == "monthly":
         length_step = 86400
-        month_start = datetime.datetime(now.year, now.month, 1, 0, 0, 0, 0)
-        month_end = datetime.datetime(now.year, now.month, tools.last_day(now.month, now.year), 23, 59, 59, 999)
+        hour_day = "daily"
+        month_start = datetime.datetime(now.year,
+                                        now.month,
+                                        1,
+                                        0,
+                                        0,
+                                        0,
+                                        0)
+        month_end = datetime.datetime(now.year,
+                                      now.month,
+                                      tools.last_day(now.month, now.year),
+                                      23,
+                                      59,
+                                      59,
+                                      999)
         time_start = int(time.mktime(month_start.timetuple()))
         time_end = int(time.mktime(month_end.timetuple()))
-        times = []
-        for time_i in range(time_start, time_end, length_step):
-            times.append(time_i)
-        times.append(time_end)
-        hour_day = "daily"
+
+    times = []
+    for time_i in range(time_start, time_end, length_step):
+        times.append(time_i)
+    times.append(time_end)
 
     means = []
     for i in range(len(times) - 1):
-        means.append(db.query((func.avg(database.Measures.value)).label('average')).filter(database.Measures.timestamp >= times[i],
-                                                                                  database.Measures.timestamp <= times[i+1]).first())
+        means.append(db.query((func.avg(database.Measures.value))
+                              .label('average'))
+                     .filter(database.Measures.timestamp >= times[i],
+                             database.Measures.timestamp <= times[i+1])
+                     .first())
         if not means or means[-1] == (None,):
-            means[-1] = [-1]
-
-    # TODO : global_mean is mean of mean
-    global_mean = db.query((func.avg(database.Measures.value)).label('average')).filter(database.Measures.timestamp >= times[0],
-                                                                               database.Measures.timestamp <= times[-1]).first()
-    if global_mean == (None,):
-        global_mean = [-1]
-
-    if global_mean:
-        if watt_euros == "euros" or watt_euros == "kwatthours":
-            global_mean = global_mean[0] * (times[-1] - times[0])
-            means = [mean[0] * length_step / 1000 / 3600 for mean in means]
-            if watt_euros == "euros":
-                global_mean = api_watt_euros(0, global_mean, db)
-                means = [api_watt_euros(0, mean, db)["data"] if mean[0] != -1 else -1 for mean in mean]
+            means[-1] = -1
         else:
-            global_mean = global_mean[0]
-            means = [mean[0] for mean in means]
-        return {"data": {"global": global_mean, hour_day: means }, "rate": get_rate_type(db)}
-    else:
-        abort(404,
-              "No measures available for sensor " + str(sensor_id) + " to " +
-              "compute the "+day_month+" mean.")
+            means[-1] = means[-1][0]
+
+    global_mean = statistics.mean(means)
+
+    if global_mean > -1:
+        if watt_euros == "euros" or watt_euros == "kwatthours":
+            global_mean = global_mean * (times[-1] - times[0])
+            means = [mean * length_step / 1000 / 3600 for mean in means]
+        if watt_euros == "euros":
+            global_mean = api_watt_euros(0, global_mean, db)
+            means = [api_watt_euros(0, mean, db)["data"] if mean[0] != -1
+                     else -1
+                     for mean in mean]
+
+    return {"data": {"global": global_mean,
+                     hour_day: means},
+            "rate": get_rate_type(db)}
+
 
 # ======
 # Routes
 # ======
-@app.route("/static/<filename:path>", name="static")
+@app.route("/static/<filename:path>",
+           name="static")
 def static(filename):
+    """Routes static files"""
     return static_file(filename, root="static")
 
 
-@app.route('/', name="index", template="index", apply=valid_user())
+@app.route('/',
+           name="index",
+           template="index",
+           apply=valid_user())
 def index():
+    """Index view"""
     return {}
 
 
-@app.route("/conso", name="conso", template="conso", apply=valid_user())
+@app.route("/conso",
+           name="conso",
+           template="conso",
+           apply=valid_user())
 def conso(db):
+    """Conso view"""
     provider = db.query(database.Provider).filter_by(current=1).first()
     return {"provider": provider.name}
 
 
-@app.route("/settings", name="settings", template="settings")
+@app.route("/settings",
+           name="settings",
+           template="settings")
 def settings(db):
+    """Settings view"""
     sensors = db.query(database.Sensor).all()
     if sensors:
         sensors = [{"id": sensor.id,
                     "name": sensor.name,
                     "type": sensor.type.name,
-                    "type_id": sensor.type_id
-                } for sensor in sensors]
+                    "type_id": sensor.type_id}
+                   for sensor in sensors]
     else:
         sensors = []
 
@@ -400,6 +448,9 @@ def settings(db):
            apply=valid_user(),
            method="post")
 def settings_post(db):
+    """Settings view with POST data"""
+    error = None
+
     password = request.forms.get("password").strip()
     password_confirm = request.forms.get("password_confirm")
 
@@ -407,19 +458,25 @@ def settings_post(db):
         if password == password_confirm:
             password = config.get("salt") + hashlib.sha256(password)
             session = session_manager.get_session()
-            user = (db.query(database.User).filter_by(login=session["login"]).
-                    update({"password": password},  synchronize_session=False))
+            (db.query(database.User)
+             .filter_by(login=session["login"])
+             .update({"password": password},
+                     synchronize_session=False))
         else:
-            abort(400, "Les mots de passe ne sont pas identiques.")
+            error = {"title": "Les mots de passe ne sont pas identiques.",
+                     "content": ("Les deux mots de passe doient " +
+                                 "être identiques.")}
+            settings_json = settings(db)
+            settings_json.update({"err": error})
+            return settings_json
 
     provider = request.forms.get("provider")
-    provider = (db.query(database.Provider).filter_by(name=provider).\
-                update({"current":1}))
+    provider = (db.query(database.Provider)
+                .filter_by(name=provider)
+                .update({"current": 1}))
 
     raw_start_night_rate = request.forms.get("start_night_rate")
     raw_end_night_rate = request.forms.get("end_night_rate")
-
-    error = None
 
     try:
         start_night_rate = raw_start_night_rate.split(":")
@@ -428,9 +485,13 @@ def settings_post(db):
         assert(start_night_rate[0] >= 0 and start_night_rate[0] <= 23)
         assert(start_night_rate[1] >= 0 and start_night_rate[1] <= 59)
         start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
-    except (AssertionError,ValueError):
-        error = {"title":"Format invalide",
-                 "content": "La date de début d'heures creuses doit être au format hh:mm."}
+    except (AssertionError, ValueError):
+        error = {"title": "Format invalide",
+                 "content": ("La date de début d'heures " +
+                             "creuses doit être au format hh:mm.")}
+        settings_json = settings(db)
+        settings_json.update({"err": error})
+        return settings_json
     try:
         end_night_rate = raw_end_night_rate.split(":")
         assert(len(end_night_rate) == 2)
@@ -439,28 +500,43 @@ def settings_post(db):
         assert(end_night_rate[1] >= 0 and end_night_rate[1] <= 59)
         end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
     except (AssertionError, ValueError):
-        error = {"title":"Format invalide",
-                 "content": "La date de fin d'heures creuses doit être au format hh:mm."}
+        error = {"title": "Format invalide",
+                 "content": ("La date de fin d'heures " +
+                             "creuses doit être au format hh:mm.")}
+        settings_json = settings(db)
+        settings_json.update({"err": error})
+        return settings_json
 
     session = session_manager.get_session()
-    user = db.query(database.User).filter_by(login=session["login"]).update({"start_night_rate": start_night_rate,
-                                                                    "end_night_rate": end_night_rate})
+    (db.query(database.User)
+     .filter_by(login=session["login"])
+     .update({"start_night_rate": start_night_rate,
+              "end_night_rate": end_night_rate}))
 
     redirect("/settings")
 
 
-@app.route("/store", name="store", template="store")
+@app.route("/community",
+           name="community",
+           template="community")
 def store():
+    """Community view"""
     return {}
 
 
-@app.route("/help", name="help", template="help")
+@app.route("/help",
+           name="help",
+           template="help")
 def help():
+    """Help view"""
     return {}
 
 
-@app.route("/login", name="login", template="login")
+@app.route("/login",
+           name="login",
+           template="login")
 def login(db):
+    """Login view"""
     if not db.query(database.User).all():
         redirect("/install")
     session = session_manager.get_session()
@@ -470,8 +546,12 @@ def login(db):
         return {"login": ''}
 
 
-@app.route("/login", name="login", template="login", method="post")
-def login(db):
+@app.route("/login",
+           name="login",
+           template="login",
+           method="post")
+def login_post(db):
+    """Login view with POST data"""
     login = request.forms.get("login")
     user = db.query(database.User).filter_by(login=login).first()
     session = session_manager.get_session()
@@ -491,13 +571,16 @@ def login(db):
             "login": login,
             "err": {
                 "title": "Identifiants incorrects.",
-                "content": "Aucun utilisateur n'est enregistré à ce nom." if user else "Mot de passe erroné."
+                "content": ("Aucun utilisateur n'est enregistré à ce nom."
+                            if user else "Mot de passe erroné.")
             }
         }
 
 
-@app.route("/logout", name="logout")
+@app.route("/logout",
+           name="logout")
 def logout():
+    """Logout"""
     session = session_manager.get_session()
     session['valid'] = False
     del(session['login'])
@@ -506,8 +589,11 @@ def logout():
     redirect('/')
 
 
-@app.route("/install", name="install", template="install")
+@app.route("/install",
+           name="install",
+           template="install")
 def install(db):
+    """Install view (first run)"""
     if db.query(database.User).all():
         redirect('/')
 
@@ -522,29 +608,39 @@ def install(db):
     providers = update_providers(db)
 
     sensor = database.Sensor(name="CitizenWatt",
-                    type_id=electricity_type.id)
+                             type_id=electricity_type.id)
     db.add(sensor)
 
-    return {"login": '', "providers": providers,
-            "start_night_rate": '', "end_night_rate": ''}
+    return {"login": '',
+            "providers": providers,
+            "start_night_rate": '',
+            "end_night_rate": ''}
 
 
-@app.route("/install", name="install", template="install", method="post")
+@app.route("/install",
+           name="install",
+           template="install",
+           method="post")
 def install_post(db):
+    """Install view with POST data"""
+    error = None
     try:
         if db.query(database.User).all():
             redirect('/')
     except OperationalError:
-        redirect('/')
+        error = {"title": "Connexion à la base de données impossible",
+                 "content": ("Impossible d'établir une connexion avec la " +
+                             "base de données.")}
+        install_json = install(db)
+        install_json.update({"err": error})
+        return install_json
 
     login = request.forms.get("login").strip()
-    password = request.forms.get("password").strip()
+    password = request.forms.get("password")
     password_confirm = request.forms.get("password_confirm")
     provider = request.forms.get("provider")
     raw_start_night_rate = request.forms.get("start_night_rate")
     raw_end_night_rate = request.forms.get("end_night_rate")
-
-    error = None
 
     try:
         start_night_rate = raw_start_night_rate.split(":")
@@ -553,9 +649,14 @@ def install_post(db):
         assert(start_night_rate[0] >= 0 and start_night_rate[0] <= 23)
         assert(start_night_rate[1] >= 0 and start_night_rate[1] <= 59)
         start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
-    except (AssertionError,ValueError):
-        error = {"title":"Format invalide",
-                 "content": "La date de début d'heures creuses doit être au format hh:mm."}
+    except (AssertionError, ValueError):
+        error = {"title": "Format invalide",
+                 "content": ("La date de début d'heures creuses " +
+                             "doit être au format hh:mm.")}
+        install_json = install(db)
+        install_json.update({"err": error})
+        return install_json
+
     try:
         end_night_rate = raw_end_night_rate.split(":")
         assert(len(end_night_rate) == 2)
@@ -564,20 +665,25 @@ def install_post(db):
         assert(end_night_rate[1] >= 0 and end_night_rate[1] <= 59)
         end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
     except (AssertionError, ValueError):
-        error = {"title":"Format invalide",
-                 "content": "La date de fin d'heures creuses doit être au format hh:mm."}
+        error = {"title": "Format invalide",
+                 "content": ("La date de fin d'heures creuses " +
+                             "doit être au format hh:mm.")}
+        install_json = install(db)
+        install_json.update({"err": error})
+        return install_json
 
-
-    if login and password and password == password_confirm and not error:
-
+    if login and password and password == password_confirm:
         password = config.get("salt") + hashlib.sha256(password)
-        admin = database.User(login=login, password=password, is_admin=1,
-                     start_night_rate=start_night_rate,
-                     end_night_rate=end_night_rate)
+        admin = database.User(login=login,
+                              password=password,
+                              is_admin=1,
+                              start_night_rate=start_night_rate,
+                              end_night_rate=end_night_rate)
         db.add(admin)
 
-        provider = (db.query(database.Provider).filter_by(name=provider).\
-                    update({"current":1}))
+        provider = (db.query(database.Provider)
+                    .filter_by(name=provider)
+                    .update({"current": 1}))
 
         session = session_manager.get_session()
         session['valid'] = True
@@ -588,10 +694,13 @@ def install_post(db):
         redirect('/')
     else:
         providers = update_providers(db)
-        ret = {"login": login, "providers": providers, "start_night_rate": raw_start_night_rate,
-                "end_night_rate": raw_end_night_rate}
-        if error:
-            ret['err'] = error
+        ret = {"login": login,
+               "providers": providers,
+               "start_night_rate": raw_start_night_rate,
+               "end_night_rate": raw_end_night_rate,
+               "err": {"title": "Champs obligatoires manquants",
+                       "content": ("Vous devez renseigner tous les champs " +
+                                   "obligatoires.")}}
         return ret
 
 
@@ -600,5 +709,5 @@ def install_post(db):
 # ===
 SimpleTemplate.defaults["get_url"] = app.get_url
 SimpleTemplate.defaults["API_URL"] = app.get_url("index")
-SimpleTemplate.defaults["valid_session"] = lambda : session_manager.get_session()['valid']
+SimpleTemplate.defaults["valid_session"] = lambda: session_manager.get_session()['valid']
 run(app, host="0.0.0.0", port=8080, debug=config.get("debug"), reloader=True)

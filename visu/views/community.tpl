@@ -1,8 +1,8 @@
-% include('_begin.tpl', title='Store', page='store')
+% include('_begin.tpl', title='Community', page='community')
 
             <main>
                 <div class="menu">
-                    <h1><img alt="" src="{{ get_url('static', filename='img/store.svg') }}" />Store</h1>
+                    <h1><img alt="" src="{{ get_url('static', filename='img/community.svg') }}" />Community</h1>
                 </div>
                 <div class="coming-soon">
                 	<img alt="" src="{{ get_url('static', filename='img/loading_simple.svg') }}" />
