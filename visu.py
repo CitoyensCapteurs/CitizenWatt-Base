@@ -5,14 +5,14 @@ import hashlib
 import requests
 import statistics
 import time
-import tools
+import libcitizenwatt.tools as tools
 
 
-from bottle import abort, Bottle, SimpleTemplate, static_file, redirect
-from bottle import request, run
-from bottle.ext import sqlalchemy
-from bottlesession import PickleSession, authenticator
-from config import Config
+from libcitizenwatt.bottle import abort, Bottle, SimpleTemplate, static_file
+from libcitizenwatt.bottle import redirect, request, run
+from libcitizenwatt.bottle.ext import sqlalchemy
+from libcitizenwatt.bottlesession import PickleSession, authenticator
+from libcitizenwatt.config import Config
 from sqlalchemy import create_engine, desc
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.sql import func
@@ -47,7 +47,10 @@ def update_providers(db):
         providers = requests.get(config.get("url_energy_providers"))
         providers = providers.json()
     except requests.ConnectionError:
-        return tools.to_dict(db.query(database.Provider).all())
+        providers = db.query(database.Provider).all()
+        if not providers:
+            providers = []
+        return tools.to_dict(providers)
 
     old_current = db.query(database.Provider).filter_by(current=1).first()
     db.query(database.Provider).delete()

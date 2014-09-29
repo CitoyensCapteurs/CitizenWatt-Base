@@ -43,6 +43,11 @@ class Config():
         self.set("url_energy_providers",
                  "http://pub.phyks.me/tmp/electricity_providers.json")
         self.set("salt", bcrypt.gensalt())
+        self.set("named_fifo", "/tmp/sensor")
+        self.set("aes_key", [0, 1, 2, 3,
+                             4, 5, 6, 7,
+                             8, 9, 10, 11,
+                             12, 13, 14, 15])
         self.save()
 
     def load(self):
