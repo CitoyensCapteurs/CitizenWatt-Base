@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import database
 import datetime
+import hashlib
 import requests
 import time
 import tools
@@ -11,7 +12,7 @@ from bottle import request, run
 from bottle.ext import sqlalchemy
 from bottlesession import PickleSession, authenticator
 from config import Config
-from sqlalchemy import create_engine, asc, desc
+from sqlalchemy import create_engine, desc
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.sql import func
 
@@ -404,6 +405,7 @@ def settings_post(db):
 
     if password:
         if password == password_confirm:
+            password = config.get("salt") + hashlib.sha256(password)
             session = session_manager.get_session()
             user = (db.query(database.User).filter_by(login=session["login"]).
                     update({"password": password},  synchronize_session=False))
@@ -475,7 +477,10 @@ def login(db):
     session = session_manager.get_session()
     session['valid'] = False
     session_manager.save(session)
-    if user and user.password == request.forms.get("password"):
+
+    password = (config.get("salt") +
+                hashlib.sha256(request.forms.get("password")))
+    if user and user.password == password:
         session['valid'] = True
         session['login'] = login
         session['is_admin'] = user.is_admin
@@ -565,6 +570,7 @@ def install_post(db):
 
     if login and password and password == password_confirm and not error:
 
+        password = config.get("salt") + hashlib.sha256(password)
         admin = database.User(login=login, password=password, is_admin=1,
                      start_night_rate=start_night_rate,
                      end_night_rate=end_night_rate)

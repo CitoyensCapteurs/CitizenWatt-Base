@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-import os
+import bcrypt
 import errno
 import json
+import os
 import sys
 import tools
 
@@ -41,6 +42,7 @@ class Config():
         self.set("debug", True)
         self.set("url_energy_providers",
                  "http://pub.phyks.me/tmp/electricity_providers.json")
+        self.set("salt", bcrypt.gensalt())
         self.save()
 
     def load(self):
