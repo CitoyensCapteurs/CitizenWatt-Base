@@ -14,4 +14,7 @@ apt-get --yes autoremove --purge
 # Clear APT cache
 #apt-get clean
 
+# Do updates
+apt-get update && apt-get upgrade
+
 rm -rf /opt/vc
