@@ -69,10 +69,10 @@ def update_providers(db):
 # Initializations
 # ===============
 config = Config()
-base_url = ("mysql+pymysql://" + config.get("username") + ":" +
+database_url = ("mysql+pymysql://" + config.get("username") + ":" +
             config.get("password") + "@" + config.get("host") + "/" +
             config.get("database"))
-engine = create_engine(base_url, echo=config.get("debug"))
+engine = create_engine(database_url, echo=config.get("debug"))
 
 app = Bottle()
 plugin = sqlalchemy.Plugin(
