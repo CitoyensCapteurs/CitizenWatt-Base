@@ -35,8 +35,8 @@
                     </div>
 
                     <div class="menu">
-                        <h1><a href="{{ get_url('store') }}"><img alt="" src="{{ get_url('static', filename='img/store.svg') }}" />Communauté</a></h1>
-                        <a href="{{ get_url('store') }}">
+                        <h1><a href="{{ get_url('community') }}"><img alt="" src="{{ get_url('static', filename='img/community.svg') }}" />Communauté</a></h1>
+                        <a href="{{ get_url('community') }}">
                             <img alt="" src="{{ get_url('static', filename='img/loading.svg') }}" />À venir…
                         </a>
                     </div>
