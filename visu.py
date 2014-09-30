@@ -166,6 +166,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
 
     If id1 and id2 are negative, counts from the end of the measures.
 
+    If kwatthours is asked, returns the total energy of these measures.
     If euros is asked, returns the total cost of these measures.
 
     Note: Returns measure in ASC order of timestamp.
@@ -228,6 +229,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     """Returns measures between timestamps <time1> and <time2>
     from sensor <sensor> in watts or euros.
 
+    If kwatthours is asked, returns the total energy of these measures.
     If euros is asked, returns the total cost of these measures.
 
     Note: Returns measure in ASC order of timestamp.
@@ -302,6 +304,7 @@ def api_specific_energy_providers(id, db):
 @app.route("/api/<energy_provider:int>/watt_to_euros/<consumption:float>",
            apply=valid_user())
 def api_watt_euros(energy_provider, consumption, db):
+    """Returns the cost associated with a certain amount in watts"""
     # Consumption should be in kWh !!!
     if energy_provider != 0:
         provider = (db.query(database.Provider)
