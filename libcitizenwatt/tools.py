@@ -49,6 +49,7 @@ def energy(powers):
     """
     energy = 0
     for i in range(len(powers) - 1):
-        energy += (powers[i]["power"] / 1000 *
-                   (powers[i]["timestamp"] - powers[i+1]["timestamp"]) / 3600)
+        print(powers[i])
+        energy += (powers[i]["value"] / 1000 *
+                   abs(powers[i]["timestamp"] - powers[i+1]["timestamp"]) / 3600)
     return energy

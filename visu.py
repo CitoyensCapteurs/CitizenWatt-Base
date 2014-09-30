@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-import database
 import datetime
 import hashlib
 import requests
 import statistics
 import time
-import libcitizenwatt.tools as tools
 
 
-from libcitizenwatt.bottle import abort, Bottle, SimpleTemplate, static_file
-from libcitizenwatt.bottle import redirect, request, run
-from libcitizenwatt.bottle.ext import sqlalchemy
-from libcitizenwatt.bottlesession import PickleSession, authenticator
+from libcitizenwatt import database
+from libcitizenwatt import tools
+from bottle import abort, Bottle, SimpleTemplate, static_file
+from bottle import redirect, request, run
+from bottle.ext import sqlalchemy
+from bottlesession import PickleSession, authenticator
 from libcitizenwatt.config import Config
 from sqlalchemy import create_engine, desc
 from sqlalchemy.exc import OperationalError
@@ -42,11 +42,14 @@ def get_rate_type(db):
             return "day"
 
 
-def update_providers(db):
+def update_providers(fetch, db):
+    """Updates the available providers. Simply returns them without updating if
+    fetch is False.
+    """
     try:
-        providers = requests.get(config.get("url_energy_providers"))
-        providers = providers.json()
-    except requests.ConnectionError:
+        assert(fetch)
+        providers = requests.get(config.get("url_energy_providers")).json()
+    except (requests.ConnectionError, AssertionError):
         providers = db.query(database.Provider).all()
         if not providers:
             providers = []
@@ -56,10 +59,19 @@ def update_providers(db):
     db.query(database.Provider).delete()
 
     for provider in providers:
+        type_id = (db.query(database.MeasureType)
+                   .filter_by(name=provider["type_name"])
+                   .first())
+        if not type_id:
+            type_db = database.MeasureType(name=provider["type_name"])
+            db.add(type_db)
+            db.flush()
+            type_id = database.MeasureType(name=provider["type_name"]).first()
+
         provider_db = database.Provider(name=provider["name"],
                                         constant_watt_euros=provider["constant_watt_euros"],
                                         slope_watt_euros=provider["slope_watt_euros"],
-                                        type_id=provider["type_id"],
+                                        type_id=type_id.id,
                                         current=(1 if old_current and old_current.name == provider["name"] else 0))
         db.add(provider_db)
     return providers
@@ -70,8 +82,8 @@ def update_providers(db):
 # ===============
 config = Config()
 database_url = ("mysql+pymysql://" + config.get("username") + ":" +
-            config.get("password") + "@" + config.get("host") + "/" +
-            config.get("database"))
+                config.get("password") + "@" + config.get("host") + "/" +
+                config.get("database"))
 engine = create_engine(database_url, echo=config.get("debug"))
 
 app = Bottle()
@@ -108,9 +120,23 @@ def api_sensors(db):
     return {"data": sensors}
 
 
+@app.route("/api/types",
+           apply=valid_user())
+def api_sensors(db):
+    """Returns a list of all the available measure types."""
+    types = db.query(database.MeasureType).all()
+    if types:
+        types = [{"id": mtype.id,
+                  "name": mtype.name} for mtype in types]
+    else:
+        types= {}
+
+    return {"data": types}
+
+
 @app.route("/api/<sensor:int>/get/watts/by_id/<id1:int>",
            apply=valid_user())
-def api_get_id(sensor, watt_euros, id1, db):
+def api_get_id(sensor, id1, db):
     """Returns measure with id <id1> associated to sensor <sensor>, in watts.
     If <id1> < 0, counts from the last measure, as in Python lists.
     """
@@ -132,7 +158,7 @@ def api_get_id(sensor, watt_euros, id1, db):
     return {"data": data, "rate": get_rate_type(db)}
 
 
-@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|euros>/by_id/<id1:int>/<id2:int>",
+@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>",
            apply=valid_user())
 def api_get_ids(sensor, watt_euros, id1, id2, db):
     """Returns measures between ids <id1> and <id2> from sensor <sensor> in
@@ -169,20 +195,21 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
         data = {}
     else:
         data = tools.to_dict(data)
-        if watt_euros == 'euros':
-            energy = tools.energy(data)
-            data = [{"power": api_watt_euros(0, energy, db)["data"]}
-                    for i in data]
+        if watt_euros == 'kwatthours' or watt_euros == 'euros':
+            data = tools.energy(data)
+            if watt_euros == 'euros':
+                data = api_watt_euros(0, data, db)["data"]
     return {"data": data, "rate": get_rate_type(db)}
 
 
 @app.route("/api/<sensor:int>/get/watts/by_time/<time1:float>",
            apply=valid_user())
-def api_get_time(sensor, watt_euros, time1, db):
+def api_get_time(sensor, time1, db):
     """Returns measure at timestamp <time1> for sensor <sensor>, in watts."""
     if time1 < 0:
         abort(400, "Invalid timestamp.")
 
+    time1 = datetime.datetime.fromtimestamp(time1)
     data = (db.query(database.Measures)
             .filter_by(sensor_id=sensor,
                        timestamp=time1)
@@ -195,7 +222,7 @@ def api_get_time(sensor, watt_euros, time1, db):
     return {"data": data, "rate": get_rate_type(db)}
 
 
-@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|euros>/by_time/<time1:float>/<time2:float>",
+@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>",
            apply=valid_user())
 def api_get_times(sensor, watt_euros, time1, time2, db):
     """Returns measures between timestamps <time1> and <time2>
@@ -213,6 +240,8 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
               "Too many values to return. " +
               "(Maximum is set to %d)" % config.get("max_returned_values"))
 
+    time1 = datetime.datetime.fromtimestamp(time1)
+    time2 = datetime.datetime.fromtimestamp(time2)
     data = (db.query(database.Measures)
             .filter(database.Measures.sensor_id == sensor,
                     database.Measures.timestamp >= time1,
@@ -222,10 +251,10 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
         data = {}
     else:
         data = tools.to_dict(data)
-        if watt_euros == 'euros':
-            energy = tools.energy(data)
-            data = [{"power": api_watt_euros(0, energy, db)["data"]}
-                    for i in data]
+        if watt_euros == "kwatthours" or watt_euros == "euros":
+            data = tools.energy(data)
+            if watt_euros == "euros":
+                data = api_watt_euros(0, data, db)["data"]
 
     return {"data": data, "rate": get_rate_type(db)}
 
@@ -270,28 +299,33 @@ def api_specific_energy_providers(id, db):
     return {"data": provider}
 
 
-@app.route("/api/<energy_provider:int>/watt_euros/<consumption:float>",
+@app.route("/api/<energy_provider:int>/watt_to_euros/<consumption:float>",
            apply=valid_user())
 def api_watt_euros(energy_provider, consumption, db):
     # Consumption should be in kWh !!!
-    # TODO
     if energy_provider != 0:
-        provider = db.query(database.Provider).filter_by(id=energy_provider).first()
+        provider = (db.query(database.Provider)
+                    .filter_by(id=energy_provider)
+                    .first())
     else:
-        provider = db.query(database.Provider).filter_by(current=1).first()
+        provider = (db.query(database.Provider)
+                    .filter_by(current=1)
+                    .first())
     if not provider:
         data = -1
     else:
-        data = provider.slope_watt_euros * consumption + provider.constant_watt_euros
+        data = (provider.slope_watt_euros * consumption +
+                provider.constant_watt_euros)
     return {"data": data}
 
 
-@app.route("/api/<sensor_id:int>/mean/<watt_euros:re:watts|kwatthours|euros>/<day_month:re:daily|weekly|monthly>",
+@app.route("/api/<sensor_id:int>/mean/watts/<day_month:re:daily|weekly|monthly>",
            apply=valid_user())
-def api_mean(sensor_id, watt_euros, day_month, db):
+def api_mean(sensor_id, day_month, db):
     """Returns the means in watts over the specified periods, or the sum in
     kWh or euros over the specified periods.
     """
+    # TODO
     now = datetime.datetime.now()
     if day_month == "daily":
         length_step = 3600
@@ -372,19 +406,11 @@ def api_mean(sensor_id, watt_euros, day_month, db):
 
     global_mean = statistics.mean(means)
 
-    if global_mean > -1:
-        if watt_euros == "euros" or watt_euros == "kwatthours":
-            global_mean = global_mean * (times[-1] - times[0])
-            means = [mean * length_step / 1000 / 3600 for mean in means]
-        if watt_euros == "euros":
-            global_mean = api_watt_euros(0, global_mean, db)
-            means = [api_watt_euros(0, mean, db)["data"] if mean[0] != -1
-                     else -1
-                     for mean in mean]
-
     return {"data": {"global": global_mean,
                      hour_day: means},
             "rate": get_rate_type(db)}
+
+# TODO : Daily / weekly / monthly sum
 
 
 # ======
@@ -431,14 +457,14 @@ def settings(db):
     else:
         sensors = []
 
-    providers = update_providers(db)
+    providers = update_providers(True, db)
 
     session = session_manager.get_session()
     user = db.query(database.User).filter_by(login=session["login"]).first()
     start_night_rate = ("%02d" % (user.start_night_rate // 3600) + ":" +
-                        "%02d" % (user.start_night_rate % 3600))
+                        "%02d" % ((user.start_night_rate % 3600) // 60))
     end_night_rate = ("%02d" % (user.end_night_rate // 3600) + ":" +
-                      "%02d" % (user.end_night_rate % 3600))
+                      "%02d" % ((user.end_night_rate % 3600) // 60))
 
     return {"sensors": sensors,
             "providers": providers,
@@ -459,7 +485,8 @@ def settings_post(db):
 
     if password:
         if password == password_confirm:
-            password = config.get("salt") + hashlib.sha256(password)
+            password = (config.get("salt") +
+                        hashlib.sha256(password.encode('utf-8')).hexdigest())
             session = session_manager.get_session()
             (db.query(database.User)
              .filter_by(login=session["login"])
@@ -562,7 +589,8 @@ def login_post(db):
     session_manager.save(session)
 
     password = (config.get("salt") +
-                hashlib.sha256(request.forms.get("password")))
+                hashlib.sha256(request.forms.get("password")
+                               .encode('utf-8')).hexdigest())
     if user and user.password == password:
         session['valid'] = True
         session['login'] = login
@@ -608,7 +636,7 @@ def install(db):
     db.add(electricity_type)
     db.flush()
 
-    providers = update_providers(db)
+    providers = update_providers(True, db)
 
     sensor = database.Sensor(name="CitizenWatt",
                              type_id=electricity_type.id)
@@ -645,6 +673,11 @@ def install_post(db):
     raw_start_night_rate = request.forms.get("start_night_rate")
     raw_end_night_rate = request.forms.get("end_night_rate")
 
+    ret = {"login": login,
+           "providers": update_providers(False, db),
+           "start_night_rate": raw_start_night_rate,
+           "end_night_rate": raw_end_night_rate}
+
     try:
         start_night_rate = raw_start_night_rate.split(":")
         assert(len(start_night_rate) == 2)
@@ -656,9 +689,8 @@ def install_post(db):
         error = {"title": "Format invalide",
                  "content": ("La date de début d'heures creuses " +
                              "doit être au format hh:mm.")}
-        install_json = install(db)
-        install_json.update({"err": error})
-        return install_json
+        ret.update({"err": error})
+        return ret
 
     try:
         end_night_rate = raw_end_night_rate.split(":")
@@ -671,12 +703,12 @@ def install_post(db):
         error = {"title": "Format invalide",
                  "content": ("La date de fin d'heures creuses " +
                              "doit être au format hh:mm.")}
-        install_json = install(db)
-        install_json.update({"err": error})
-        return install_json
+        ret.update({"err": error})
+        return ret
 
     if login and password and password == password_confirm:
-        password = config.get("salt") + hashlib.sha256(password)
+        password = (config.get("salt") +
+                    hashlib.sha256(password.encode('utf-8')).hexdigest())
         admin = database.User(login=login,
                               password=password,
                               is_admin=1,
@@ -696,14 +728,9 @@ def install_post(db):
 
         redirect('/')
     else:
-        providers = update_providers(db)
-        ret = {"login": login,
-               "providers": providers,
-               "start_night_rate": raw_start_night_rate,
-               "end_night_rate": raw_end_night_rate,
-               "err": {"title": "Champs obligatoires manquants",
-                       "content": ("Vous devez renseigner tous les champs " +
-                                   "obligatoires.")}}
+        ret.update({"err": {"title": "Champs obligatoires manquants",
+                            "content": ("Vous devez renseigner tous " +
+                                        "les champs obligatoires.")}})
         return ret
 
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-import bcrypt
+import crypt
 import errno
 import json
 import os
 import sys
-import tools
+from libcitizenwatt import tools
 
 
 def make_sure_path_exists(path):
@@ -42,7 +42,7 @@ class Config():
         self.set("debug", True)
         self.set("url_energy_providers",
                  "http://pub.phyks.me/tmp/electricity_providers.json")
-        self.set("salt", bcrypt.gensalt())
+        self.set("salt", crypt.mksalt())
         self.set("named_fifo", "/tmp/sensor")
         self.set("aes_key", [0, 1, 2, 3,
                              4, 5, 6, 7,
