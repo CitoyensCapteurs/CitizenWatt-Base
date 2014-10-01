@@ -17,5 +17,5 @@ apt-get --yes autoremove --purge
 rm -rf /opt/vc /home/pi/Desktop /home/pi/python_games /home/pi/ocr_pi.png
 
 # Do updates
-apt-get update && apt-get upgrade
+apt-get update && apt-get upgrade --yes
 
