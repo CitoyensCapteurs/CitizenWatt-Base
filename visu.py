@@ -215,7 +215,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
                 .order_by(desc(database.Measures.id))
                 .slice(-id2, -id1)
                 .all())
-        data = data.reverse()
+        data.reverse()
     else:
         abort(400, "Wrong parameters id1 and id2.")
 
@@ -240,10 +240,13 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>/<step:int>",
            apply=valid_user())
 def api_get_ids_step(sensor, watt_euros, id1, id2, step, db):
-    steps = range(id1, id2, step)
+    steps = [i for i in range(id1, id2 + step, step)]
+    print()
+    print(steps)
+    print()
     data = []
 
-    for step in zip(steps[0::2], steps[1::2]):
+    for step in [steps[i:i+2] for i in range(len(steps)-1)]:
         data.append(api_get_ids(sensor,
                                 watt_euros,
                                 step[0],
@@ -321,10 +324,13 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>/<step:float>",
            apply=valid_user())
 def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
-    steps = range(time1, time2, step)
+    time1 = int(time1)
+    time2 = int(time2)
+
+    steps = range(time1, time2 + step, step)
     data = []
 
-    for step in zip(steps[0::2], steps[1::2]):
+    for step in [steps[i:i+2] for i in range(len(steps)-1)]:
         data.append(api_get_times(sensor,
                                   watt_euros,
                                   step[0],

@@ -48,7 +48,7 @@ def energy(powers):
     and associated timestamps (in s).
     """
     # TODO : Better integration
-    energy = {'night_rate': 0, 'day_rate': 0, 'total': 0}
+    energy = {'night_rate': 0, 'day_rate': 0, 'value': 0}
     for i in range(len(powers) - 1):
         if powers[i]["night_rate"] == 1:
             energy['night_rate'] += (powers[i]["value"] / 1000 *
@@ -56,5 +56,5 @@ def energy(powers):
         else:
             energy['day_rate'] += (powers[i]["value"] / 1000 *
                                    abs(powers[i]["timestamp"] - powers[i+1]["timestamp"]) / 3600)
-    energy['total'] = energy['day_rate'] + energy['night_rate']
+    energy['value'] = energy['day_rate'] + energy['night_rate']
     return energy
