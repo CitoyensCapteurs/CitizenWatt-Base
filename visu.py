@@ -244,7 +244,11 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db):
     data = []
 
     for step in zip(steps[0::2], steps[1::2]):
-        data.append(api_get_ids(sensor, watt_euros, step[0], step[1], db))
+        data.append(api_get_ids(sensor,
+                                watt_euros,
+                                step[0],
+                                step[1],
+                                db)["data"])
 
     return {"data": data, "rate": get_rate_type(db)}
 
@@ -321,7 +325,11 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
     data = []
 
     for step in zip(steps[0::2], steps[1::2]):
-        data.append(api_get_times(sensor, watt_euros, step[0], step[1], db))
+        data.append(api_get_times(sensor,
+                                  watt_euros,
+                                  step[0],
+                                  step[1],
+                                  db)["data"])
 
     return {"data": data, "rate": get_rate_type(db)}
 
