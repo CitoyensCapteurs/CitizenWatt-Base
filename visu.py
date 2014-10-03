@@ -217,7 +217,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
         abort(400, "Wrong parameters id1 and id2.")
 
     if not data:
-        data = []
+        data = [] if watt_euros == "watts" else {}
     else:
         data = tools.to_dict(data)
         if watt_euros == 'kwatthours' or watt_euros == 'euros':
@@ -304,7 +304,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
             .all())
 
     if not data:
-        data = []
+        data = [] if watt_euros == "watts" else {}
     else:
         data = tools.to_dict(data)
         if watt_euros == "kwatthours" or watt_euros == "euros":
