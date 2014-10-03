@@ -1,12 +1,12 @@
 #### BEGIN INIT INFO
-# Provides: firewall
+# Provides: citizenwatt
 # Required-Start:
 # Required-Stop:
 # Should-Start:
 # Should-Stop:
 # Default-Start: 1 2 3 4 5
 # Default-Stop: 0 6
-# Short-Description: script iptables
+# Short-Description: startup script for citizenwatt
 #### END INIT INFO
 
 #!/bin/sh
