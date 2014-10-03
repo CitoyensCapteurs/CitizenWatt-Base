@@ -26,7 +26,7 @@
     * Get the energy / cost associated with these measures if kwatthours or euros is specified
 * /api/<sensor:int>/get/watts/by_time/<time:int>
 	* Idem as above, but with timestamps
-* /api/<provider:int>/watt_to_euros/<consumption:int>
+* /api/<provider:re:current|\d>/watt_to_euros/<tarif:re:night|day>/<consumption:int>
     * Returns the price associated to the consumption (in kWh) for the specified provider
 * /api/<sensor:int>/get/[watts|kwatthours|euros]/by_time/<time1:int>/<time2:int>/<timestep:int>
     * Idem as above, but with timestamps

@@ -69,8 +69,10 @@ def update_providers(fetch, db):
             type_id = database.MeasureType(name=provider["type_name"]).first()
 
         provider_db = database.Provider(name=provider["name"],
-                                        constant_watt_euros=provider["constant_watt_euros"],
-                                        slope_watt_euros=provider["slope_watt_euros"],
+                                        day_constant_watt_euros=provider["day_constant_watt_euros"],
+                                        day_slope_watt_euros=provider["day_slope_watt_euros"],
+                                        night_constant_watt_euros=provider["night_constant_watt_euros"],
+                                        night_slope_watt_euros=provider["night_slope_watt_euros"],
                                         type_id=type_id.id,
                                         current=(1 if old_current and old_current.name == provider["name"] else 0))
         db.add(provider_db)
@@ -224,7 +226,14 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
         if watt_euros == 'kwatthours' or watt_euros == 'euros':
             data = tools.energy(data)
             if watt_euros == 'euros':
-                data = api_watt_euros(0, data, db)["data"]
+                data = (api_watt_euros("current",
+                                       'night',
+                                       data['night_rate'],
+                                       db)["data"] +
+                        api_watt_euros("current",
+                                       'day',
+                                       data['day_rate'],
+                                       db)["data"])
     return {"data": data, "rate": get_rate_type(db)}
 
 
@@ -293,7 +302,14 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
         if watt_euros == "kwatthours" or watt_euros == "euros":
             data = tools.energy(data)
             if watt_euros == "euros":
-                data = api_watt_euros(0, data, db)["data"]
+                data = (api_watt_euros("current",
+                                       'night',
+                                       data['night_rate'],
+                                       db)["data"] +
+                        api_watt_euros("current",
+                                       'day',
+                                       data['day_rate'],
+                                       db)["data"])
 
     return {"data": data, "rate": get_rate_type(db)}
 
@@ -350,11 +366,22 @@ def api_specific_energy_providers(id, db):
     return {"data": provider}
 
 
-@app.route("/api/<energy_provider:int>/watt_to_euros/<consumption:float>",
+@app.route("/api/<energy_provider:re:current|\d>/watt_to_euros/<tariff:re:night|day>/<consumption:float>",
            apply=valid_user())
-def api_watt_euros(energy_provider, consumption, db):
+def api_watt_euros(energy_provider, tariff, consumption, db):
     """Returns the cost associated with a certain amount in watts"""
     # Consumption should be in kWh !!!
+
+    # TODO: Night / day
+
+    if energy_provider == "current":
+        energy_provider = 0
+
+    try:
+        int(energy_provider)
+    except ValueError:
+        abort(400, "Wrong parameter energy_provider.")
+
     if energy_provider != 0:
         provider = (db.query(database.Provider)
                     .filter_by(id=energy_provider)
@@ -366,8 +393,14 @@ def api_watt_euros(energy_provider, consumption, db):
     if not provider:
         data = -1
     else:
-        data = (provider.slope_watt_euros * consumption +
-                provider.constant_watt_euros)
+        if tariff == "night":
+            data = (provider.night_slope_watt_euros * consumption +
+                    provider.night_constant_watt_euros)
+        elif tariff == "day":
+            data = (provider.day_slope_watt_euros * consumption +
+                    provider.day_constant_watt_euros)
+        else:
+            abort(400, "Wrong parameter tariff.")
     return {"data": data}
 
 

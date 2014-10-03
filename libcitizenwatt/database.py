@@ -37,8 +37,10 @@ class Provider(Base):
     type_id = Column(Integer,
                      ForeignKey("measures_types.id", ondelete="CASCADE"),
                      nullable=False)
-    slope_watt_euros = Column(Float)
-    constant_watt_euros = Column(Float)
+    day_slope_watt_euros = Column(Float)
+    day_constant_watt_euros = Column(Float)
+    night_slope_watt_euros = Column(Float)
+    night_constant_watt_euros = Column(Float)
     current = Column(Integer)
 
 
