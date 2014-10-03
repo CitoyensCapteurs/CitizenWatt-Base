@@ -334,20 +334,20 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
 
     for s in [steps[i:i+2] for i in range(len(steps)-1)]:
         if watt_euros == "watts":
-            tmp = api_get_ids(sensor,
-                              "kwatthours",
-                              s[0],
-                              s[1],
-                              db)["data"]
+            tmp = api_get_times(sensor,
+                                "kwatthours",
+                                s[0],
+                                s[1],
+                                db)["data"]
             tmp = {"value": tmp["value"] / step / 1000 * 3600,
                    "day_rate": tmp["day_rate"] / step / 1000 * 3600,
                    "night_rate": tmp["night_rate"] / step / 1000 * 3600}
         else:
-            tmp = api_get_ids(sensor,
-                              watt_euros,
-                              s[0],
-                              s[1],
-                              db)["data"]
+            tmp = api_get_times(sensor,
+                                watt_euros,
+                                s[0],
+                                s[1],
+                                db)["data"]
         data.append(tmp)
 
     return {"data": data, "rate": get_rate_type(db)}
