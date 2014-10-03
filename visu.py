@@ -115,23 +115,48 @@ def api_sensors(db):
                     "type": sensor.type.name,
                     "type_id": sensor.type_id} for sensor in sensors]
     else:
-        sensors = {}
+        sensors = []
 
     return {"data": sensors}
 
 
+@app.route("/api/sensors/<id:int>",
+           apply=valid_user())
+def api_sensor(id, db):
+    """Returns a list of all the available sensors."""
+    sensor = db.query(database.Sensor).filter_by(id=id).first()
+    if sensor:
+        sensor = {"id": sensor.id,
+                  "name": sensor.name,
+                  "type": sensor.type.name,
+                  "type_id": sensor.type_id}
+    else:
+        sensor = {}
+
+    return {"data": sensor}
+
+
 @app.route("/api/types",
            apply=valid_user())
-def api_sensors(db):
+def api_types(db):
     """Returns a list of all the available measure types."""
     types = db.query(database.MeasureType).all()
     if types:
         types = [{"id": mtype.id,
                   "name": mtype.name} for mtype in types]
     else:
-        types= {}
+        types = []
 
     return {"data": types}
+
+
+@app.route("/api/time",
+           apply=valid_user())
+def api_time(db):
+    """Returns current timestamp on the server side."""
+    now = datetime.datetime.now()
+
+    return {"data": now.timestamp()}
 
 
 @app.route("/api/<sensor:int>/get/watts/by_id/<id1:int>",
@@ -193,7 +218,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
         abort(400, "Wrong parameters id1 and id2.")
 
     if not data:
-        data = {}
+        data = []
     else:
         data = tools.to_dict(data)
         if watt_euros == 'kwatthours' or watt_euros == 'euros':
@@ -250,7 +275,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
                     database.Measures.timestamp <= time2)
             .all())
     if not data:
-        data = {}
+        data = []
     else:
         data = tools.to_dict(data)
         if watt_euros == "kwatthours" or watt_euros == "euros":
@@ -267,7 +292,7 @@ def api_energy_providers(db):
     """Returns all the available energy providers."""
     providers = db.query(database.Provider).all()
     if not providers:
-        providers = {}
+        providers = []
     else:
         providers = tools.to_dict(providers)
 

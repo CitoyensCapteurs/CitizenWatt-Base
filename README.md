@@ -6,8 +6,12 @@
 
 * /api/sensors
 	* Returns all the available sensors with their types
+* /api/sensors/<id:int>
+    * Returns the infos for the specified sensor.
 * /api/types
 	* Returns all the available measure types
+* /api/time
+    * Returns the current timestamp of the server side.
 * /api/energy_providers
     * Returns all available energy providers
 * /api/energy_providers/<current|<int>>
@@ -25,11 +29,8 @@
     * Returns the price associated to the consumption (in kWh) for the specified provider
 
 
-+ * /api/time
-+ * /api/sensors/<id>
-- * /api/<sensor:int>/mean/[watts|euros]/[daily|weekly|monthly]
--    * Returns the mean for the last day/month and for each hour/day for the last day/month
--    * TODO
-+ * /api/<sensor:int>/get/[watts|kwatthours|euros]/by_time/<time1:int>/<time2:int>/<timestep:int>
-+ 	* Idem as above, but with timestamps
-+ * idem avec id
+## TODO
+* /api/<sensor:int>/get/[watts|kwatthours|euros]/by_time/<time1:int>/<time2:int>/<timestep:int>
+    * Idem as above, but with timestamps
+    * idem avec id
+* (resp, by id)
