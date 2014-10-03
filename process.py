@@ -46,8 +46,6 @@ engine = create_engine(database_url, echo=config.get("debug"))
 create_session = sessionmaker(bind=engine)
 database.Base.metadata.create_all(engine)
 
-last_timer = 0
-
 
 try:
     assert(stat.S_ISFIFO(os.stat(config.get("named_fifo")).st_mode))
@@ -70,13 +68,15 @@ try:
             battery = measure[2]
             timer = measure[3]
 
-            if timer < last_timer:
+            sensor = (db.query(database.Sensor)
+                        .filter_by(name="CitizenWatt")
+                        .first())
+            last_timer = sensor.last_timer if sensor else 0
+
+            if last_timer > 0 and last_timer < 4233600000 and timer < last_timer:
                 tools.warning("Invalid timer in the last packet, skipping it")
             else:
                 db = create_session()
-                sensor = (db.query(database.Sensor)
-                          .filter_by(name="CitizenWatt")
-                          .first())
                 if not sensor or not type:
                     tools.warning("Got packet "+str(measure)+" but install " +
                                   "is not complete ! " +
@@ -88,8 +88,11 @@ try:
                                                    timestamp=datetime.datetime.now(),
                                                    night_rate=get_rate_type(db))
                     db.add(measure_db)
+                    sensor.last_timer = timer
+                    (db.query(database.Sensor)
+                     .filter_by(name="CitizenWatt")
+                     .update({"last_timer": last_timer}))
                     db.commit()
                     print("Saved successfully.")
-                    last_timer = timer
 except KeyboardInterrupt:
     pass

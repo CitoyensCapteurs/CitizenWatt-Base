@@ -483,9 +483,16 @@ def conso(db):
     return {"provider": provider.name}
 
 
+@app.route("/reset_timer/<sensor:int>", apply=valid_user())
+def reset_timer(sensor, db):
+    db.query(database.Sensor).filter_by(id=sensor).update({"last_timer": 0})
+    redirect("/settings")
+
+
 @app.route("/settings",
            name="settings",
-           template="settings")
+           template="settings",
+           apply=valid_user())
 def settings(db):
     """Settings view"""
     sensors = db.query(database.Sensor).all()

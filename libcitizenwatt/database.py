@@ -16,6 +16,7 @@ class Sensor(Base):
                      ForeignKey("measures_types.id", ondelete="CASCADE"),
                      nullable=False)
     measures = relationship("Measures", passive_deletes=True)
+    last_timer = Column(Integer)
     type = relationship("MeasureType", lazy="joined")
 
 

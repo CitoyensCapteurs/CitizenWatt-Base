@@ -41,11 +41,13 @@
                                 <tr>
                                     <th>Nom</th>
                                     <th>Type</th>
+                                    <th>Appairer</th>
                                 </tr>
                             % for sensor in sensors:
                                 <tr>
                                     <td>{{ sensor["name"] }}</td>
                                     <td>{{ sensor["type"] }}</td>
+                                    <td><a href="/reset_timer/{{ sensor["id"] }}">Appairer</a></td>
                                 </tr>
                             % end
                             </table>
