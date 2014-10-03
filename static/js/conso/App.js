@@ -49,7 +49,7 @@ var App = function() {
 			graph = PriceGraph();
 			hash.setUnit('euros');
 		} else {
-			graph = Graph();
+			graph = Graph(menu.getMode() == 'now' ? 'W' : 'kWh');
 			hash.setUnit('watt');
 		}
 		graph.init();
@@ -58,7 +58,7 @@ var App = function() {
 
 	menu.onmodechange = function(mode, callback) {
 		graph.clean();
-		graph = hash.getUnit() == 'watt' ? Graph() : PriceGraph();
+		graph = hash.getUnit() == 'watt' ? Graph(menu.getMode() == 'now' ? 'W' : 'kWh') : PriceGraph();
 		graph.autoremove = mode == 'now';
 		graph.init();
 		hash.setMode(mode);
@@ -160,7 +160,7 @@ var App = function() {
 					graph.addRect(0, false);
 				}
 			});
-			if (mode != 'day') graph.setOverview(s);
+			if (mode != 'now') graph.setOverview(s);
 			graph.stopLoading();
 			if (callback) callback();
 		});
