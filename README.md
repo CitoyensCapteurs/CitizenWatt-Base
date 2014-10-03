@@ -28,10 +28,7 @@
 	* Idem as above, but with timestamps
 * /api/<provider:int>/watt_to_euros/<consumption:int>
     * Returns the price associated to the consumption (in kWh) for the specified provider
-
-
-## TODO
 * /api/<sensor:int>/get/[watts|kwatthours|euros]/by_time/<time1:int>/<time2:int>/<timestep:int>
     * Idem as above, but with timestamps
     * idem avec id
-* (resp, by id)
+* idem with ids

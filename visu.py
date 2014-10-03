@@ -205,7 +205,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
         data = (db.query(database.Measures)
                 .filter(database.Measures.sensor_id == sensor,
                         database.Measures.id >= id1,
-                        database.Measures.id <= id2)
+                        database.Measures.id < id2)
                 .all())
     elif id1 <= 0 and id2 <= 0 and id2 >= id1:
         data = (db.query(database.Measures)
@@ -225,6 +225,18 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
             data = tools.energy(data)
             if watt_euros == 'euros':
                 data = api_watt_euros(0, data, db)["data"]
+    return {"data": data, "rate": get_rate_type(db)}
+
+
+@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>/<step:int>",
+           apply=valid_user())
+def api_get_ids_step(sensor, watt_euros, id1, id2, step, db):
+    steps = range(id1, id2, step)
+    data = []
+
+    for step in zip(steps[0::2], steps[1::2]):
+        data.append(api_get_ids(sensor, watt_euros, step[0], step[1], db))
+
     return {"data": data, "rate": get_rate_type(db)}
 
 
@@ -272,7 +284,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     data = (db.query(database.Measures)
             .filter(database.Measures.sensor_id == sensor,
                     database.Measures.timestamp >= time1,
-                    database.Measures.timestamp <= time2)
+                    database.Measures.timestamp < time2)
             .all())
     if not data:
         data = []
@@ -282,6 +294,18 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
             data = tools.energy(data)
             if watt_euros == "euros":
                 data = api_watt_euros(0, data, db)["data"]
+
+    return {"data": data, "rate": get_rate_type(db)}
+
+
+@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>/<step:float>",
+           apply=valid_user())
+def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
+    steps = range(time1, time2, step)
+    data = []
+
+    for step in zip(steps[0::2], steps[1::2]):
+        data.append(api_get_times(sensor, watt_euros, step[0], step[1], db))
 
     return {"data": data, "rate": get_rate_type(db)}
 

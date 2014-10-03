@@ -47,6 +47,7 @@ def energy(powers):
     """Compute the energy associated to a dict of powers (in W)
     and associated timestamps (in s).
     """
+    # TODO : Better integration
     energy = 0
     for i in range(len(powers) - 1):
         print(powers[i])
