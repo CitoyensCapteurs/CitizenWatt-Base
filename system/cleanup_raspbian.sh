@@ -8,6 +8,8 @@ apt-get --yes purge x11-common lxde dillo gnome-icon-theme \
   libx11-data libx11-xcb1 desktop-file-utils debian-reference-en \
   debian-reference-common java-common
 
+apt-get --yes install mysql-client mysql-server
+
 # Remove unused packets
 apt-get --yes autoremove --purge
 
