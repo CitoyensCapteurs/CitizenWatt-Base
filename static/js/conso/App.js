@@ -80,7 +80,7 @@ var App = function() {
 		menu.init();
 
 		provider.get('/time', function(basetime) {
-			dateutils.offset = basetime * 1000.0 - Date();
+			dateutils.offset = parseFloat(basetime) * 1000.0 - (new Date()).getTime();
 
 			switch (hash.getUnit()) {
 				case 'euros':
@@ -152,8 +152,12 @@ var App = function() {
 			graph.rect_width = graph.getPixelWidth() / data.length - graph.rect_margin;
 			var s = 0;
 			data.map(function(m) {
-				graph.addRect(m.value, false);
-				s += m.value;
+				if (m.value !== undefined) {
+					graph.addRect(m.value, false);
+					s += m.value;
+				} else {
+					graph.addRect(0, false);
+				}
 			});
 			if (mode != 'day') graph.setOverview(s);
 			if (callback) callback();
@@ -170,7 +174,7 @@ var App = function() {
 			var target = '/1/get/';
 			target += menu.getUnitString();
 			target += '/by_time/'
-			target += graph.last_call + '/' + (graph.last_call = Date.now() / 1000.0);
+			target += graph.last_call + '/' + (graph.last_call = Date.now() / 1000.0) + '/1';
 
 			provider.get(target, function(data) {
 				data.map(function(value) {
