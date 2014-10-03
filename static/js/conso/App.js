@@ -173,15 +173,20 @@ var App = function() {
 	 */
 	api.update = function() {
 		if (menu.getMode() == 'now') {
-			var target = '/1/get/';
-			target += menu.getUnitString();
-			target += '/by_time/'
-			target += graph.last_call + '/' + (graph.last_call = Date.now() / 1000.0) + '/1';
+			var target
+			= '/1/get/'
+			+ menu.getUnitString()
+			+ '/by_time/'
+			+ graph.last_call + '/'
+			+ (graph.last_call = Date.now() / 1000.0) + '/'
+			+ Config.timestep;
 
 			provider.get(target, function(data) {
-				data.map(function(value) {
-					graph.addRect(value.power);
-					graph.setOverview(value.power);
+				data.map(function(m) {
+					if (m.value !== undefined) {
+						graph.addRect(m.value);
+						graph.setOverview(m.value);
+					}
 				});
 			});
 		}
