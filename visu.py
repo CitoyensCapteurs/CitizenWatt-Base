@@ -2,8 +2,6 @@
 import datetime
 import hashlib
 import requests
-import statistics
-import time
 
 
 from libcitizenwatt import database
@@ -15,7 +13,6 @@ from bottlesession import PickleSession, authenticator
 from libcitizenwatt.config import Config
 from sqlalchemy import create_engine, desc
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.sql import func
 
 
 # =========
@@ -290,11 +287,6 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     if time1 < 0 or time2 < time1:
         abort(400, "Invalid timestamps.")
 
-    if (time2 - time1) > config.get("max_returned_values"):
-        abort(403,
-              "Too many values to return. " +
-              "(Maximum is set to %d)" % config.get("max_returned_values"))
-
     time1 = datetime.datetime.fromtimestamp(time1)
     time2 = datetime.datetime.fromtimestamp(time2)
     data = (db.query(database.Measures)
@@ -302,6 +294,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
                     database.Measures.timestamp >= time1,
                     database.Measures.timestamp < time2)
             .all())
+
     if not data:
         data = []
     else:
@@ -332,11 +325,23 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
     data = []
 
     for step in [steps[i:i+2] for i in range(len(steps)-1)]:
-        data.append(api_get_times(sensor,
-                                  watt_euros,
-                                  step[0],
-                                  step[1],
-                                  db)["data"])
+        if watt_euros == "watts":
+            tmp = api_get_times(sensor,
+                                "kwatthours",
+                                step[0],
+                                step[1],
+                                db)["data"]
+            tmp = [{"value": i["value"] / step / 1000 * 3600,
+                    "day_rate": i["day_rate"] / step / 1000 * 3600,
+                    "night_rate": i["night__rate"] / step / 1000 * 3600}
+                   for i in tmp]
+        else:
+            tmp = api_get_times(sensor,
+                                watt_euros,
+                                step[0],
+                                step[1],
+                                db)["data"]
+        data.append(tmp)
 
     return {"data": data, "rate": get_rate_type(db)}
 
@@ -350,6 +355,16 @@ def api_energy_providers(db):
         providers = []
     else:
         providers = tools.to_dict(providers)
+        for provider in providers:
+            if provider["day_slope_watt_euros"] != provider["night_slope_watt_euros"]:
+                session = session_manager.get_session()
+                user = db.query(database.User).filter_by(login=session["login"]).first()
+                start_night_rate = ("%02d" % (user.start_night_rate // 3600) + ":" +
+                                    "%02d" % ((user.start_night_rate % 3600) // 60))
+                end_night_rate = ("%02d" % (user.end_night_rate // 3600) + ":" +
+                                  "%02d" % ((user.end_night_rate % 3600) // 60))
+                provider["start_night_rate"] = start_night_rate
+                provider["end_night_rate"] = end_night_rate
 
     return {"data": providers}
 
@@ -377,6 +392,15 @@ def api_specific_energy_providers(id, db):
         provider = {}
     else:
         provider = tools.to_dict(provider)
+        if provider["day_slope_watt_euros"] != provider["night_slope_watt_euros"]:
+            session = session_manager.get_session()
+            user = db.query(database.User).filter_by(login=session["login"]).first()
+            start_night_rate = ("%02d" % (user.start_night_rate // 3600) + ":" +
+                                "%02d" % ((user.start_night_rate % 3600) // 60))
+            end_night_rate = ("%02d" % (user.end_night_rate // 3600) + ":" +
+                              "%02d" % ((user.end_night_rate % 3600) // 60))
+            provider["start_night_rate"] = start_night_rate
+            provider["end_night_rate"] = end_night_rate
 
     return {"data": provider}
 
@@ -417,100 +441,6 @@ def api_watt_euros(energy_provider, tariff, consumption, db):
         else:
             abort(400, "Wrong parameter tariff.")
     return {"data": data}
-
-
-@app.route("/api/<sensor_id:int>/mean/watts/<day_month:re:daily|weekly|monthly>",
-           apply=valid_user())
-def api_mean(sensor_id, day_month, db):
-    """Returns the means in watts over the specified periods, or the sum in
-    kWh or euros over the specified periods.
-    """
-    # TODO
-    now = datetime.datetime.now()
-    if day_month == "daily":
-        length_step = 3600
-        hour_day = "hourly"
-        day_start = datetime.datetime(now.year,
-                                      now.month,
-                                      now.day,
-                                      0,
-                                      0,
-                                      0,
-                                      0)
-        day_end = datetime.datetime(now.year,
-                                    now.month,
-                                    now.day,
-                                    23,
-                                    59,
-                                    59,
-                                    999)
-        time_start = int(time.mktime(day_start.timetuple()))
-        time_end = int(time.mktime(day_end.timetuple()))
-
-    elif day_month == "weekly":
-        length_step = 86400
-        hour_day = "daily"
-        week_start = datetime.datetime(now.year,
-                                       now.month,
-                                       now.day - now.weekday(),
-                                       0,
-                                       0,
-                                       0,
-                                       0)
-        week_end = datetime.datetime(now.year,
-                                     now.month,
-                                     now.day + 6 - now.weekday(),
-                                     23,
-                                     59,
-                                     59,
-                                     999)
-        time_start = int(time.mktime(week_start.timetuple()))
-        time_end = int(time.mktime(week_end.timetuple()))
-
-    elif day_month == "monthly":
-        length_step = 86400
-        hour_day = "daily"
-        month_start = datetime.datetime(now.year,
-                                        now.month,
-                                        1,
-                                        0,
-                                        0,
-                                        0,
-                                        0)
-        month_end = datetime.datetime(now.year,
-                                      now.month,
-                                      tools.last_day(now.month, now.year),
-                                      23,
-                                      59,
-                                      59,
-                                      999)
-        time_start = int(time.mktime(month_start.timetuple()))
-        time_end = int(time.mktime(month_end.timetuple()))
-
-    times = []
-    for time_i in range(time_start, time_end, length_step):
-        times.append(time_i)
-    times.append(time_end)
-
-    means = []
-    for i in range(len(times) - 1):
-        means.append(db.query((func.avg(database.Measures.value))
-                              .label('average'))
-                     .filter(database.Measures.timestamp >= times[i],
-                             database.Measures.timestamp <= times[i+1])
-                     .first())
-        if not means or means[-1] == (None,):
-            means[-1] = -1
-        else:
-            means[-1] = means[-1][0]
-
-    global_mean = statistics.mean(means)
-
-    return {"data": {"global": global_mean,
-                     hour_day: means},
-            "rate": get_rate_type(db)}
-
-# TODO : Daily / weekly / monthly sum
 
 
 # ======
