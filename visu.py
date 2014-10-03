@@ -238,17 +238,25 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
            apply=valid_user())
 def api_get_ids_step(sensor, watt_euros, id1, id2, step, db):
     steps = [i for i in range(id1, id2 + step, step)]
-    print()
-    print(steps)
-    print()
     data = []
 
-    for step in [steps[i:i+2] for i in range(len(steps)-1)]:
-        data.append(api_get_ids(sensor,
-                                watt_euros,
-                                step[0],
-                                step[1],
-                                db)["data"])
+    for s in [steps[i:i+2] for i in range(len(steps)-1)]:
+        if watt_euros == "watts":
+            tmp = api_get_ids(sensor,
+                              "kwatthours",
+                              s[0],
+                              s[1],
+                              db)["data"]
+            tmp = {"value": tmp["value"] / step / 1000 * 3600,
+                   "day_rate": tmp["day_rate"] / step / 1000 * 3600,
+                   "night_rate": tmp["night_rate"] / step / 1000 * 3600}
+        else:
+            tmp = api_get_ids(sensor,
+                              watt_euros,
+                              s[0],
+                              s[1],
+                              db)["data"]
+        data.append(tmp)
 
     return {"data": data, "rate": get_rate_type(db)}
 
@@ -324,23 +332,22 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
     steps = range(time1, time2 + step, step)
     data = []
 
-    for step in [steps[i:i+2] for i in range(len(steps)-1)]:
+    for s in [steps[i:i+2] for i in range(len(steps)-1)]:
         if watt_euros == "watts":
-            tmp = api_get_times(sensor,
-                                "kwatthours",
-                                step[0],
-                                step[1],
-                                db)["data"]
-            tmp = [{"value": i["value"] / step / 1000 * 3600,
-                    "day_rate": i["day_rate"] / step / 1000 * 3600,
-                    "night_rate": i["night__rate"] / step / 1000 * 3600}
-                   for i in tmp]
+            tmp = api_get_ids(sensor,
+                              "kwatthours",
+                              s[0],
+                              s[1],
+                              db)["data"]
+            tmp = {"value": tmp["value"] / step / 1000 * 3600,
+                   "day_rate": tmp["day_rate"] / step / 1000 * 3600,
+                   "night_rate": tmp["night_rate"] / step / 1000 * 3600}
         else:
-            tmp = api_get_times(sensor,
-                                watt_euros,
-                                step[0],
-                                step[1],
-                                db)["data"]
+            tmp = api_get_ids(sensor,
+                              watt_euros,
+                              s[0],
+                              s[1],
+                              db)["data"]
         data.append(tmp)
 
     return {"data": data, "rate": get_rate_type(db)}
@@ -410,8 +417,6 @@ def api_specific_energy_providers(id, db):
 def api_watt_euros(energy_provider, tariff, consumption, db):
     """Returns the cost associated with a certain amount in watts"""
     # Consumption should be in kWh !!!
-
-    # TODO: Night / day
 
     if energy_provider == "current":
         energy_provider = 0
