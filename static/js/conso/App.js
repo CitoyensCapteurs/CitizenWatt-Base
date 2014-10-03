@@ -99,58 +99,59 @@ var App = function() {
 	 * @param callback: (optional)
 	 */
 	api.initValues = function(callback) {
-		switch (menu.getMode()) {
+		var target = '/1/get/' + menu.getUnitString();
+		var mode = menu.getMode();
+
+		switch (mode) {
 			case 'now':
-				var target = '/1/get/';
-				target += menu.getUnitString();
-				target += '/by_id/';
-				target += (-graph.getWidth()-1).toString();
-				target += '/0';
-				provider.get(target, function(data) {
-					data.map(function(value) {
-						graph.addRect(value.power, false);
-						graph.setOverview(value.power);
-					});
-					graph.setOverviewLabel('Consommation actuelle');
-					if (callback) callback();
-				});
-				break;
+				target
+				+= '/by_id/'
+				+  (-graph.getWidth()-1).toString() + '/'
+				+  '0/1';
+				graph.setOverviewLabel('Consommation actuelle');
 
 			case 'day':
-				var target = '/1/mean/';
-				target += menu.getUnitString();
-				target += '/daily';
-				provider.get(target, function(data) {
-					graph.rect_width = graph.getPixelWidth() / data.hourly.length - graph.rect_margin;
-					data.hourly.map(function(value) {
-						graph.addRect(value, false);
-					});
-					graph.setOverview(data.global);
-					graph.setOverviewLabel('Moyenne aujourd\'hui');
-					if (callback) callback();
-				});
+				target
+				+= '/by_time/'
+				+  dateutils.getDayStart() + '/'
+				+  dateutils.getDayEnd() + '/'
+				+  dateutils.getHourLength();
+				graph.setOverviewLabel('Consommation aujourd\'hui');
 				break;
 
 			case 'week':
+				target
+				+= '/by_time/'
+				+  dateutils.getWeekStart() + '/'
+				+  dateutils.getWeekEnd() + '/'
+				+  dateutils.getDayLength();
+				graph.setOverviewLabel('Consommation cette semaine');
+				break;
+
 			case 'month':
-				var target = '/1/mean/';
-				target += menu.getUnitString();
-				target += '/' + menu.getMode() + 'ly';
-				provider.get(target, function(data) {
-					graph.rect_width = graph.getPixelWidth() / data.daily.length - graph.rect_margin;
-					data.daily.map(function(value) {
-						graph.addRect(value, false);
-					});
-					graph.setOverview(data.global);
-					graph.setOverviewLabel(menu.getMode() == 'week' ? 'Moyenne cette semaine' : 'Moyenne ce mois');
-					if (callback) callback();
-				});
+				target
+				+= '/by_time/'
+				+  dateutils.getMonthStart() + '/'
+				+  dateutils.getMonthEnd() + '/'
+				+  dateutils.getDayLength();
+				graph.setOverviewLabel('Consommation ce mois');
 				break;
 
 			default:
 				if (callback) callback();
+				return;
 		}
 
+		provider.get(target, function(data) {
+			graph.rect_width = graph.getPixelWidth() / data.length - graph.rect_margin;
+			var s = 0;
+			data.map(function(m) {
+				graph.addRect(m.value, false);
+				s += m.value;
+			});
+			if (mode != 'day') graph.setOverview(s);
+			if (callback) callback();
+		});
 
 		graph.last_call = Date.now() / 1000.0;
 	};
