@@ -45,7 +45,7 @@ var App = function() {
 
 	menu.onunitchange = function(unit, callback) {
 		graph.clean();
-		if (unit == '€') {
+		if (unit == 'price') {
 			graph = PriceGraph();
 			hash.setUnit('euros');
 		} else {
@@ -79,19 +79,24 @@ var App = function() {
 	api.init = function() {
 		menu.init();
 
-		switch (hash.getUnit()) {
-			case 'euros':
-				graph = PriceGraph();
-				menu.setUnit('€', function(){
-					menu.setMode(hash.getMode(), api.oninit);
-				});
-				break;
+		provider.get('/time', function(basetime) {
+			dateutils.offset = basetime * 1000.0 - Date();
 
-			default:
-				menu.setUnit('W', function(){
-					menu.setMode(hash.getMode(), api.oninit);
-				});
-		}
+			switch (hash.getUnit()) {
+				case 'euros':
+					graph = PriceGraph();
+					menu.setUnit('price', function(){
+						menu.setMode(hash.getMode(), api.oninit);
+					});
+					break;
+
+				default:
+					menu.setUnit('energy', function(){
+						menu.setMode(hash.getMode(), api.oninit);
+					});
+			}
+
+		});
 	};
 
 	/**
@@ -109,31 +114,32 @@ var App = function() {
 				+  (-graph.getWidth()-1).toString() + '/'
 				+  '0/1';
 				graph.setOverviewLabel('Consommation actuelle');
+				break;
 
 			case 'day':
 				target
 				+= '/by_time/'
-				+  dateutils.getDayStart() + '/'
-				+  dateutils.getDayEnd() + '/'
-				+  dateutils.getHourLength();
+				+  dateutils.getDayStart() / 1000.0 + '/'
+				+  dateutils.getDayEnd() / 1000.0 + '/'
+				+  dateutils.getHourLength() / 1000.0;
 				graph.setOverviewLabel('Consommation aujourd\'hui');
 				break;
 
 			case 'week':
 				target
 				+= '/by_time/'
-				+  dateutils.getWeekStart() + '/'
-				+  dateutils.getWeekEnd() + '/'
-				+  dateutils.getDayLength();
+				+  dateutils.getWeekStart() / 1000.0 + '/'
+				+  dateutils.getWeekEnd() / 1000.0 + '/'
+				+  dateutils.getDayLength() / 1000.0;
 				graph.setOverviewLabel('Consommation cette semaine');
 				break;
 
 			case 'month':
 				target
 				+= '/by_time/'
-				+  dateutils.getMonthStart() + '/'
-				+  dateutils.getMonthEnd() + '/'
-				+  dateutils.getDayLength();
+				+  dateutils.getMonthStart() / 1000.0 + '/'
+				+  dateutils.getMonthEnd() / 1000.0 + '/'
+				+  dateutils.getDayLength() / 1000.0;
 				graph.setOverviewLabel('Consommation ce mois');
 				break;
 

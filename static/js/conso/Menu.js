@@ -87,12 +87,12 @@ var Menu = function() {
 	 */
 	api.setUnit = function(new_unit, callback) {
 		switch(new_unit) {
-			case 'W':
-				toggle_unit.innerHTML = 'Watts';
+			case 'energy':
+				toggle_unit.innerHTML = 'Énergie';
 				toggle_unit.className = 'red-day';
 				break;
-			case '€':
-				toggle_unit.innerHTML = 'Euros';
+			case 'price':
+				toggle_unit.innerHTML = 'Prix';
 				toggle_unit.className = 'blue-day';
 				break;
 			default:
@@ -119,8 +119,20 @@ var Menu = function() {
 	 */
 	api.getUnitString = function() {
 		return {
-			'W': 'watts',
-			'€': 'euros'
+			'energy': mode == 'now' ? 'watts' : 'kwatthours',
+			'price': 'euros'
+		}[unit];
+	};
+
+	/**
+	 * Get unit shortcut.
+	 * This is used for displaying.
+	 * @return unit shortcut.
+	 */
+	api.getUnitShortcut = function() {
+		return {
+			'energy': mode == 'now' ? 'W' : 'kWh',
+			'price': '€'
 		}[unit];
 	};
 
@@ -129,10 +141,10 @@ var Menu = function() {
 	 * @param callback: (optional)
 	 */
 	api.toggleUnit = function(callback) {
-		if (unit == 'W') {
-			api.setUnit('€', callback);
+		if (unit == 'energy') {
+			api.setUnit('price', callback);
 		} else {
-			api.setUnit('W', callback);
+			api.setUnit('energy', callback);
 		}
 	};
 
