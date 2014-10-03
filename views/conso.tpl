@@ -22,6 +22,9 @@
                 </div>
 
                 <div id="graph">
+                    <div id="graph_loading">
+                        <img alt="Chargement" src="{{ get_url('static', filename='img/loading_simple.svg') }}" />
+                    </div>
                     <div id="graph_values_wrapper">
                         <div id="graph_values"></div>
                     </div>

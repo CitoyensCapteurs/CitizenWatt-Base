@@ -119,8 +119,8 @@ var App = function() {
 			case 'day':
 				target
 				+= '/by_time/'
-				+  dateutils.getDayStart() / 1000.0 + '/'
-				+  dateutils.getDayEnd() / 1000.0 + '/'
+				+  (dateutils.getDayStart() / 1000.0 - 86400) + '/'
+				+  (dateutils.getDayEnd() / 1000.0 - 86400) + '/'
 				+  dateutils.getHourLength() / 1000.0;
 				graph.setOverviewLabel('Consommation aujourd\'hui');
 				break;
@@ -149,6 +149,7 @@ var App = function() {
 		}
 
 		provider.get(target, function(data) {
+			graph.startLoading();
 			graph.rect_width = graph.getPixelWidth() / data.length - graph.rect_margin;
 			var s = 0;
 			data.map(function(m) {
@@ -160,6 +161,7 @@ var App = function() {
 				}
 			});
 			if (mode != 'day') graph.setOverview(s);
+			graph.stopLoading();
 			if (callback) callback();
 		});
 

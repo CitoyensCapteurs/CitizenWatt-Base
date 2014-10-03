@@ -7,6 +7,7 @@ var Graph = function() {
 	var graph = document.getElementById('graph')
 	  , graph_vertical_axis = document.getElementById('graph_vertical_axis')
 	  , graph_values = document.getElementById('graph_values')
+	  , graph_loading = document.getElementById('graph_loading')
 	  , now = document.getElementById('now')
 	  , now_label = document.getElementById('now_label')
 	  , sum, n_values, mean
@@ -80,11 +81,11 @@ var Graph = function() {
 	 * @param animated: (optional) Whether the addition of the value must be animated. Default to True
 	 */
 	api.addRect = function(power, animated) {
+		console.log(power);
 		if (animated === undefined) animated = true;
-		power = parseInt(api.convertValue(power));
-
+		
 		if (power > api.max_value) {
-			api.scaleVertically(power / api.max_value, 100);
+			api.scaleVertically(power / api.max_value, Math.pow(10, Math.log(api.max_value)));
 		}
 
 		var height = power / api.max_value * 100;
@@ -217,6 +218,20 @@ var Graph = function() {
 			graph_values.removeChild(graph_values.firstChild)
 		while (graph_vertical_axis.firstChild)
 			graph_vertical_axis.removeChild(graph_vertical_axis.firstChild)
+	}
+
+	/**
+	 * Hide loading icon
+	 */
+	api.stopLoading = function() {
+		graph_loading.style.visibility = 'hidden';
+	}
+
+	/**
+	 * Hide loading icon
+	 */
+	api.startLoading = function() {
+		graph_loading.style.visibility = 'auto';
 	}
 
 	return api;

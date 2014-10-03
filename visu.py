@@ -223,14 +223,14 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
         if watt_euros == 'kwatthours' or watt_euros == 'euros':
             data = tools.energy(data)
             if watt_euros == 'euros':
-                data = (api_watt_euros("current",
-                                       'night',
-                                       data['night_rate'],
-                                       db)["data"] +
-                        api_watt_euros("current",
-                                       'day',
-                                       data['day_rate'],
-                                       db)["data"])
+                data = {"value": (api_watt_euros("current",
+                                                 'night',
+                                                 data['night_rate'],
+                                                 db)["data"] +
+                                  api_watt_euros("current",
+                                                 'day',
+                                                 data['day_rate'],
+                                                 db)["data"])}
     return {"data": data, "rate": get_rate_type(db)}
 
 
@@ -249,8 +249,8 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db):
                               db)["data"]
             if len(tmp) > 0:
                 tmp = {"value": tmp["value"] / step / 1000 * 3600,
-                    "day_rate": tmp["day_rate"] / step / 1000 * 3600,
-                    "night_rate": tmp["night_rate"] / step / 1000 * 3600}
+                       "day_rate": tmp["day_rate"] / step / 1000 * 3600,
+                       "night_rate": tmp["night_rate"] / step / 1000 * 3600}
             else:
                 tmp = {}
         else:
@@ -313,14 +313,14 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
         if watt_euros == "kwatthours" or watt_euros == "euros":
             data = tools.energy(data)
             if watt_euros == "euros":
-                data = (api_watt_euros("current",
-                                       'night',
-                                       data['night_rate'],
-                                       db)["data"] +
-                        api_watt_euros("current",
-                                       'day',
-                                       data['day_rate'],
-                                       db)["data"])
+                data = {"value": (api_watt_euros("current",
+                                                 'night',
+                                                 data['night_rate'],
+                                                 db)["data"] +
+                                  api_watt_euros("current",
+                                                 'day',
+                                                 data['day_rate'],
+                                                 db)["data"])}
 
     return {"data": data, "rate": get_rate_type(db)}
 
@@ -344,8 +344,8 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
                                 db)["data"]
             if len(tmp) > 0:
                 tmp = {"value": tmp["value"] / step / 1000 * 3600,
-                    "day_rate": tmp["day_rate"] / step / 1000 * 3600,
-                    "night_rate": tmp["night_rate"] / step / 1000 * 3600}
+                       "day_rate": tmp["day_rate"] / step / 1000 * 3600,
+                       "night_rate": tmp["night_rate"] / step / 1000 * 3600}
             else:
                 tmp = {}
         else:
