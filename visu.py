@@ -247,9 +247,12 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db):
                               s[0],
                               s[1],
                               db)["data"]
-            tmp = {"value": tmp["value"] / step / 1000 * 3600,
-                   "day_rate": tmp["day_rate"] / step / 1000 * 3600,
-                   "night_rate": tmp["night_rate"] / step / 1000 * 3600}
+            if len(tmp) > 0:
+                tmp = {"value": tmp["value"] / step / 1000 * 3600,
+                    "day_rate": tmp["day_rate"] / step / 1000 * 3600,
+                    "night_rate": tmp["night_rate"] / step / 1000 * 3600}
+            else:
+                tmp = {}
         else:
             tmp = api_get_ids(sensor,
                               watt_euros,
@@ -339,9 +342,12 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
                                 s[0],
                                 s[1],
                                 db)["data"]
-            tmp = {"value": tmp["value"] / step / 1000 * 3600,
-                   "day_rate": tmp["day_rate"] / step / 1000 * 3600,
-                   "night_rate": tmp["night_rate"] / step / 1000 * 3600}
+            if len(tmp) > 0:
+                tmp = {"value": tmp["value"] / step / 1000 * 3600,
+                    "day_rate": tmp["day_rate"] / step / 1000 * 3600,
+                    "night_rate": tmp["night_rate"] / step / 1000 * 3600}
+            else:
+                tmp = {}
         else:
             tmp = api_get_times(sensor,
                                 watt_euros,
