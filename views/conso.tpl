@@ -43,6 +43,7 @@
 
 <%
     scripts = [
+        'dateutils',
         'conso/Menu',
         'conso/Graph',
         'conso/DataProvider',
