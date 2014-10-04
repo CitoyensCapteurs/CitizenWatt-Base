@@ -90,28 +90,37 @@ var Graph = function(unit) {
 	 */
 	api.addRect = function(power, animated, legend) {
 		if (animated === undefined) animated = true;
+		var defined = true;
+		if (power === undefined) {
+			defined = false;
+			power = 0;
+		}
 		
 		if (power > api.max_value) {
 			api.scaleVertically(power / api.max_value);
 		}
 
-		var height = api.round(power) / api.max_value * 100;
 		var div = document.createElement('div');
 		graph_values.appendChild(div);
+
+		div.className = 'rect';
+		if (!defined) div.className += ' undefined';
+		if (animated) div.className += ' animated';
+		div.className += ' ' + api.type;
 
 		var info = document.createElement('div');
 		div.appendChild(info);
 
 		info.className = 'rect-info';
-		info.innerHTML = api.round(power) + api.unit;
+		if (defined) info.innerHTML = api.round(power) + api.unit;
+		else         info.innerHTML = 'Pas de donnée';
 		if (legend) info.innerHTML += '<br/>' + legend;
 
 		var color = document.createElement('div');
 		div.appendChild(color);
 
+		var height = api.round(power) / api.max_value * 100;
 		var color_class = api.colorize(height);
-		div.className = animated ? 'animated rect' : 'rect';
-		div.className += ' ' + api.type;
 
 		color.className = 'rect-color ' + color_class + '-day';
 		color.style.height = height + '%';
@@ -251,7 +260,7 @@ var Graph = function(unit) {
 				return '';
 
 			case 'day':
-				return i + 'h';
+				return i + 'h - ' + (i+1) + 'h';
 
 			case 'week':
 				return ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][i];

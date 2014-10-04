@@ -161,7 +161,7 @@ var App = function() {
 					graph.addRect(m.value, false, graph.getLegend(mode, i));
 					s += m.value;
 				} else {
-					graph.addRect(0, false, graph.getLegend(mode, i));
+					graph.addRect(undefined, false, graph.getLegend(mode, i));
 				}
 				i += 1;
 			});

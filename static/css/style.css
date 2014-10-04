@@ -425,6 +425,16 @@ footer p {
     position: relative;
 }
 
+#graph_values .rect {
+    margin-left: 2px;
+    height: 100%;
+    position: relative;
+}
+
+#graph_values .rect.undefined {
+    background-color: #5C2D2D;
+}
+
 #graph_values .rect.animated {
     transition: width 1s;
     width: 0;
