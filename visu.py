@@ -788,4 +788,4 @@ def install_post(db):
 SimpleTemplate.defaults["get_url"] = app.get_url
 SimpleTemplate.defaults["API_URL"] = app.get_url("index")
 SimpleTemplate.defaults["valid_session"] = lambda: session_manager.get_session()['valid']
-run(app, host="0.0.0.0", port=8080, debug=config.get("debug"), reloader=True)
+run(app, host="0.0.0.0", port=config.get("port"), debug=config.get("debug"), reloader=True)
