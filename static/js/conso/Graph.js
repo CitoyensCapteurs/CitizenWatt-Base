@@ -237,7 +237,7 @@ var Graph = function(unit) {
 	 * Hide loading icon
 	 */
 	api.startLoading = function() {
-		graph_loading.style.visibility = 'auto';
+		graph_loading.style.visibility = 'visible';
 	}
 
 	return api;

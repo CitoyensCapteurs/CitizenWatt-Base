@@ -515,6 +515,8 @@ footer p {
 
     animation-timing-function: linear;
     -webkit-animation-timing-function: linear;
+
+    z-index: 20;
 }
 
 

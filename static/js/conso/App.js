@@ -148,8 +148,9 @@ var App = function() {
 				return;
 		}
 
+		graph.setOverview('');
+		graph.startLoading();
 		provider.get(target, function(data) {
-			graph.startLoading();
 			graph.rect_width = graph.getPixelWidth() / data.length - graph.rect_margin;
 			var s = 0;
 			data.map(function(m) {
