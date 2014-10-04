@@ -332,7 +332,7 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
     time2 = int(time2)
     step = int(step)
 
-    steps = range(time1, time2 + step, step)
+    steps = [i for i in range(id1, id2 + step, step)]
     data = []
 
     for s in [steps[i:i+2] for i in range(len(steps)-1)]:
