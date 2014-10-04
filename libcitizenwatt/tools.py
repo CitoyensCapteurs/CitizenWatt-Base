@@ -56,6 +56,7 @@ def energy(powers, default_timestep=8):
         else:
             energy["day_rate"] = (powers[0]["value"] / 1000 *
                                   default_timestep / 3600)
+        energy['value'] = energy['day_rate'] + energy['night_rate']
     else:
         x = []
         day_rate = []
