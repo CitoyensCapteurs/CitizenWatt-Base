@@ -122,7 +122,7 @@ def api_sensors(db):
 @app.route("/api/sensors/<id:int>",
            apply=valid_user())
 def api_sensor(id, db):
-    """Returns a list of all the available sensors."""
+    """Returns the sensor with id <id>."""
     sensor = db.query(database.Sensor).filter_by(id=id).first()
     if sensor:
         sensor = {"id": sensor.id,
@@ -451,11 +451,9 @@ def api_watt_euros(energy_provider, tariff, consumption, db):
         data = -1
     else:
         if tariff == "night":
-            data = (provider.night_slope_watt_euros * consumption +
-                    provider.night_constant_watt_euros)
+            data = provider.night_slope_watt_euros * consumption
         elif tariff == "day":
-            data = (provider.day_slope_watt_euros * consumption +
-                    provider.day_constant_watt_euros)
+            data = provider.day_slope_watt_euros * consumption
         else:
             abort(400, "Wrong parameter tariff.")
     return {"data": data}
