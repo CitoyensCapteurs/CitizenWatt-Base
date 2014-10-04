@@ -80,7 +80,7 @@ try:
                 if not sensor or not type:
                     tools.warning("Got packet "+str(measure)+" but install " +
                                   "is not complete ! " +
-                                  "Visit http://citizenwatt first.")
+                                  "Visit http://citizenwatt.local first.")
                     db.close()
                 else:
                     measure_db = database.Measures(sensor_id=sensor.id,
