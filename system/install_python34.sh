@@ -18,7 +18,7 @@ apt-get update
 apt-get -t jessie --yes install python3 gcc python3-pip python3-dev
 
 # Python modules
-pip3 install requests sqlalchemy pymysql pycrypto
+pip3 install requests sqlalchemy pymysql pycrypto numpy
 
 # Remove unused packets
 apt-get --yes autoremove --purge

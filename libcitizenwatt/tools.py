@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import numpy
 import sys
 
 
@@ -43,18 +44,31 @@ def last_day(month, year):
         return 30
 
 
-def energy(powers):
+def energy(powers, default_timestep=8):
     """Compute the energy associated to a dict of powers (in W)
     and associated timestamps (in s).
     """
-    # TODO : Better integration
     energy = {'night_rate': 0, 'day_rate': 0, 'value': 0}
-    for i in range(len(powers) - 1):
-        if powers[i]["night_rate"] == 1:
-            energy['night_rate'] += (powers[i]["value"] / 1000 *
-                                     abs(powers[i]["timestamp"] - powers[i+1]["timestamp"]) / 3600)
+    if len(powers) == 1:
+        if powers[0]["night_rate"] == 1:
+            energy["night_rate"] = (powers[0]["value"] / 1000 *
+                                    default_timestep / 3600)
         else:
-            energy['day_rate'] += (powers[i]["value"] / 1000 *
-                                   abs(powers[i]["timestamp"] - powers[i+1]["timestamp"]) / 3600)
-    energy['value'] = energy['day_rate'] + energy['night_rate']
+            energy["day_rate"] = (powers[0]["value"] / 1000 *
+                                  default_timestep / 3600)
+    else:
+        x = []
+        day_rate = []
+        night_rate = []
+        for i in powers:
+            x.append(i["timestamp"])
+            if i["night_rate"] == 1:
+                night_rate.append(i["value"])
+                day_rate.append(0)
+            else:
+                day_rate.append(i["value"])
+                night_rate.append(0)
+        energy["night_rate"] = numpy.trapz(night_rate, x) / 1000 / 3600
+        energy["day_rate"] = numpy.trapz(day_rate, x) / 1000 / 3600
+        energy['value'] = energy['day_rate'] + energy['night_rate']
     return energy
