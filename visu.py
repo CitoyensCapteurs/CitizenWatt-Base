@@ -236,7 +236,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
 
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>/<step:int>",
            apply=valid_user())
-def api_get_ids_step(sensor, watt_euros, id1, id2, step, db):
+def api_get_ids_step(sensor, watt_euros, id1, id2, step, db, timestep=8):
     steps = [i for i in range(id1, id2 + step, step)]
     data = []
 
@@ -248,9 +248,9 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db):
                               s[1],
                               db)["data"]
             if len(tmp) > 0:
-                tmp = {"value": tmp["value"] / step / 1000 * 3600,
-                       "day_rate": tmp["day_rate"] / step / 1000 * 3600,
-                       "night_rate": tmp["night_rate"] / step / 1000 * 3600}
+                tmp = {"value": tmp["value"] / (step * timestep) * 1000 * 3600,
+                       "day_rate": tmp["day_rate"] / (step * timestep) * 1000 * 3600,
+                       "night_rate": tmp["night_rate"] / (step * timestep) * 1000 * 3600}
             else:
                 tmp = {}
         else:
@@ -343,9 +343,9 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
                                 s[1],
                                 db)["data"]
             if len(tmp) > 0:
-                tmp = {"value": tmp["value"] / step / 1000 * 3600,
-                       "day_rate": tmp["day_rate"] / step / 1000 * 3600,
-                       "night_rate": tmp["night_rate"] / step / 1000 * 3600}
+                tmp = {"value": tmp["value"] / step * 1000 * 3600,
+                       "day_rate": tmp["day_rate"] / step * 1000 * 3600,
+                       "night_rate": tmp["night_rate"] / step * 1000 * 3600}
             else:
                 tmp = {}
         else:
