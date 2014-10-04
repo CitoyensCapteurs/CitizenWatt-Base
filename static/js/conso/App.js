@@ -155,14 +155,15 @@ var App = function() {
 		graph.startLoading();
 		provider.get(target, function(data) {
 			graph.rect_width = graph.getPixelWidth() / data.length - graph.rect_margin;
-			var s = 0;
+			var s = 0, i = 0;
 			data.map(function(m) {
 				if (m.value !== undefined) {
-					graph.addRect(m.value, false);
+					graph.addRect(m.value, false, graph.getLegend(mode, i));
 					s += m.value;
 				} else {
-					graph.addRect(0, false);
+					graph.addRect(0, false, graph.getLegend(mode, i));
 				}
+				i += 1;
 			});
 			if (mode != 'now') graph.setOverview(s);
 			graph.stopLoading();

@@ -86,8 +86,9 @@ var Graph = function(unit) {
 	 * Add a new rect to the graph.
 	 * @param power: Power represented by the rect.
 	 * @param animated: (optional) Whether the addition of the value must be animated. Default to True
+	 * @param legend: (optional) Legend to add to the rect
 	 */
-	api.addRect = function(power, animated) {
+	api.addRect = function(power, animated, legend) {
 		if (animated === undefined) animated = true;
 		
 		if (power > api.max_value) {
@@ -103,6 +104,7 @@ var Graph = function(unit) {
 
 		info.className = 'rect-info';
 		info.innerHTML = api.round(power) + api.unit;
+		if (legend) info.innerHTML += '<br/>' + legend;
 
 		var color = document.createElement('div');
 		div.appendChild(color);
@@ -235,6 +237,32 @@ var Graph = function(unit) {
 	api.startLoading = function() {
 		graph_loading.style.visibility = 'visible';
 	}
+
+
+	/**
+	 * Return a human readable legend
+	 * @param mode: 'now', 'day', 'week', 'month' or 'year'
+	 * @param i: index
+	 * [Static]
+	 */
+	api.getLegend = function(mode, i) {
+		switch(mode) {
+			case 'now':
+				return '';
+
+			case 'day':
+				return i + 'h';
+
+			case 'week':
+				return ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][i];
+
+			case 'month':
+				return i + ' ' + api.getLegend('year', (new Date()).getMonth());
+
+			case 'year':
+				return ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'][i];
+		}
+	};
 
 	return api;
 };
