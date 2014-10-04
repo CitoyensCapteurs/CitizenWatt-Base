@@ -45,11 +45,11 @@ var App = function() {
 
 	menu.onunitchange = function(unit, callback) {
 		graph.clean();
-		if (unit == '€') {
+		if (unit == 'price') {
 			graph = PriceGraph();
 			hash.setUnit('euros');
 		} else {
-			graph = Graph();
+			graph = Graph(menu.getMode() == 'now' ? 'W' : 'kWh');
 			hash.setUnit('watt');
 		}
 		graph.init();
@@ -58,7 +58,7 @@ var App = function() {
 
 	menu.onmodechange = function(mode, callback) {
 		graph.clean();
-		graph = hash.getUnit() == 'watt' ? Graph() : PriceGraph();
+		graph = hash.getUnit() == 'watt' ? Graph(menu.getMode() == 'now' ? 'W' : 'kWh') : PriceGraph();
 		graph.autoremove = mode == 'now';
 		graph.init();
 		hash.setMode(mode);
@@ -79,19 +79,24 @@ var App = function() {
 	api.init = function() {
 		menu.init();
 
-		switch (hash.getUnit()) {
-			case 'euros':
-				graph = PriceGraph();
-				menu.setUnit('€', function(){
-					menu.setMode(hash.getMode(), api.oninit);
-				});
-				break;
+		provider.get('/time', function(basetime) {
+			dateutils.offset = parseFloat(basetime) * 1000.0 - (new Date()).getTime();
 
-			default:
-				menu.setUnit('W', function(){
-					menu.setMode(hash.getMode(), api.oninit);
-				});
-		}
+			switch (hash.getUnit()) {
+				case 'euros':
+					graph = PriceGraph();
+					menu.setUnit('price', function(){
+						menu.setMode(hash.getMode(), api.oninit);
+					});
+					break;
+
+				default:
+					menu.setUnit('energy', function(){
+						menu.setMode(hash.getMode(), api.oninit);
+					});
+			}
+
+		});
 	};
 
 	/**
@@ -109,31 +114,32 @@ var App = function() {
 				+  (-graph.getWidth()-1).toString() + '/'
 				+  '0/1';
 				graph.setOverviewLabel('Consommation actuelle');
+				break;
 
 			case 'day':
 				target
 				+= '/by_time/'
-				+  dateutils.getDayStart() + '/'
-				+  dateutils.getDayEnd() + '/'
-				+  dateutils.getHourLength();
+				+  (dateutils.getDayStart() / 1000.0 - 86400) + '/'
+				+  (dateutils.getDayEnd() / 1000.0 - 86400) + '/'
+				+  dateutils.getHourLength() / 1000.0;
 				graph.setOverviewLabel('Consommation aujourd\'hui');
 				break;
 
 			case 'week':
 				target
 				+= '/by_time/'
-				+  dateutils.getWeekStart() + '/'
-				+  dateutils.getWeekEnd() + '/'
-				+  dateutils.getDayLength();
+				+  dateutils.getWeekStart() / 1000.0 + '/'
+				+  dateutils.getWeekEnd() / 1000.0 + '/'
+				+  dateutils.getDayLength() / 1000.0;
 				graph.setOverviewLabel('Consommation cette semaine');
 				break;
 
 			case 'month':
 				target
 				+= '/by_time/'
-				+  dateutils.getMonthStart() + '/'
-				+  dateutils.getMonthEnd() + '/'
-				+  dateutils.getDayLength();
+				+  dateutils.getMonthStart() / 1000.0 + '/'
+				+  dateutils.getMonthEnd() / 1000.0 + '/'
+				+  dateutils.getDayLength() / 1000.0;
 				graph.setOverviewLabel('Consommation ce mois');
 				break;
 
@@ -143,13 +149,19 @@ var App = function() {
 		}
 
 		provider.get(target, function(data) {
+			graph.startLoading();
 			graph.rect_width = graph.getPixelWidth() / data.length - graph.rect_margin;
 			var s = 0;
 			data.map(function(m) {
-				graph.addRect(m.value, false);
-				s += m.value;
+				if (m.value !== undefined) {
+					graph.addRect(m.value, false);
+					s += m.value;
+				} else {
+					graph.addRect(0, false);
+				}
 			});
-			if (mode != 'day') graph.setOverview(s);
+			if (mode != 'now') graph.setOverview(s);
+			graph.stopLoading();
 			if (callback) callback();
 		});
 
@@ -161,15 +173,20 @@ var App = function() {
 	 */
 	api.update = function() {
 		if (menu.getMode() == 'now') {
-			var target = '/1/get/';
-			target += menu.getUnitString();
-			target += '/by_time/'
-			target += graph.last_call + '/' + (graph.last_call = Date.now() / 1000.0);
+			var target
+			= '/1/get/'
+			+ menu.getUnitString()
+			+ '/by_time/'
+			+ graph.last_call + '/'
+			+ (graph.last_call = Date.now() / 1000.0) + '/'
+			+ Config.timestep;
 
 			provider.get(target, function(data) {
-				data.map(function(value) {
-					graph.addRect(value.power);
-					graph.setOverview(value.power);
+				data.map(function(m) {
+					if (m.value !== undefined) {
+						graph.addRect(m.value);
+						graph.setOverview(m.value);
+					}
 				});
 			});
 		}

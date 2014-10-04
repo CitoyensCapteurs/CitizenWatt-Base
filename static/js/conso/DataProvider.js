@@ -32,7 +32,6 @@ var DataProvider = function() {
 		}
 	}
 
-
 	/**
 	 * Convert energy to euros. Get equation from server at first use.
 	 * @param energy:

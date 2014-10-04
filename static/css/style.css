@@ -482,6 +482,59 @@ footer p {
     background-color: #363032;*/
 }
 
+#graph_loading {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: -webkit-flex;
+    display: flex;
+
+    -webkit-flex-flow: column wrap;
+    flex-flow: column wrap;
+
+    -webkit-justify-content: center;
+    justify-content: center;
+
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+#graph_loading img {
+    width: 3em;
+    animation-name: rotate;
+    -webkit-animation-name: rotate;
+
+    animation-duration: 5s;
+    -webkit-animation-duration: 5s;
+
+    animation-iteration-count: infinite;
+    -webkit-animation-iteration-count: infinite;
+
+    animation-timing-function: linear;
+    -webkit-animation-timing-function: linear;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes rotate {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
 /******************************************************************************
  * 7. Échelle du graphe
  */

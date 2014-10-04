@@ -1,12 +1,13 @@
 /**
  * Gather graph-related functions
  */
-var Graph = function() {
+var Graph = function(unit) {
 	var api = {};
 
 	var graph = document.getElementById('graph')
 	  , graph_vertical_axis = document.getElementById('graph_vertical_axis')
 	  , graph_values = document.getElementById('graph_values')
+	  , graph_loading = document.getElementById('graph_loading')
 	  , now = document.getElementById('now')
 	  , now_label = document.getElementById('now_label')
 	  , sum, n_values, mean
@@ -18,7 +19,7 @@ var Graph = function() {
 	api.convertValue = function(v){ return v; };
 
 	api.max_value = 1;
-	api.unit = 'W';
+	api.unit = unit || 'W';
 	api.type = 'energy';
 	api.rect_width = Config.rect_width;
 	api.rect_margin = Config.rect_margin;
@@ -29,6 +30,17 @@ var Graph = function() {
 	 */
 	api.colorize = function(t) {
 		return (t > 33.3 ? (t >= 66.7 ? 'red' : 'orange') : 'yellow');
+	}
+
+	/**
+	 * Round value according to max value
+	 */
+	api.round = function(v) {
+		return Math.round(v * 10) / 10;
+		/*
+		var g = Math.pow(10, Math.round(Math.log(api.max_value))-2);
+		return Math.round(v / g) * g;
+		*/
 	}
 
 	/**
@@ -60,7 +72,7 @@ var Graph = function() {
 	 * @param power: value to display
 	 */
 	api.setOverview = function(power) {
-		now.innerHTML = Math.round(power) + api.unit;
+		now.innerHTML = api.round(power) + api.unit;
 		var height = power / api.max_value * 100;
 		now.className = 'blurry ' + api.colorize(height);
 	};
@@ -81,13 +93,12 @@ var Graph = function() {
 	 */
 	api.addRect = function(power, animated) {
 		if (animated === undefined) animated = true;
-		power = parseInt(api.convertValue(power));
-
+		
 		if (power > api.max_value) {
-			api.scaleVertically(power / api.max_value, 100);
+			api.scaleVertically(power / api.max_value);
 		}
 
-		var height = power / api.max_value * 100;
+		var height = api.round(power) / api.max_value * 100;
 		var div = document.createElement('div');
 		graph_values.appendChild(div);
 
@@ -95,7 +106,7 @@ var Graph = function() {
 		div.appendChild(info);
 
 		info.className = 'rect-info';
-		info.innerHTML = Math.round(power) + api.unit;
+		info.innerHTML = api.round(power) + api.unit;
 
 		var color = document.createElement('div');
 		div.appendChild(color);
@@ -151,7 +162,7 @@ var Graph = function() {
 	 * @param graduation: graduation to resize
 	 */
 	api.updateVerticalGraduation = function(graduation) {
-		var power = Math.round(graduation.getAttribute('cw-graduation-position') * api.max_value);
+		var power = api.round(graduation.getAttribute('cw-graduation-position') * api.max_value);
 		graduation.innerHTML = power + api.unit;
 		return api;
 	};
@@ -175,12 +186,8 @@ var Graph = function() {
 	/**
 	 * Change graph vertical scale
 	 * @param ratio: Value by which multiply the graph vertical scale
-	 * @param round: (optional) Round ratio for new max_value to be integer.
 	 */
-	api.scaleVertically = function(ratio, round) {
-		if (round !== undefined) {
-			ratio = Math.ceil(ratio * api.max_value / round) / api.max_value * round;
-		}
+	api.scaleVertically = function(ratio) {
 		api.max_value = api.max_value * ratio;
 
 		var rects = graph_values.children;
@@ -219,14 +226,27 @@ var Graph = function() {
 			graph_vertical_axis.removeChild(graph_vertical_axis.firstChild)
 	}
 
+	/**
+	 * Hide loading icon
+	 */
+	api.stopLoading = function() {
+		graph_loading.style.visibility = 'hidden';
+	}
+
+	/**
+	 * Hide loading icon
+	 */
+	api.startLoading = function() {
+		graph_loading.style.visibility = 'auto';
+	}
+
 	return api;
 };
 
 
 var PriceGraph = function() {
-	var api = Graph();
+	var api = Graph('€');
 
-	api.unit = '€';
 	api.type = 'price';
 
 	api.colorize = function(t) {

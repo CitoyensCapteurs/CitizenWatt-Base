@@ -2,6 +2,11 @@ var dateutils = (function() {
 	var api = {};
 
 	/**
+	 * Difference between base (raspi) time and local user
+	 */
+	api.offset = 0;
+
+	/**
 	 * Get hour length (in milliseconds)
 	 */
 	api.getHourLength = function() {
@@ -21,7 +26,7 @@ var dateutils = (function() {
 	 */
 	api.getDayStart = function(date) {
 		var date = date || new Date();
-		return (new Date(date.getFullYear(), date.getMonth(), date.getDate())).getTime();
+		return (new Date(date.getFullYear(), date.getMonth(), date.getDate())).getTime() + api.offset;
 	};
 
 	/**
@@ -31,7 +36,7 @@ var dateutils = (function() {
 	api.getDayEnd = function(date) {
 		var date = date || new Date();
 		var day = (date.getHours() + 6) % 7;
-		return (new Date(date.getFullYear(), date.getMonth(), date.getDate()+1)).getTime();
+		return (new Date(date.getFullYear(), date.getMonth(), date.getDate()+1)).getTime() + api.offset;
 	};
 
 	/**
@@ -48,7 +53,7 @@ var dateutils = (function() {
 	api.getWeekStart = function(date) {
 		var date = date || new Date();
 		var day = (date.getDay() + 6) % 7;
-		return (new Date(date.getFullYear(), date.getMonth(), date.getDate() - day)).getTime();
+		return (new Date(date.getFullYear(), date.getMonth(), date.getDate() - day)).getTime() + api.offset;
 	};
 
 	/**
@@ -58,7 +63,7 @@ var dateutils = (function() {
 	api.getWeekEnd = function(date) {
 		var date = date || new Date();
 		var day = (date.getDay() + 6) % 7;
-		return (new Date(date.getFullYear(), date.getMonth(), date.getDate() - day + 7)).getTime();
+		return (new Date(date.getFullYear(), date.getMonth(), date.getDate() - day + 7)).getTime() + api.offset;
 	};
 
 	/**
@@ -76,7 +81,7 @@ var dateutils = (function() {
 	 */
 	api.getMonthStart = function(date) {
 		var date = date || new Date();
-		return (new Date(date.getFullYear(), date.getMonth(), 1)).getTime();
+		return (new Date(date.getFullYear(), date.getMonth(), 1)).getTime() + api.offset;
 	};
 
 	/**
@@ -85,17 +90,18 @@ var dateutils = (function() {
 	 */
 	api.getMonthEnd = function(date) {
 		var date = date || new Date();
-		return (new Date(date.getFullYear(), date.getMonth()+1, 1)).getTime();
+		return (new Date(date.getFullYear(), date.getMonth()+1, 1)).getTime() + api.offset;
 	};
 
 	return api;
 })();
 
 
-
+/*
 // Exports all for unit testing
 for (var property in dateutils) {
 	if (dateutils.hasOwnProperty(property)) {
 		exports[property] = dateutils[property];
 	}
 }
+*/
