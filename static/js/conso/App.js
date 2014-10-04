@@ -109,10 +109,13 @@ var App = function() {
 
 		switch (mode) {
 			case 'now':
+				var now = new Date();
 				target
-				+= '/by_id/'
-				+  (-graph.getWidth()-1).toString() + '/'
-				+  '0/1';
+				+= '/by_time/'
+				+  (now.getTime() / 1000.0 - Config.timestep * (graph.getWidth()+1)) + '/'
+				+  now.getTime() / 1000.0 + '/'
+				+  Config.timestep;
+				console.log(target);
 				graph.setOverviewLabel('Consommation actuelle');
 				break;
 
