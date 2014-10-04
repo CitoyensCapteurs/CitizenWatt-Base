@@ -515,25 +515,10 @@ footer p {
 
     animation-timing-function: linear;
     -webkit-animation-timing-function: linear;
+
+    z-index: 20;
 }
 
-@keyframes rotate {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@-webkit-keyframes rotate {
-    from {
-        -webkit-transform: rotate(0deg);
-    }
-    to {
-        -webkit-transform: rotate(360deg);
-    }
-}
 
 /******************************************************************************
  * 7. Échelle du graphe
@@ -751,6 +736,17 @@ table tr:last-child td, table tr:last-child th {
 
 .coming-soon img {
     width: 10em;
+    animation-name: rotate;
+    -webkit-animation-name: rotate;
+
+    animation-duration: 5s;
+    -webkit-animation-duration: 5s;
+
+    animation-iteration-count: infinite;
+    -webkit-animation-iteration-count: infinite;
+
+    animation-timing-function: linear;
+    -webkit-animation-timing-function: linear;
 }
 
 .coming-soon span {
@@ -771,6 +767,29 @@ table tr:last-child td, table tr:last-child th {
     margin: auto;
     padding: 0 2em;
     text-align: justify;
+}
+
+
+/******************************************************************************
+ * 13. Animations
+ */
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes rotate {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
 }
 
 /******************************************************************************
