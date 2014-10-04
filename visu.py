@@ -223,14 +223,21 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
         if watt_euros == 'kwatthours' or watt_euros == 'euros':
             data = tools.energy(data)
             if watt_euros == 'euros':
-                data = {"value": (api_watt_euros("current",
-                                                 'night',
-                                                 data['night_rate'],
-                                                 db)["data"] +
-                                  api_watt_euros("current",
-                                                 'day',
-                                                 data['day_rate'],
-                                                 db)["data"])}
+                if data["night_rate"] != 0:
+                    night_rate = api_watt_euros("current",
+                                                'night',
+                                                data['night_rate'],
+                                                db)["data"]
+                else:
+                    night_rate = 0
+                if data["day_rate"] != 0:
+                    day_rate = api_watt_euros("current",
+                                              'day',
+                                              data['day_rate'],
+                                              db)["data"]
+                else:
+                    day_rate = 0
+                data = {"value": night_rate + day_rate}
     return {"data": data, "rate": get_rate_type(db)}
 
 
