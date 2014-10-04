@@ -119,8 +119,8 @@ var App = function() {
 			case 'day':
 				target
 				+= '/by_time/'
-				+  (dateutils.getDayStart() / 1000.0 - 86400) + '/'
-				+  (dateutils.getDayEnd() / 1000.0 - 86400) + '/'
+				+  dateutils.getDayStart() / 1000.0 + '/'
+				+  dateutils.getDayEnd() / 1000.0 + '/'
 				+  dateutils.getHourLength() / 1000.0;
 				graph.setOverviewLabel('Consommation aujourd\'hui');
 				break;
