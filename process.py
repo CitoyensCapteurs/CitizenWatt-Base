@@ -68,6 +68,7 @@ try:
             battery = measure[2]
             timer = measure[3]
 
+            db = create_session()
             sensor = (db.query(database.Sensor)
                         .filter_by(name="CitizenWatt")
                         .first())
@@ -76,7 +77,6 @@ try:
             if last_timer > 0 and last_timer < 4233600000 and timer < last_timer:
                 tools.warning("Invalid timer in the last packet, skipping it")
             else:
-                db = create_session()
                 if not sensor or not type:
                     tools.warning("Got packet "+str(measure)+" but install " +
                                   "is not complete ! " +
