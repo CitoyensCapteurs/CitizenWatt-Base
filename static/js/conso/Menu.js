@@ -7,7 +7,8 @@ var Menu = function() {
 	  , day_btn = document.getElementById('scale-day')
 	  , week_btn = document.getElementById('scale-week')
 	  , month_btn = document.getElementById('scale-month')
-	  , toggle_unit = document.getElementById('toggle-unit')
+	  , unit_energy = document.getElementById('unit-energy')
+	  , unit_price = document.getElementById('unit-price')
 	  , mode = ''
 	  , unit = ''
 	  ;
@@ -35,7 +36,13 @@ var Menu = function() {
 			api.setMode('month');
 		});
 
-		toggle_unit.addEventListener('click', function(ev){api.toggleUnit()});
+		unit_energy.addEventListener('click', function() {
+			api.setUnit('energy');
+		});
+
+		unit_price.addEventListener('click', function() {
+			api.setUnit('price');
+		});
 	}
 
 	/**
@@ -86,14 +93,14 @@ var Menu = function() {
 	 * @return boolean Whether the unit is accepted.
 	 */
 	api.setUnit = function(new_unit, callback) {
+		unit_energy.className = '';
+		unit_price.className = '';
 		switch(new_unit) {
 			case 'energy':
-				toggle_unit.innerHTML = 'Énergie';
-				toggle_unit.className = 'red-day';
+				unit_energy.className = 'active';
 				break;
 			case 'price':
-				toggle_unit.innerHTML = 'Prix';
-				toggle_unit.className = 'blue-day';
+				unit_price.className = 'active';
 				break;
 			default:
 				return false;

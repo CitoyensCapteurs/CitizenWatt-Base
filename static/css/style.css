@@ -524,6 +524,20 @@ footer p {
  * 7. Échelle du graphe
  */
 
+#scale {
+    display: -webkit-flex;
+    display: flex;
+
+    -webkit-flex-flow: rowcolumn wrap;
+    flex-flow: row wrap;
+
+    -webkit-justify-content: flex-start;
+    justify-content: flex-start;
+
+    -webkit-align-items: center;
+    align-items: center;
+}
+
 #scale button {
     background: #363032;
     border: none;
@@ -540,14 +554,11 @@ footer p {
     background: #60565A;
 }
 
-#toggle-unit {
-    float: right;
+#unit-energy {
+    margin-left: auto;
     color: white;
 }
 
-#toggle-unit:hover {
-    border-color: white;
-}
 
 /******************************************************************************
  * 8. Menu blocks
