@@ -18,7 +18,7 @@ var Graph = function(unit) {
 	 */
 	api.convertValue = function(v){ return v; };
 
-	api.max_value = 1;
+	api.max_value = 1e-6;
 	api.unit = unit || 'W';
 	api.type = 'energy';
 	api.rect_width = Config.rect_width;
@@ -37,10 +37,6 @@ var Graph = function(unit) {
 	 */
 	api.round = function(v) {
 		return Math.round(v * 10) / 10;
-		/*
-		var g = Math.pow(10, Math.round(Math.log(api.max_value))-2);
-		return Math.round(v / g) * g;
-		*/
 	}
 
 	/**
@@ -51,7 +47,7 @@ var Graph = function(unit) {
 
 		var graduations = [0.00, 0.33, 0.66, 1.00]; // Graduation positions (relative)
 		graduations.map(function (t) {
-			api.addVerticalGraduation(api.max_value * t)
+			api.addVerticalGraduation(t)
 		});
 
 		/*

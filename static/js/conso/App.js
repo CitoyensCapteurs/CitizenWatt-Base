@@ -58,8 +58,9 @@ var App = function() {
 
 	menu.onmodechange = function(mode, callback) {
 		graph.clean();
-		graph = hash.getUnit() == 'watt' ? Graph(menu.getMode() == 'now' ? 'W' : 'kWh') : PriceGraph();
+		graph = hash.getUnit() == 'watt' ? Graph(mode == 'now' ? 'W' : 'kWh') : PriceGraph();
 		graph.autoremove = mode == 'now';
+		if (mode == 'now') graph.round = function(v) { return Math.round(v * 10000) / 10000; };
 		graph.init();
 		hash.setMode(mode);
 		api.initValues(callback);
@@ -115,7 +116,6 @@ var App = function() {
 				+  (now.getTime() / 1000.0 - Config.timestep * (graph.getWidth()+1)) + '/'
 				+  now.getTime() / 1000.0 + '/'
 				+  Config.timestep;
-				console.log(target);
 				graph.setOverviewLabel('Consommation actuelle');
 				break;
 
