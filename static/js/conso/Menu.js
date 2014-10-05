@@ -9,12 +9,19 @@ var Menu = function() {
 	  , month_btn = document.getElementById('scale-month')
 	  , unit_energy = document.getElementById('unit-energy')
 	  , unit_price = document.getElementById('unit-price')
+	  , prev = document.getElementById('prev')
+	  , next = document.getElementById('next')
 	  , mode = ''
 	  , unit = ''
+	  , date = null // means 'now'
 	  ;
 
 	api.onunitchange = function(unit, callback){};
 	api.onmodechange = function(mode, callback){};
+	api.ondatechange = function(date, callback){};
+
+	// Defined by user view width. Default to 15min
+	api.timeWidth = 15*60*1000;
 
 	/**
 	 * Add menu listeners
@@ -42,6 +49,14 @@ var Menu = function() {
 
 		unit_price.addEventListener('click', function() {
 			api.setUnit('price');
+		});
+
+		prev.addEventListener('click', function() {
+			api.setDate(new Date((date || new Date()).getTime() - api.getTimeWidth()));
+		});
+
+		next.addEventListener('click', function() {
+			api.setDate(new Date((date || new Date()).getTime() + api.getTimeWidth()));
 		});
 	}
 
@@ -88,7 +103,7 @@ var Menu = function() {
 
 	/**
 	 * Set unit.
-	 * @param unit: New mode
+	 * @param unit: New unit
 	 * @param callback: (optional)
 	 * @return boolean Whether the unit is accepted.
 	 */
@@ -144,16 +159,40 @@ var Menu = function() {
 	};
 
 	/**
-	 * Toggle unit
+	 * Get date.
+	 */
+	api.getDate = function() {
+		return date;
+	};
+
+	/**
+	 * Set date.
+	 * @param date: New date
 	 * @param callback: (optional)
 	 */
-	api.toggleUnit = function(callback) {
-		if (unit == 'energy') {
-			api.setUnit('price', callback);
-		} else {
-			api.setUnit('energy', callback);
+	api.setDate = function(new_date, callback) {
+		if (date != new_date) {
+			date = new_date;
+			api.ondatechange(unit, callback);
 		}
 	};
+
+	/**
+	 * Return view width in milliseconds 
+	 */
+	api.getTimeWidth = function() {
+		switch (mode) {
+			case 'now':
+				return api.timeWidth; // Written
+			case 'day':
+				return dateutils.getDayLength();
+			case 'week':
+				return dateutils.getWeekLength();
+			case 'month':
+				return dateutils.getMonthLength(date);
+		}
+	};
+
 
 	return api;
 }

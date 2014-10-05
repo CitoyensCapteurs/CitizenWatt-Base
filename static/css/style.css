@@ -394,6 +394,10 @@ footer p {
     
 }
 
+/*
+ * 6.1. Values
+ */
+
 #graph_values_wrapper {
     overflow: hidden;
     width: 100%;
@@ -474,6 +478,11 @@ footer p {
     z-index: 10;
 }
 
+/*
+ * 6.2. Axis
+ */
+
+
 #graph hr {
     position: absolute;
     margin: 0;
@@ -491,6 +500,10 @@ footer p {
                  -1px -1px 0px rgba(255,255,255,0.5);
     background-color: #363032;*/
 }
+
+/*
+ * 6.3. Loading
+ */
 
 #graph_loading {
     position: absolute;
@@ -529,6 +542,48 @@ footer p {
     z-index: 20;
 }
 
+/*
+ * 6.4. Prev/Next
+ */
+
+#prev {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -2.5em;
+    width: 2em;
+    background-color: rgba(0,0,0,0.5);
+    border: none;
+    z-index: 30;
+}
+
+#prev:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+#next {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -2.5em;
+    width: 2em;
+    background-color: rgba(0,0,0,0.5);
+    border: none;
+    z-index: 30;
+}
+
+#next:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+@media screen and (max-width: 780px) {
+    #prev {
+        left:0;
+    }
+    #next {
+        right:0;
+    }
+}
 
 /******************************************************************************
  * 7. Échelle du graphe

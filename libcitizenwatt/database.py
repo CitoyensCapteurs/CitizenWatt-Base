@@ -27,7 +27,7 @@ class Measures(Base):
                        ForeignKey("sensors.id", ondelete="CASCADE"),
                        nullable=False)
     value = Column(Float)
-    timestamp = Column(DateTime)
+    timestamp = Column(DateTime, index=True)
     night_rate = Column(Integer)  # Boolean, 1 if night_rate
 
 

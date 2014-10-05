@@ -21,7 +21,9 @@
                     -->
                 </div>
 
+
                 <div id="graph">
+                    <button id="prev">&lt;</button>
                     <div id="graph_loading">
                         <img alt="Chargement" src="{{ get_url('static', filename='img/loading_simple.svg') }}" />
                     </div>
@@ -31,7 +33,9 @@
                     <div id="graph_vertical_axis"></div>
                     <hr style="bottom:33.3%"/>
                     <hr style="bottom:66.7%"/>
+                    <button id="next">&gt;</button>
                 </div>
+
 
                 <nav id="scale">
                     <button id="scale-now" class="active">Maintenant</button>

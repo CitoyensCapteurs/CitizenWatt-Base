@@ -107,14 +107,15 @@ var App = function() {
 	api.initValues = function(callback) {
 		var target = '/1/get/' + menu.getUnitString();
 		var mode = menu.getMode();
+		var date = menu.getDate() || (new Date());
 
 		switch (mode) {
 			case 'now':
-				var now = new Date();
+				menu.timeWidth = Config.timestep * graph.getWidth();
 				target
 				+= '/by_time/'
-				+  (now.getTime() / 1000.0 - Config.timestep * (graph.getWidth()+1)) + '/'
-				+  now.getTime() / 1000.0 + '/'
+				+  (date.getTime() / 1000.0 - Config.timestep * (graph.getWidth()+1)) + '/'
+				+  date.getTime() / 1000.0 + '/'
 				+  Config.timestep;
 				graph.setOverviewLabel('Consommation actuelle');
 				break;
@@ -122,27 +123,27 @@ var App = function() {
 			case 'day':
 				target
 				+= '/by_time/'
-				+  dateutils.getDayStart() / 1000.0 + '/'
-				+  dateutils.getDayEnd() / 1000.0 + '/'
-				+  dateutils.getHourLength() / 1000.0;
+				+  dateutils.getDayStart(date) / 1000.0 + '/'
+				+  dateutils.getDayEnd(date) / 1000.0 + '/'
+				+  dateutils.getHourLength(date) / 1000.0;
 				graph.setOverviewLabel('Consommation aujourd\'hui');
 				break;
 
 			case 'week':
 				target
 				+= '/by_time/'
-				+  dateutils.getWeekStart() / 1000.0 + '/'
-				+  dateutils.getWeekEnd() / 1000.0 + '/'
-				+  dateutils.getDayLength() / 1000.0;
+				+  dateutils.getWeekStart(date) / 1000.0 + '/'
+				+  dateutils.getWeekEnd(date) / 1000.0 + '/'
+				+  dateutils.getDayLength(date) / 1000.0;
 				graph.setOverviewLabel('Consommation cette semaine');
 				break;
 
 			case 'month':
 				target
 				+= '/by_time/'
-				+  dateutils.getMonthStart() / 1000.0 + '/'
-				+  dateutils.getMonthEnd() / 1000.0 + '/'
-				+  dateutils.getDayLength() / 1000.0;
+				+  dateutils.getMonthStart(date) / 1000.0 + '/'
+				+  dateutils.getMonthEnd(date) / 1000.0 + '/'
+				+  dateutils.getDayLength(date) / 1000.0;
 				graph.setOverviewLabel('Consommation ce mois');
 				break;
 
