@@ -116,13 +116,15 @@ var App = function() {
 
 		switch (mode) {
 			case 'now':
-				menu.timeWidth = Config.timestep * graph.getWidth();
+				menu.timeWidth = Config.timestep * (graph.getWidth()+1) * 1000;
+				var start_date = new Date(date.getTime() - menu.timeWidth);
 				target
 				+= '/by_time/'
-				+  (date.getTime() / 1000.0 - Config.timestep * (graph.getWidth()+1)) + '/'
+				+  start_date.getTime() / 1000.0 + '/'
 				+  date.getTime() / 1000.0 + '/'
 				+  Config.timestep;
-				graph.setOverviewLabel('Consommation actuelle');
+				if (!menu.getDate()) graph.setOverviewLabel('Consommation actuelle');
+				else                 graph.setOverviewLabel('Consommation entre ' + dateutils.humanTime(start_date) + ' et ' + dateutils.humanTime(date));
 				break;
 
 			case 'day':

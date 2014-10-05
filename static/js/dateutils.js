@@ -112,6 +112,29 @@ var dateutils = (function() {
 	};
 
 	/**
+	 * Human readable time. Relative for first values (now, 1 min ago, etc) and then absolute.
+	 * @param date
+	 * @return string time
+	 */
+	api.humanTime = function(date) {
+		var now = new Date();
+		var prefix = now > date ? 'il y a ' : 'dans ';
+		var diff = Math.abs(date.getTime() - now.getTime());
+		if (diff < 60*1000)
+			return prefix + Math.round(diff / 1000) + 's';
+
+		if (Math.abs(date.getTime() - now.getTime()) < 3600*1000) {
+			console.log(date, now, date.getTime() - now.getTime());
+			return prefix + Math.round(diff / 60000) + 'min';// + Math.abs(date.getSeconds() - comp.getSeconds()) + 's';
+		}
+
+		if (api.getDayStart(date) == api.getDayStart())
+			return date.getHours() + 'h' + date.getMinutes();
+
+		return api.humanDay() + ' à ' + date.getHours() + 'h' + date.getMinutes();
+	};
+
+	/**
 	 * Human readable date. Relative for first values (today, yesterday) and then absolute.
 	 * @param date
 	 * @return string date
