@@ -263,13 +263,13 @@ var Graph = function(unit) {
 				return i + 'h - ' + (i+1) + 'h';
 
 			case 'week':
-				return ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][i];
+				return dateutils.getStringDay(i);
 
 			case 'month':
 				return i + ' ' + api.getLegend('year', (new Date()).getMonth());
 
 			case 'year':
-				return ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'][i];
+				return dateutils.getStringMonth(i);
 		}
 	};
 

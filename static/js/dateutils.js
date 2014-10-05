@@ -93,6 +93,90 @@ var dateutils = (function() {
 		return (new Date(date.getFullYear(), date.getMonth()+1, 1)).getTime() + api.offset;
 	};
 
+	/**
+	 * Return human readable day of week
+	 * @param i: index of day or date
+	 */
+	api.getStringDay = function(i) {
+		if (i.getDay !== undefined) i = (i.getDay() + 6) % 7;
+		return ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][i];
+	};
+
+	/**
+	 * Return human readable month
+	 * @param i: index of month or date
+	 */
+	api.getStringMonth = function(i) {
+		if (i.getMonth !== undefined) i = i.getMonth();
+		return ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'][i];
+	};
+
+	/**
+	 * Human readable date. Relative for first values (today, yesterday) and then absolute.
+	 * @param date
+	 * @return string date
+	 */
+	api.humanDay = function(date) {
+		var comp = new Date();
+		if (api.getDayStart(comp) == api.getDayStart(date))
+			return 'aujourd\'hui';
+		
+		comp.setDate(comp.getDate() + 1);
+		if (api.getDayStart(comp) == api.getDayStart(date))
+			return 'demain';
+
+		comp.setDate(comp.getDate() - 2);
+		if (api.getDayStart(comp) == api.getDayStart(date))
+			return 'hier';
+
+		if (api.getWeekStart() == api.getWeekStart(date) && date < (new Date()))
+			return api.getStringDay(date).toLowerCase() + ' dernier';
+
+		if (api.getMonthStart() == api.getMonthStart(date))
+			return 'le ' + date.getDate();
+
+		return 'le ' + date.getDate() + ' ' + api.getStringMonth(date).toLowerCase();
+	};
+
+	/**
+	 * Human readable week. Relative for first values (this week, past week) and then absolute.
+	 * @param date
+	 * @return string week
+	 */
+	api.humanWeek = function(date) {
+		var comp = new Date();
+		if (api.getWeekStart(comp) == api.getWeekStart(date))
+			return 'cette semaine';
+		
+		comp.setDate(comp.getDate() + 7);
+		if (api.getWeekStart(comp) == api.getWeekStart(date))
+			return 'la semaine prochaine';
+
+		comp.setDate(comp.getDate() - 14);
+		if (api.getWeekStart(comp) == api.getWeekStart(date))
+			return 'la semaine dernière';
+
+		var f = new Date(api.getWeekStart(date));
+		var l = new Date(api.getWeekEnd(date) - 1);
+		var v
+		= 'entre le ' + f.getDate() + ' ' + api.getStringMonth(f)
+		+ ' et le ' + l.getDate() + ' ' + api.getStringMonth(l);
+		return v.toLowerCase();
+	};
+
+	/**
+	 * Human readable month.
+	 * @param date
+	 * @return string month
+	 */
+	api.humanMonth = function(date) {
+		var comp = new Date();
+		if (api.getMonthStart(comp) == api.getMonthStart(date))
+			return 'ce mois';
+		
+		return 'en ' + api.getStringMonth(date).toLowerCase();
+	};
+
 	return api;
 })();
 

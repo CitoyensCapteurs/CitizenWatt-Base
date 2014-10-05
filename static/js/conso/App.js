@@ -131,7 +131,7 @@ var App = function() {
 				+  dateutils.getDayStart(date) / 1000.0 + '/'
 				+  dateutils.getDayEnd(date) / 1000.0 + '/'
 				+  dateutils.getHourLength(date) / 1000.0;
-				graph.setOverviewLabel('Consommation aujourd\'hui');
+				graph.setOverviewLabel('Consommation ' + dateutils.humanDay(date));
 				break;
 
 			case 'week':
@@ -140,7 +140,7 @@ var App = function() {
 				+  dateutils.getWeekStart(date) / 1000.0 + '/'
 				+  dateutils.getWeekEnd(date) / 1000.0 + '/'
 				+  dateutils.getDayLength(date) / 1000.0;
-				graph.setOverviewLabel('Consommation cette semaine');
+				graph.setOverviewLabel('Consommation ' + dateutils.humanWeek(date));
 				break;
 
 			case 'month':
@@ -149,7 +149,7 @@ var App = function() {
 				+  dateutils.getMonthStart(date) / 1000.0 + '/'
 				+  dateutils.getMonthEnd(date) / 1000.0 + '/'
 				+  dateutils.getDayLength(date) / 1000.0;
-				graph.setOverviewLabel('Consommation ce mois');
+				graph.setOverviewLabel('Consommation ' + dateutils.humanMonth(date));
 				break;
 
 			default:

@@ -29,4 +29,13 @@ assert(dateutils.getWeekEnd(d)    == (new Date(2000, 0, 3,0,0,0,0)).getTime(), '
 assert(dateutils.getMonthStart(d) == (new Date(1999,11, 1,0,0,0,0)).getTime(), '[2] Month start');
 assert(dateutils.getMonthEnd(d)   == (new Date(2000, 0, 1,0,0,0,0)).getTime(), '[2] Month end'  );
 
+assert(dateutils.getStringDay(3)    == 'Jeudi'   , 'String day by index'  );
+assert(dateutils.getStringDay(d)    == 'Jeudi'   , 'String day by date'   );
+assert(dateutils.getStringMonth(11) == 'Décembre', 'String month by index');
+assert(dateutils.getStringMonth( d) == 'Décembre', 'String month by date' );
+
+assert(dateutils.humanDay(d)   == 'le 30 Décembre'                      , 'Human date' );
+assert(dateutils.humanWeek(d)  == 'entre le 27 Décembre et le 2 Janvier', 'Human week' );
+assert(dateutils.humanMonth(d) == 'en Décembre'                         , 'Human month');
+
 console.log('Everything is ok.')
