@@ -71,9 +71,11 @@ var Menu = function() {
 	 * Set display mode.
 	 * @param mode: New mode
 	 * @param callback: (optional)
+	 * @param fire_event: (optional) false to avoid running ondatechange
 	 * @return boolean Whether the mode is accepted.
 	 */
-	api.setMode = function(new_mode, callback) {
+	api.setMode = function(new_mode, callback, fire_event) {
+		if (fire_event === undefined) fire_event = true;
 		now_btn.className = '';
 		day_btn.className = '';
 		week_btn.className = '';
@@ -96,8 +98,11 @@ var Menu = function() {
 		}
 		if (new_mode != mode) {
 			mode = new_mode;
-			api.onmodechange(mode, callback);
+			
+			if (fire_event) api.onmodechange(mode, callback);
+			else if (callback) callback();
 		}
+		else if (callback) callback();
 		return true;
 	};
 
@@ -105,9 +110,11 @@ var Menu = function() {
 	 * Set unit.
 	 * @param unit: New unit
 	 * @param callback: (optional)
+	 * @param fire_event: (optional) false to avoid running ondatechange
 	 * @return boolean Whether the unit is accepted.
 	 */
-	api.setUnit = function(new_unit, callback) {
+	api.setUnit = function(new_unit, callback, fire_event) {
+		if (fire_event === undefined) fire_event = true;
 		unit_energy.className = '';
 		unit_price.className = '';
 		switch(new_unit) {
@@ -122,8 +129,11 @@ var Menu = function() {
 		}
 		if (new_unit != unit) {
 			unit = new_unit;
-			api.onunitchange(unit, callback);
+
+			if (fire_event) api.onunitchange(unit, callback);
+			else if (callback) callback();
 		}
+		else if (callback) callback();
 		return true;
 	};
 
@@ -169,21 +179,25 @@ var Menu = function() {
 	 * Set date.
 	 * @param date: New date
 	 * @param callback: (optional)
+	 * @param fire_event: (optional) false to avoid running ondatechange
 	 */
-	api.setDate = function(new_date, callback) {
+	api.setDate = function(new_date, callback, fire_event) {
+		if (fire_event === undefined) fire_event = true;
 		if (date != new_date) {
 			date = new_date;
 
 			// If 'now' view and new date near now, restore auto update
-			if (mode == 'now') {
+			if (mode == 'now' && date !== null) {
 				var now = new Date();
 				if (Math.abs(date.getTime() - now.getTime()) < api.timeWidth / 2) {
 					date = null;
 				}
 			}
 
-			api.ondatechange(unit, callback);
+			if (fire_event) api.ondatechange(unit, callback);
+			else if (callback) callback();
 		}
+		else if (callback) callback();
 	};
 
 	/**

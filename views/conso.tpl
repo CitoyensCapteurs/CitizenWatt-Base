@@ -56,6 +56,7 @@
         'conso/Graph',
         'conso/DataProvider',
         'conso/RateDisplay',
+        'conso/HashManager',
         'conso/App',
         'conso/Config',
         'conso/tail'

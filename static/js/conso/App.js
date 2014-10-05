@@ -1,36 +1,3 @@
-var HashManager = function() {
-	var api = {};
-	var unit, mode;
-
-	components = location.hash.slice(1).split('-');
-	unit = components[0];
-	mode = components[1] || 'now';
-
-	api.updateHash= function(){
-		location.hash = '#' + unit + '-' + mode;
-	};
-
-	api.setUnit = function(new_unit) {
-		unit = new_unit;
-		api.updateHash();
-	};
-
-	api.getUnit = function() {
-		return unit;
-	};
-
-	api.setMode = function(new_mode) {
-		mode = new_mode;
-		api.updateHash();
-	};
-
-	api.getMode = function() {
-		return mode;
-	};
-
-	return api;
-};
-
 /**
  * Core application
  */
@@ -65,6 +32,7 @@ var App = function() {
 		if (mode == 'now') graph.round = function(v) { return Math.round(v * 10000) / 10000; };
 		graph.init();
 		hash.setMode(mode);
+		hash.setDate(date);
 		api.initValues(callback);
 	}
 
@@ -88,19 +56,24 @@ var App = function() {
 		provider.get('/time', function(basetime) {
 			dateutils.offset = parseFloat(basetime) * 1000.0 - (new Date()).getTime();
 
+			var unit;
 			switch (hash.getUnit()) {
 				case 'euros':
 					graph = PriceGraph();
-					menu.setUnit('price', function(){
-						menu.setMode(hash.getMode(), api.oninit);
-					});
+					unit = 'price';
 					break;
 
 				default:
-					menu.setUnit('energy', function(){
-						menu.setMode(hash.getMode(), api.oninit);
-					});
+					unit = 'energy'
 			}
+
+			menu.setUnit('price', function(){
+			menu.setMode(hash.getMode(), function(){
+			menu.setDate(hash.getDate(), function(){
+				reload(null, api.oninit);
+			}, false);
+			}, false);
+			});
 
 		});
 	};
