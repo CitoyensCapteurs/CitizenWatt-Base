@@ -35,7 +35,7 @@ def get_rate_type(db):
 config = Config()
 
 # DB initialization
-database_url = ("mysql+pymysql://" + config.get("username") + ":" +
+database_url = ("mysql+mysqlconnector://" + config.get("username") + ":" +
                 config.get("password") + "@" + config.get("host") + "/" +
                 config.get("database"))
 engine = create_engine(database_url, echo=config.get("debug"))
@@ -65,6 +65,6 @@ try:
             db.commit()
             print(now.timestamp())
             print("Saved successfully.")
-        time.sleep(8)
+        time.sleep(2)
 except KeyboardInterrupt:
     pass

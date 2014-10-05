@@ -1,7 +1,6 @@
 ## Package needed
 
 * sqlalchemy
-* pymysql
 
 ## API
 
