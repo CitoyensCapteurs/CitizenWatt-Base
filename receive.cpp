@@ -91,6 +91,7 @@ int main() {
             write(fd, payload, sizeof(payload));
             // Maybe needed ? fflush(fd)
         }
+	sleep(2);
     }
     close(fd);
 }
