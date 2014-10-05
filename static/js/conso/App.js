@@ -185,7 +185,7 @@ var App = function() {
 	 * Go and get new values. This function should be called regularely by the main loop.
 	 */
 	api.update = function() {
-		if (menu.getMode() == 'now') {
+		if (menu.getMode() == 'now' && menu.getDate() === null) {
 			var target
 			= '/1/get/'
 			+ menu.getUnitString()

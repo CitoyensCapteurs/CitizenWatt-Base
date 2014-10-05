@@ -123,10 +123,8 @@ var dateutils = (function() {
 		if (diff < 60*1000)
 			return prefix + Math.round(diff / 1000) + 's';
 
-		if (Math.abs(date.getTime() - now.getTime()) < 3600*1000) {
-			console.log(date, now, date.getTime() - now.getTime());
+		if (Math.abs(date.getTime() - now.getTime()) < 3600*1000)
 			return prefix + Math.round(diff / 60000) + 'min';// + Math.abs(date.getSeconds() - comp.getSeconds()) + 's';
-		}
 
 		if (api.getDayStart(date) == api.getDayStart())
 			return date.getHours() + 'h' + date.getMinutes();
