@@ -164,10 +164,10 @@ var App = function() {
 			var s = 0, i = 0;
 			data.map(function(m) {
 				if (m.value !== undefined) {
-					graph.addRect(m.value, false, graph.getLegend(mode, i));
+					graph.addRect(m.value, false, graph.getLegend(mode, date, i));
 					s += m.value;
 				} else {
-					graph.addRect(undefined, false, graph.getLegend(mode, i));
+					graph.addRect(undefined, false, graph.getLegend(mode, date, i));
 				}
 				i += 1;
 			});

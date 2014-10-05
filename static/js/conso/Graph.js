@@ -113,7 +113,7 @@ var Graph = function(unit) {
 
 		info.className = 'rect-info';
 		if (defined) info.innerHTML = api.round(power) + api.unit;
-		else         info.innerHTML = 'Pas de donnée';
+		else         info.innerHTML = '<em>Pas de donnée</em>';
 		if (legend) info.innerHTML += '<br/>' + legend;
 
 		var color = document.createElement('div');
@@ -250,11 +250,12 @@ var Graph = function(unit) {
 
 	/**
 	 * Return a human readable legend
-	 * @param mode: 'now', 'day', 'week', 'month' or 'year'
+	 * @param mode: 'now', 'day', 'week', 'month'
+	 * @param date: view date
 	 * @param i: index
 	 * [Static]
 	 */
-	api.getLegend = function(mode, i) {
+	api.getLegend = function(mode, date, i) {
 		switch(mode) {
 			case 'now':
 				return '';
@@ -266,10 +267,7 @@ var Graph = function(unit) {
 				return dateutils.getStringDay(i);
 
 			case 'month':
-				return i + ' ' + api.getLegend('year', (new Date()).getMonth());
-
-			case 'year':
-				return dateutils.getStringMonth(i);
+				return i + ' ' + dateutils.getStringMonth(date);
 		}
 	};
 

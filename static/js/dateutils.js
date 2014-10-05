@@ -72,7 +72,7 @@ var dateutils = (function() {
 	 */
 	api.getMonthLength = function(date) {
 		var date = date || new Date();
-		return (new Date(date.getFullYear(),date.getMonth()+1,0)).getDate();
+		return (new Date(date.getFullYear(),date.getMonth()+1,0)).getDate() * api.getDayLength();
 	};
 
 	/**
