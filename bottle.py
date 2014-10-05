@@ -1163,7 +1163,7 @@ class BaseRequest(object):
                 maxread -= len(part)
             if read(2) != rn:
                 raise err
-
+            
     @DictProperty('environ', 'bottle.request.body', read_only=True)
     def _body(self):
         body_iter = self._iter_chunked if self.chunked else self._iter_body
@@ -1791,7 +1791,6 @@ class _ImportRedirect(object):
         if fullname in sys.modules: return sys.modules[fullname]
         modname = fullname.rsplit('.', 1)[1]
         realname = self.impmask % modname
-        print(realname)
         __import__(realname)
         module = sys.modules[fullname] = sys.modules[realname]
         setattr(self.module, modname, module)
@@ -2062,6 +2061,7 @@ class ConfigDict(dict):
     def setdefault(self, key, value):
         if key not in self:
             self[key] = value
+        return self[key]
 
     def __setitem__(self, key, value):
         if not isinstance(key, str):
@@ -2676,20 +2676,20 @@ class CherryPyServer(ServerAdapter):
         from cherrypy import wsgiserver
         self.options['bind_addr'] = (self.host, self.port)
         self.options['wsgi_app'] = handler
-
+        
         certfile = self.options.get('certfile')
         if certfile:
             del self.options['certfile']
         keyfile = self.options.get('keyfile')
         if keyfile:
             del self.options['keyfile']
-
+        
         server = wsgiserver.CherryPyWSGIServer(**self.options)
         if certfile:
             server.ssl_certificate = certfile
         if keyfile:
             server.ssl_private_key = keyfile
-
+        
         try:
             server.start()
         finally:

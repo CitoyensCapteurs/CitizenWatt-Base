@@ -245,6 +245,8 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
            apply=valid_user())
 def api_get_ids_step(sensor, watt_euros, id1, id2, step, db, timestep=8):
     steps = [i for i in range(id1, id2 + step, step)]
+    if len(steps) == 1:
+        steps = [id1, id2]
     data = []
 
     for s in [steps[i:i+2] for i in range(len(steps)-1)]:
@@ -339,7 +341,9 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
     time2 = int(time2)
     step = int(step)
 
-    steps = [i for i in range(time1, time2 + step, step)]
+    steps = [i for i in range(time1, time2, step)]
+    if len(steps) == 1:
+        steps = [time1, time2]
     data = []
 
     for s in [steps[i:i+2] for i in range(len(steps)-1)]:
