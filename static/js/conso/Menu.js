@@ -173,6 +173,15 @@ var Menu = function() {
 	api.setDate = function(new_date, callback) {
 		if (date != new_date) {
 			date = new_date;
+
+			// If 'now' view and new date near now, restore auto update
+			if (mode == 'now') {
+				var now = new Date();
+				if (Math.abs(date.getTime() - now.getTime()) < api.timeWidth / 2) {
+					date = null;
+				}
+			}
+
 			api.ondatechange(unit, callback);
 		}
 	};
