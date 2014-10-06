@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from sqlalchemy import Column, DateTime, Float
+from sqlalchemy import Column, TIMESTAMP, Float
 from sqlalchemy import ForeignKey, Integer, Text, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -27,7 +27,7 @@ class Measures(Base):
                        ForeignKey("sensors.id", ondelete="CASCADE"),
                        nullable=False)
     value = Column(Float)
-    timestamp = Column(DateTime, index=True)
+    timestamp = Column(TIMESTAMP, index=True)
     night_rate = Column(Integer)  # Boolean, 1 if night_rate
 
 

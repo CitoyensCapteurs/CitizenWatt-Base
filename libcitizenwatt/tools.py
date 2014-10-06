@@ -23,7 +23,7 @@ def to_dict(model):
         dict['id'] = getattr(model, 'id')
 
         for col in model._sa_class_manager.mapper.mapped_table.columns:
-            if str(col.type) == "DATETIME":
+            if str(col.type) == "TIMESTAMP":
                 dict[col.name] = getattr(model, col.name).timestamp()
             else:
                 dict[col.name] = getattr(model, col.name)
