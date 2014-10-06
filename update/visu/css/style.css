@@ -1,0 +1,887 @@
+
+/******************************************************************************
+ * 0. Font faces
+ */
+
+/*
+ * 0.1 Open Sans
+ */
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    src:
+        local('Open Sans'),
+        local('OpenSans'),
+        url('../font/OpenSans-Regular.ttf');
+}
+@font-face {
+    font-family: 'Open Sans';
+    src:
+        local('Open Sans Light'),
+        local('OpenSans-Light'),
+        url('../font/OpenSans-Light.ttf');
+    font-style: normal;
+    font-weight: 300;
+}
+@font-face {
+    font-family: 'Open Sans';
+    src:
+        local('Open Sans Semibold'),
+        local('OpenSans-Semibold'),
+        url('../font/OpenSans-Bold.ttf');
+    font-style: normal;
+    font-weight: bold;
+}
+@font-face {
+    font-family: 'Open Sans';
+    src:
+        local('Open Sans Italic'),
+        local('OpenSans-Italic'),
+        url('../font/OpenSans-Italic.ttf');
+    font-style: italic;
+}
+@font-face {
+    font-family: 'Open Sans';
+    src:
+        local('Open Sans Bold Italic'),
+        local('OpenSans-BoldItalic'),
+        url('../font/OpenSans-BoldItalic.ttf');
+    font-style: italic;
+    font-weight: bold;
+}
+
+/*
+ * 0.2 Alex Brush
+ */
+
+@font-face {
+    font-family: 'Alex Brush';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Alex Brush'), local('AlexBrush'), url('../font/AlexBrush-Regular.ttf');
+}
+
+
+/******************************************************************************
+ * 1. Styles de base
+ */
+
+html, body {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
+
+body {
+    background-color: #231f20;
+    color: #d6d6d6;
+    font-family: "Open Sans", sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color: #e3834f;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+main {
+    width: 75%;
+    margin: auto;
+    padding-bottom: 4em;
+    color: #b3abab;
+}
+
+@media screen and (max-width: 900px) {
+    main {
+        width: 100%;
+    }
+}
+
+
+/******************************************************************************
+ * 2. Classes
+ */
+
+/*
+ * 2.1 Color classes
+ */
+
+.yellow {
+    color: #ffd35d;
+}
+
+.orange {
+    color: #ffb43f;
+}
+
+.red {
+    color: #ff7b33;
+}
+
+.dark-yellow {
+    color: #
+}
+
+.dark-orange {
+    color: #f59b20;
+}
+
+.dark-red {
+    color: #f2541b;
+}
+
+.blurry {
+   text-shadow: 0 0 0.5em;
+}
+
+.left {
+    float: left;
+    margin-left: 1em;
+}
+
+.no-day {
+    background-color: transparent !important;
+}
+
+.empty-day {
+    background-color: #363032 !important;
+}
+
+.dark-red-day {
+    background-color: #f2541b !important;
+}
+
+.red-day {
+    background-color: #ff7b33 !important;
+}
+
+.orange-day {
+    background-color: #ffb43f !important;
+}
+
+.yellow-day {
+    background-color: #ffd35d !important;
+}
+
+.dark-blue {
+    color: #2332ff;
+}
+
+.blue {
+    color: #196cff;
+}
+
+.light-blue {
+    color: #5d92ff;
+}
+
+.dark-blue-day {
+    background-color: #2332ff !important;
+}
+
+.blue-day {
+    background-color: #196cff !important;
+}
+
+.light-blue-day {
+    background-color: #5d92ff !important;
+}
+
+/*
+ * 2.2 Dialog boxes
+ */
+
+.dialog-err {
+    background-color: rgba(255,255,255,0.1);
+    border-left: 3px solid #cc624d;
+    
+    margin: 10px 0;
+    padding: 5px 10px;
+}
+
+.dialog-err h4 {
+    font-weight: 500;
+    margin: 0;
+    color: #cc624d;
+}
+
+.dialog-err p {
+    margin: 3px 0;
+    font-weight: 200;
+    color: white;
+}
+
+/*
+ * 2.x Other
+ */
+
+.clearfix {
+    clear: both;
+}
+
+
+/******************************************************************************
+ * 3. Header
+ */
+
+header {
+    background-color: #5f5557;
+    border-bottom: 5px solid #928688;
+
+    display: -webkit-flex;
+    display: flex;
+
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+.header-logo img {
+    margin: 2px 0;
+    margin-left: 3em;
+    vertical-align: top;
+}
+
+/*
+ * 3.1. Menu
+ */
+
+#menu {
+    font-size: 1.2em;
+
+    display: -webkit-flex;
+    display: flex;
+
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+}
+
+
+#menu>a {
+    display: inline-block;
+    margin-right: 1em;
+
+    color: white;
+    text-transform: uppercase;
+    font-weight: 200;
+    border-bottom: 3px solid #5f5557;
+}
+
+#menu a:hover {
+    text-decoration: none;
+    border-bottom: 3px solid #928688;
+}
+
+#menu a.active {
+    border-bottom: 3px solid #e3834f;
+}
+
+#menu a.active:hover {
+    border-bottom: 3px solid #ad7556;
+}
+
+/*
+ * 3.2. Rate logo
+ */
+
+.rate-logo {
+    cursor: help;
+    position: relative;
+    margin-left: 2em;
+    margin-right: auto;
+    display: none;
+}
+
+.rate-logo img {
+    width: 2em;
+}
+
+.rate-logo span {
+    position: absolute;
+    width: 8em;
+    left: 50%;
+    margin-left: -4em;
+    background-color: rgba(0,0,0,0.7);
+    border-radius: 3px;
+    padding: 3px;
+    text-align: center;
+    display: none;
+}
+
+.rate-logo:hover span {
+    display: block;
+}
+
+
+/******************************************************************************
+ * 4. Footer
+ */
+
+
+footer {
+    padding: 0;
+
+    background-color: #5f5557;
+    border-top: 5px solid #928688;
+
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+
+    font-size: 0.7em;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+footer p {
+    margin: 0.2em;
+}
+
+.pre-footer {
+    margin-bottom: 2em;
+}
+
+
+
+/******************************************************************************
+ * 5. Overview
+ */
+
+#overview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1em;
+}
+
+#overview div {
+    margin-left: 2em;
+    margin-right: 2em;
+    text-align: center;
+}
+
+#now, #day, #week  {
+    font-size: 3em;
+    margin-bottom: 0;
+}
+
+
+/******************************************************************************
+ * 6. Graphe
+ */
+
+
+#graph {
+    background-color: #363032;
+    border-bottom: 3px solid #52484b;
+    margin-bottom: 1em;
+    position: relative;
+    height: 300px;
+
+    
+}
+
+/*
+ * 6.1. Values
+ */
+
+#graph_values_wrapper {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    direction: rtl;
+}
+
+#graph_values {
+    display: -webkit-inline-flex;
+    display: inline-flex;
+
+    -webkit-flex-flow: row-reverse nowrap;
+    flex-flow: row-reverse nowrap;
+
+    -webkit-justify-content: flex-end;
+    justify-content: flex-end;
+
+    -webkit-align-items: flex-end;
+    align-items: flex-end;
+
+    height: 100%;
+    min-width: 100%;
+    
+}
+
+#graph_values .rect {
+    margin-left: 2px;
+    height: 100%;
+    position: relative;
+}
+
+#graph_values .rect {
+    margin-left: 2px;
+    height: 100%;
+    position: relative;
+}
+
+#graph_values .rect.undefined {
+    background-color: #5C2D2D;
+}
+
+#graph_values .rect.animated {
+    transition: width 1s;
+    width: 0;
+}
+
+#graph_values .rect-info {
+    color: #ddd;
+    background-color: rgba(0,0,0,0.8);
+    border-radius: 3px;
+    padding: 3px;
+    box-sizing: border-box;
+    text-align: center;
+
+    position: absolute;
+    top: 0;
+    
+    width: 7em;
+    left: 50%;
+    margin-left: -3em;
+    
+    z-index: 20;
+    display: none;
+}
+
+#graph_values .rect:hover .rect-info {
+    display: block;
+}
+
+#graph_values .rect:hover {
+    background-color: rgba(0,0,0,0.2);
+}
+
+#graph_values .rect-color {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+/*
+ * 6.2. Axis
+ */
+
+
+#graph hr {
+    position: absolute;
+    margin: 0;
+    border: 0;
+    height: 2px;
+    width: 100%;
+    background-color: rgba(255,255,255,0.1);
+    z-index: 20;
+}
+
+#graph_vertical_axis span {
+    position:absolute;
+    z-index: 20;
+    /*text-shadow:  1px  1px 0px rgba(  0,  0,  0,0.5),
+                 -1px -1px 0px rgba(255,255,255,0.5);
+    background-color: #363032;*/
+}
+
+/*
+ * 6.3. Loading
+ */
+
+#graph_loading {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: -webkit-flex;
+    display: flex;
+
+    -webkit-flex-flow: column wrap;
+    flex-flow: column wrap;
+
+    -webkit-justify-content: center;
+    justify-content: center;
+
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+#graph_loading img {
+    width: 3em;
+    animation-name: rotate;
+    -webkit-animation-name: rotate;
+
+    animation-duration: 5s;
+    -webkit-animation-duration: 5s;
+
+    animation-iteration-count: infinite;
+    -webkit-animation-iteration-count: infinite;
+
+    animation-timing-function: linear;
+    -webkit-animation-timing-function: linear;
+
+    z-index: 20;
+}
+
+/*
+ * 6.4. Prev/Next
+ */
+
+#prev {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -2.5em;
+    width: 2em;
+    background-color: rgba(0,0,0,0.5);
+    border: none;
+    z-index: 30;
+}
+
+#prev:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+#next {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -2.5em;
+    width: 2em;
+    background-color: rgba(0,0,0,0.5);
+    border: none;
+    z-index: 30;
+}
+
+#next:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+@media screen and (max-width: 780px) {
+    #prev {
+        left:0;
+    }
+    #next {
+        right:0;
+    }
+}
+
+/******************************************************************************
+ * 7. Échelle du graphe
+ */
+
+#scale {
+    display: -webkit-flex;
+    display: flex;
+
+    -webkit-flex-flow: rowcolumn wrap;
+    flex-flow: row wrap;
+
+    -webkit-justify-content: flex-start;
+    justify-content: flex-start;
+
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+#scale button {
+    background: #363032;
+    border: none;
+    border-bottom: 3px solid #52484b;
+}
+
+#scale button.active {
+    color: white;
+    border-bottom: 3px solid #e3834f;
+}
+
+#scale button:hover {
+    color: white;
+    background: #60565A;
+}
+
+#unit-energy {
+    margin-left: auto;
+    color: white;
+}
+
+
+/******************************************************************************
+ * 8. Menu blocks
+ */
+
+.menu {
+    text-transform: uppercase;
+    color: white;
+}
+
+.menu img {
+    margin: 3px 0.5em;
+    vertical-align: middle;
+}
+
+.menu h1 {
+    font-weight: 200;
+}
+
+.menu a {
+    color: white;
+}
+
+.menu>a {
+    color: white;
+    display: block;
+    margin: 0.5em 5em;
+    line-height: 3em;
+}
+
+.menu>a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+}
+
+.menu a img {
+    height: 2em;
+}
+
+
+.right-column, .left-column {
+    width: 50%;
+}
+
+.right-column {
+    float: right;
+}
+
+.left-column {
+    width: 50%;
+    float: left;
+}
+
+@media screen and (max-width: 780px) {
+    .right-column {
+        width: 100%;
+        float: none;
+    }
+
+    .left-column {
+        width: 100%;
+        float: none;
+    }
+}
+
+/******************************************************************************
+ * 9. Form
+ */
+
+
+input, select {
+    color: #444;
+    border: 0;
+    border-radius: 3px;
+    padding: 4px 6px;
+    background-color: #F8F8F8;
+    line-height: 1.4em;
+}
+
+input:focus {
+    box-shadow: 0 0 2px 2px rgba(185, 103, 59, 0.8);
+}
+
+input[type="submit"] {
+    background-color: #BF6C3F;
+    text-transform: uppercase;
+    color: white;
+}
+
+fieldset {
+    border-radius: 3px;
+    border: none;
+    margin: 3em 0;
+}
+
+legend {
+    color: white;
+    font-size: 1.5em;
+}
+
+
+.form-item {
+    display: -webkit-flex;
+    display: flex;
+
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+
+    -webkit-justify-content: flex-start;
+    justify-content: flex-start;
+
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+.form-item label {
+    width: 275px;
+}
+
+.form-item input {
+}
+
+.form-help {
+    text-transform: none;
+    color: #888;
+    margin: 0 1em;
+    font-size: 0.9em;
+    margin-bottom: 2em;
+}
+
+/******************************************************************************
+ * 10. Tableaux
+ */
+
+table {
+    text-align: center;
+    margin: auto;
+}
+
+table td, table th {
+    padding: 0.5em;
+    border: 1px solid white;
+}
+
+table tr td:first-child, table tr th:first-child {
+    border-left: none;
+}
+
+table tr td:last-child, table tr th:last-child {
+    border-right: none;
+}
+
+table tr:first-child td, table tr:first-child th {
+    border-top: none;
+}
+
+table tr:last-child td, table tr:last-child th {
+    border-bottom: none;
+}
+
+/******************************************************************************
+ * 11. Coming soon
+ */
+
+.coming-soon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: -webkit-flex;
+    display: flex;
+
+    -webkit-flex-flow: column wrap;
+    flex-flow: column wrap;
+
+    -webkit-justify-content: center;
+    justify-content: center;
+
+    -webkit-align-items: center;
+    align-items: center;
+
+    z-index: -10;
+}
+
+.coming-soon img {
+    width: 10em;
+    animation-name: rotate;
+    -webkit-animation-name: rotate;
+
+    animation-duration: 5s;
+    -webkit-animation-duration: 5s;
+
+    animation-iteration-count: infinite;
+    -webkit-animation-iteration-count: infinite;
+
+    animation-timing-function: linear;
+    -webkit-animation-timing-function: linear;
+}
+
+.coming-soon span {
+    display: block;
+    text-transform: uppercase;
+    color: white;
+    font-size: 2em;
+    font-weight: 300;
+}
+
+/******************************************************************************
+ * 12. Content
+ */
+
+.content {
+    color: #d7d7d7;
+    max-width: 50em;
+    margin: auto;
+    padding: 0 2em;
+    text-align: justify;
+}
+
+
+/******************************************************************************
+ * 13. Animations
+ */
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes rotate {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+/******************************************************************************
+ * X. Autre
+ */
+
+#page {
+    position: relative;
+    min-height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+
+@media screen and (max-width: 780px) {
+    #menu {
+        display: none;
+    }
+}
