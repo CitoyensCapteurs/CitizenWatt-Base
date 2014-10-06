@@ -80,7 +80,7 @@ def update_providers(fetch, db):
 # Initializations
 # ===============
 config = Config()
-database_url = ("mysql+mysqlconnector://" + config.get("username") + ":" +
+database_url = (config.get("database_type" + config.get("username") + ":" +
                 config.get("password") + "@" + config.get("host") + "/" +
                 config.get("database"))
 engine = create_engine(database_url, echo=config.get("debug"))

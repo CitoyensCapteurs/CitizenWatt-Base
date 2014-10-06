@@ -35,6 +35,8 @@ class Config():
 
     def initialize(self):
         self.set("max_returned_values", 500)
+        # self.set("database_type", "mysql+mysqlconnector")
+        self.set("database_type", "postgresql+psycopg2")
         self.set("username", "citizenwatt")
         self.set("password", "citizenwatt")
         self.set("database", "citizenwatt")
