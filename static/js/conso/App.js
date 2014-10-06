@@ -70,7 +70,7 @@ var App = function() {
 					unit = 'energy'
 			}
 
-			menu.setUnit('price', function(){
+			menu.setUnit(unit, function(){
 			menu.setMode(hash.getMode(), function(){
 			menu.setDate(hash.getDate(), function(){
 				reload(null, api.oninit);
