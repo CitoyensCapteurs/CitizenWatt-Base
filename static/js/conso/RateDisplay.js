@@ -17,5 +17,12 @@ var RateDisplay = function() {
 		}
 	};
 
+	/**
+	 * @return current rate ('day' or 'night')
+	 */
+	api.getRate = function() {
+		return rate;
+	}
+
 	return api;
 }

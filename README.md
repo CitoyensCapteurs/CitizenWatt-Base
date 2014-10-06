@@ -2,6 +2,8 @@
 
 * sqlalchemy
 * cherrypy
+* numpy
+* pycrypto
 
 ## API
 

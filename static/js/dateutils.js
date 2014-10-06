@@ -153,8 +153,8 @@ var dateutils = (function() {
 		if (api.getWeekStart() == api.getWeekStart(date) && date < (new Date()))
 			return api.getStringDay(date).toLowerCase() + ' dernier';
 
-		if (api.getMonthStart() == api.getMonthStart(date))
-			return 'le ' + date.getDate();
+		//if (api.getMonthStart() == api.getMonthStart(date))
+		//	return 'le ' + date.getDate();
 
 		return 'le ' + date.getDate() + ' ' + api.getStringMonth(date).toLowerCase();
 	};
