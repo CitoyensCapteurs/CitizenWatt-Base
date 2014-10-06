@@ -36,7 +36,10 @@ var App = function() {
 		api.initValues(callback);
 	}
 
-	menu.onmodechange = reload;
+	menu.onmodechange = function(ev, calback) {
+		menu.setDate(null);
+		reload(ev, callback);
+	}
 	menu.ondatechange = reload;
 
 	provider.onratechange = rate.setRate;

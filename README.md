@@ -1,6 +1,7 @@
 ## Package needed
 
 * sqlalchemy
+* cherrypy
 
 ## API
 
