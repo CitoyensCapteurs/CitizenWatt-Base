@@ -3,7 +3,7 @@
  */
 var DataProvider = function() {
 	var api = {};
-	var slope_watt_euro, constant_watt_euros;
+	var slope_watt_euros, constant_watt_euros, saved_rate = null; // Cache for convertion rate
 
 	api.onratechange = function(rate){};
 
@@ -32,19 +32,23 @@ var DataProvider = function() {
 		}
 	}
 
+
 	/**
-	 * Convert energy to euros. Get equation from server at first use.
-	 * @param energy:
-	 * @param callback: callback that take converted value as first argument
+	 * Get watt_euros convertion info
+	 * @param rate: day or night tariff
+	 * @param callback: callback that takes origin value and slope
 	 */
-	api.convertEnergyToEuros = function(energy, callback) {
-		if (slope_watt_euro === undefined) {
-			api.get('energy_providers/current', function(provider) {
-				slope_watt_euro	= provider.slope_watt_euro;
-				constant_watt_euro	= provider.constant_watt_euro;
+	api.getConvertInfo = function(rate, callback) {
+		if (saved_rate != rate) {
+			api.get('/energy_providers/current', function(provider) {
+				slope_watt_euros	= provider[rate+'_slope_watt_euros'];
+				constant_watt_euros	= provider[rate+'_constant_watt_euros'];
+				saved_rate = rate;
+				callback(constant_watt_euros, slope_watt_euros);
 			});
+		} else {
+			callback(constant_watt_euros, slope_watt_euros);
 		}
-		callback(slope_watt_euro * energy + constant_watt_euros);
 	}
 
 	return api;

@@ -1,7 +1,9 @@
 ## Package needed
 
 * sqlalchemy
-* pymysql
+* cherrypy
+* numpy
+* pycrypto
 
 ## API
 

@@ -36,7 +36,10 @@ var App = function() {
 		api.initValues(callback);
 	}
 
-	menu.onmodechange = reload;
+	menu.onmodechange = function(ev, callback) {
+		menu.setDate(null);
+		reload(ev, callback);
+	}
 	menu.ondatechange = reload;
 
 	provider.onratechange = rate.setRate;
@@ -86,6 +89,7 @@ var App = function() {
 		var target = '/1/get/' + menu.getUnitString();
 		var mode = menu.getMode();
 		var date = menu.getDate() || (new Date());
+		var modifier = 0;
 
 		switch (mode) {
 			case 'now':
@@ -107,6 +111,7 @@ var App = function() {
 				+  dateutils.getDayEnd(date) / 1000.0 + '/'
 				+  dateutils.getHourLength(date) / 1000.0;
 				graph.setOverviewLabel('Consommation ' + dateutils.humanDay(date));
+				modifier = 1. / (dateutils.getMonthLength(date) / dateutils.getDayLength());
 				break;
 
 			case 'week':
@@ -116,6 +121,7 @@ var App = function() {
 				+  dateutils.getWeekEnd(date) / 1000.0 + '/'
 				+  dateutils.getDayLength(date) / 1000.0;
 				graph.setOverviewLabel('Consommation ' + dateutils.humanWeek(date));
+				modifier = 7. / (dateutils.getMonthLength(date) / dateutils.getDayLength());
 				break;
 
 			case 'month':
@@ -125,6 +131,7 @@ var App = function() {
 				+  dateutils.getMonthEnd(date) / 1000.0 + '/'
 				+  dateutils.getDayLength(date) / 1000.0;
 				graph.setOverviewLabel('Consommation ' + dateutils.humanMonth(date));
+				modifier = 1.0;
 				break;
 
 			default:
@@ -132,7 +139,7 @@ var App = function() {
 				return;
 		}
 
-		graph.setOverview('');
+		graph.setOverview(null);
 		graph.startLoading();
 		provider.get(target, function(data) {
 			graph.rect_width = graph.getPixelWidth() / data.length - graph.rect_margin;
@@ -146,7 +153,12 @@ var App = function() {
 				}
 				i += 1;
 			});
-			if (mode != 'now') graph.setOverview(s);
+			if (mode != 'now') {
+				provider.getConvertInfo(rate.getRate(), function(base_price){
+					// Assume that base_price is not dependent of rate type
+					graph.setOverview(s + base_price * modifier);
+				});
+			}
 			graph.stopLoading();
 			if (callback) callback();
 		});

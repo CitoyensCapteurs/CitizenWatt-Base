@@ -68,6 +68,10 @@ var Graph = function(unit) {
 	 * @param power: value to display
 	 */
 	api.setOverview = function(power) {
+		if (power === null) {
+			now.innerHTML = '';
+			return;
+		}
 		now.innerHTML = api.round(power) + api.unit;
 		var height = power / api.max_value * 100;
 		now.className = 'blurry ' + api.colorize(height);
