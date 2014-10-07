@@ -273,7 +273,7 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db, timestep=8):
         data.reverse()
 
     if not data:
-        data = [] if watt_euros == "watts" else {}
+        data = []
     else:
         data_dict = tools.to_dict(data)
         tmp = [[] for i in range(len(steps))]
@@ -388,13 +388,12 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
 
     data = (db.query(database.Measures)
             .filter(database.Measures.sensor_id == sensor,
-                    database.Measures.timestamp >= datetime.datetime.fromtimestamp(time1),
-                    database.Measures.timestamp < datetime.datetime.fromtimestamp(time2))
+                    database.Measures.timestamp.between(datetime.datetime.fromtimestamp(time1), datetime.datetime.fromtimestamp(time2)))
             .order_by(asc(database.Measures.timestamp))
             .all())
 
     if not data:
-        data = [] if watt_euros == "watts" else {}
+        data = []
     else:
         data_dict = tools.to_dict(data)
         tmp = [[] for i in range(len(steps))]
