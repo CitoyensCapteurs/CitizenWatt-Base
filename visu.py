@@ -221,7 +221,6 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
     if not data:
         data = [] if watt_euros == "watts" else {}
     else:
-        data = tools.to_dict(data)
         if watt_euros == 'kwatthours' or watt_euros == 'euros':
             data = tools.energy(data)
             if watt_euros == 'euros':
@@ -240,6 +239,8 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
                 else:
                     day_rate = 0
                 data = {"value": night_rate + day_rate}
+        else:
+            data = tools.to_dict(data)
     return {"data": data, "rate": get_rate_type(db)}
 
 
@@ -357,7 +358,6 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     if not data:
         data = [] if watt_euros == "watts" else {}
     else:
-        data = tools.to_dict(data)
         if watt_euros == "kwatthours" or watt_euros == "euros":
             data = tools.energy(data)
             if watt_euros == "euros":
@@ -369,6 +369,9 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
                                                  'day',
                                                  data['day_rate'],
                                                  db)["data"])}
+
+        else:
+            data = tools.to_dict(data)
 
     return {"data": data, "rate": get_rate_type(db)}
 
@@ -395,15 +398,14 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
     if not data:
         data = []
     else:
-        data_dict = tools.to_dict(data)
         tmp = [[] for i in range(len(steps))]
-        for i in data_dict:
-            tmp[bisect.bisect_left(steps, i["timestamp"]) - 1].append(i)
+        for i in data:
+            tmp[bisect.bisect_left(steps, i.timestamp.timestamp()) - 1].append(i)
 
         data = []
         for i in tmp:
             if len(i) == 0:
-                data.append(i)
+                data.append([])
                 continue
 
             energy = tools.energy(i)

@@ -45,16 +45,16 @@ def last_day(month, year):
 
 
 def energy(powers, default_timestep=8):
-    """Compute the energy associated to a dict of powers (in W)
+    """Compute the energy associated to a list of measures (in W)
     and associated timestamps (in s).
     """
     energy = {'night_rate': 0, 'day_rate': 0, 'value': 0}
     if len(powers) == 1:
-        if powers[0]["night_rate"] == 1:
-            energy["night_rate"] = (powers[0]["value"] / 1000 *
+        if powers[0].night_rate == 1:
+            energy["night_rate"] = (powers[0].value / 1000 *
                                     default_timestep / 3600)
         else:
-            energy["day_rate"] = (powers[0]["value"] / 1000 *
+            energy["day_rate"] = (powers[0].value / 1000 *
                                   default_timestep / 3600)
         energy['value'] = energy['day_rate'] + energy['night_rate']
     else:
@@ -62,12 +62,12 @@ def energy(powers, default_timestep=8):
         day_rate = []
         night_rate = []
         for i in powers:
-            x.append(i["timestamp"])
-            if i["night_rate"] == 1:
-                night_rate.append(i["value"])
+            x.append(i.timestamp.timestamp())
+            if i.night_rate == 1:
+                night_rate.append(i.value)
                 day_rate.append(0)
             else:
-                day_rate.append(i["value"])
+                day_rate.append(i.value)
                 night_rate.append(0)
         energy["night_rate"] = numpy.trapz(night_rate, x) / 1000 / 3600
         energy["day_rate"] = numpy.trapz(day_rate, x) / 1000 / 3600
