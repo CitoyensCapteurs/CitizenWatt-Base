@@ -52,10 +52,18 @@ var Menu = function() {
 		});
 
 		prev.addEventListener('click', function() {
+			now_btn.className = '';
+			day_btn.className = '';
+			week_btn.className = '';
+			month_btn.className = '';
 			api.setDate(new Date((date || new Date()).getTime() - api.getTimeWidth()));
 		});
 
 		next.addEventListener('click', function() {
+			now_btn.className = '';
+			day_btn.className = '';
+			week_btn.className = '';
+			month_btn.className = '';
 			api.setDate(new Date((date || new Date()).getTime() + api.getTimeWidth()));
 		});
 	}
@@ -96,7 +104,7 @@ var Menu = function() {
 			default:
 				return false;
 		}
-		if (new_mode != mode) {
+		if (new_mode != mode || date != null) {
 			mode = new_mode;
 			
 			if (fire_event) api.onmodechange(mode, callback);

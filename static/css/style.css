@@ -424,6 +424,7 @@ footer p {
 }
 
 #graph_values .rect {
+    display: block;
     margin-left: 2px;
     height: 100%;
     position: relative;
@@ -457,7 +458,7 @@ footer p {
     
     width: 7em;
     left: 50%;
-    margin-left: -3em;
+    margin-left: -3.5em;
     
     z-index: 20;
     display: none;

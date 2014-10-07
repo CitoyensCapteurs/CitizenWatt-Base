@@ -72,7 +72,8 @@ var Graph = function(unit) {
 			now.innerHTML = '';
 			return;
 		}
-		now.innerHTML = api.round(power) + api.unit;
+		if (api.unit == 'cents/min') power = power / 8 * 60 * 100;
+		now.innerHTML = api.round(power) + (api.unit == 'cents/min' ? ' centimes par minute' : api.unit);
 		var height = power / api.max_value * 100;
 		now.className = 'blurry ' + api.colorize(height);
 	};
@@ -99,12 +100,17 @@ var Graph = function(unit) {
 			defined = false;
 			power = 0;
 		}
+
+		if (unit='cents/min') {
+			power = power / 8 * 60 * 100;
+		}
 		
 		if (power > api.max_value) {
 			api.scaleVertically(power / api.max_value);
 		}
 
-		var div = document.createElement('div');
+		var div = document.createElement('a');
+		div.setAttribute('href', location.hash); // TODO
 		graph_values.appendChild(div);
 
 		div.className = 'rect';
@@ -279,8 +285,8 @@ var Graph = function(unit) {
 };
 
 
-var PriceGraph = function() {
-	var api = Graph('€');
+var PriceGraph = function(unit) {
+	var api = Graph(unit);
 
 	api.type = 'price';
 

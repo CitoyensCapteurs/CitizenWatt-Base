@@ -24,12 +24,14 @@ var App = function() {
 	};
 
 	function reload(_, callback) {
-		mode = menu.getMode();
-		date = menu.getDate();
+		var mode = menu.getMode()
+		  , date = menu.getDate()
+		  , unit = menu.getUnit()
+		  ;
 		graph.clean();
-		graph = hash.getUnit() == 'watt' ? Graph(mode == 'now' ? 'W' : 'kWh') : PriceGraph();
+		graph = hash.getUnit() == 'watt' ? Graph(mode == 'now' ? 'W' : 'kWh') : PriceGraph(mode == 'now' ? 'cents/min' : '€');
 		graph.autoremove = mode == 'now' && date === null;
-		if (mode == 'now') graph.round = function(v) { return Math.round(v * 10000) / 10000; };
+		if (mode == 'now' && unit == 'price') graph.round = function(v) { return Math.round(v * 100) / 100; };
 		graph.init();
 		hash.setMode(mode);
 		hash.setDate(date);

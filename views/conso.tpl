@@ -42,8 +42,8 @@
                     <button id="scale-day">Aujourd'hui</button>
                     <button id="scale-week">Cette semaine</button>
                     <button id="scale-month">Ce mois</button>
-                    <button id="unit-energy" class="active">Énergie</button>
-                    <button id="unit-price">Prix</button>
+                    <button id="unit-energy" class="active">Watts</button>
+                    <button id="unit-price">Euros</button>
                 </nav>
 
                 <p style="text-align: center;">{{ provider }}</p>

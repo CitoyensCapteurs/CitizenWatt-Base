@@ -3,6 +3,7 @@
 import datetime
 import random
 import time
+import math
 
 from libcitizenwatt import database
 from libcitizenwatt import tools
@@ -45,6 +46,7 @@ database.Base.metadata.create_all(engine)
 try:
     while True:
         power = random.randint(0, 4000)
+        power = math.sin(time.clock()*2)**2 * 2000
         print("New encrypted packet:" + str(power))
 
         db = create_session()
@@ -65,6 +67,6 @@ try:
             db.commit()
             print(now.timestamp())
             print("Saved successfully.")
-        time.sleep(2)
+        time.sleep(8)
 except KeyboardInterrupt:
     pass
