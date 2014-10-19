@@ -67,6 +67,11 @@
                             <p>Aucun capteur disponible.</p>
                         % end
                     </fieldset>
+                    <fieldset id="update">
+                        <legend>Mise à jour</legend>
+
+                        <p><a href="{{ get_url('update') }}">Mettre à jour le système</a></p>
+                    </fieldset>
                 </form>
 
             </main>

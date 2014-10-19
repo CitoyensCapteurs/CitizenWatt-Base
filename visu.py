@@ -2,7 +2,9 @@
 import bisect
 import datetime
 import hashlib
+import os
 import requests
+import subprocess
 
 
 from libcitizenwatt import database
@@ -698,6 +700,13 @@ def settings_post(db):
 
     redirect("/settings")
 
+
+@app.route("/update", name="update")
+def update():
+    """Handles updating"""
+    subprocess.Popen([os.path.dirname(os.path.realpath(__file__)) +
+                      "/updater.sh"])
+    sys.exit()
 
 @app.route("/community",
            name="community",
