@@ -15,10 +15,17 @@ wget -O - http://ks.citoyenscapteurs.net/repos/apt/citizenwatt.public.key | apt-
 
 # Install packages
 # TODO : add citizenwatt-visu
-apt-get install librf24-dev postgresql supervisor
+apt-get install librf24-dev postgresql supervisor avahi-daemon
 
 # Install Python module deps
 apt-get -t jessie --yes install postgresql-server-dev-all
 
 # Python modules
 pip3 install requests sqlalchemy pycrypto numpy cherrypy psycopg2
+
+# Database setup
+su - postgresql
+psql -c "CREATE DATABASE citizenwatt;"
+psql -c "CREATE USER citizenwatt PASSWORD 'citizenwatt';"
+psql -c "GRANT ALL ON DATABASE citizenwatt TO citizenwatt;"
+exit
