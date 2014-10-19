@@ -5,6 +5,7 @@ import hashlib
 import os
 import requests
 import subprocess
+import sys
 
 
 from libcitizenwatt import database
