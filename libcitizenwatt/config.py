@@ -43,7 +43,7 @@ class Config():
         self.set("host", "localhost")
         self.set("debug", True)
         self.set("url_energy_providers",
-                 "http://pub.phyks.me/tmp/electricity_providers.json")
+                 "http://dev.citizenwatt.paris/providers/electricity_providers.json")
         self.set("salt", crypt.mksalt())
         self.set("named_fifo", "/tmp/sensor")
         self.set("aes_key", [0, 1, 2, 3,
