@@ -592,7 +592,9 @@ def settings(db):
     return {"sensors": sensors,
             "providers": providers,
             "start_night_rate": start_night_rate,
-            "end_night_rate": end_night_rate}
+            "end_night_rate": end_night_rate,
+            "base_address": str(hex(config.get("base_address")).upper() + "LL"),
+            "aes_key": ', '.join([str(i) for i in config.get("aes_key")])}
 
 
 @app.route("/settings",
@@ -630,6 +632,30 @@ def settings_post(db):
 
     raw_start_night_rate = request.forms.get("start_night_rate")
     raw_end_night_rate = request.forms.get("end_night_rate")
+
+    raw_base_address = request.forms.get("base_address")
+    raw_aes_key = request.forms.get("aes_key")
+
+    try:
+        base_address = int(raw_base_address.strip("L"), 16)
+    except ValueError:
+        error = {"title": "Format invalide",
+                 "content": ("L'adresse de la base entrée est invalide.")}
+        settings_json = settings(db)
+        settings_json.update({"err": error})
+        return settings_json
+    aes_key = [int(i.strip()) for i in raw_aes_key.split(",")]
+    if len(aes_key) != 16:
+        error = {"title": "Format invalide",
+                 "content": ("La clé AES doit être constituée de 16 " +
+                             "chiffres entre 0 et 255, séparés " +
+                             "par des virgules.")}
+        settings_json = settings(db)
+        settings_json.update({"err": error})
+        return settings_json
+    config.set("base_address", base_address)
+    config.set("aes_key", aes_key)
+    config.save()
 
     try:
         start_night_rate = raw_start_night_rate.split(":")
@@ -768,7 +794,9 @@ def install(db):
     return {"login": '',
             "providers": providers,
             "start_night_rate": '',
-            "end_night_rate": ''}
+            "end_night_rate": '',
+            "base_address": '',
+            "aes_key": ''}
 
 
 @app.route("/install",
@@ -795,11 +823,34 @@ def install_post(db):
     provider = request.forms.get("provider")
     raw_start_night_rate = request.forms.get("start_night_rate")
     raw_end_night_rate = request.forms.get("end_night_rate")
+    raw_base_address = request.forms.get("base_address")
+    raw_aes_key = request.forms.get("aes_key")
 
     ret = {"login": login,
            "providers": update_providers(False, db),
            "start_night_rate": raw_start_night_rate,
-           "end_night_rate": raw_end_night_rate}
+           "end_night_rate": raw_end_night_rate,
+           "base_address": raw_base_address,
+           "aes_key": raw_aes_key}
+
+    try:
+        base_address = int(raw_base_address.strip("L"), 16)
+    except ValueError:
+        error = {"title": "Format invalide",
+                 "content": ("L'adresse de la base entrée est invalide.")}
+        ret.update({"err": error})
+        return ret
+    aes_key = [int(i.strip()) for i in raw_aes_key.split(",")]
+    if len(aes_key) != 16:
+        error = {"title": "Format invalide",
+                 "content": ("La clé AES doit être constituée de 16 " +
+                             "chiffres entre 0 et 255, séparés " +
+                             "par des virgules.")}
+        ret.update({"err": error})
+        return ret
+    config.set("base_address", base_address)
+    config.set("aes_key", aes_key)
+    config.save()
 
     try:
         start_night_rate = raw_start_night_rate.split(":")

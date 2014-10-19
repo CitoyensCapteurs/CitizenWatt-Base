@@ -22,6 +22,18 @@
                         </p>
 
                         <p class="form-item">
+                            <label for="base_address">Adresse de la base&nbsp;: </label>
+                            <input type="text" name="base_address" id="base_address" value="{{base_address}}"/>
+                        </p>
+                        <p>Par exemple <code>0xE056D446D0LL</code>.</p>
+                        <p class="form-item">
+                            <label for="aes_key">Clé AES&nbsp;: </label>
+                            <input type="int" name="aes_key" id="aes_key" value="{{aes_key}}"/>
+                        </p>
+                        <p>Par exemple <code>1, 254, 0, 145, 23, 3, 4, 5, 6, 6, 7, 8, 0, 1, 15, 64</code>.</p>
+
+
+                        <p class="form-item">
                             <label for="start_night_rate">Début des heures creuses&nbsp;: </label>
                             <input type="time" name="start_night_rate" id="start_night_rate" value="{{ start_night_rate }}" placeholder="hh:mm"/>
                         </p>
