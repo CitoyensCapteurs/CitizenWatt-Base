@@ -1,3 +1,9 @@
+# Citizenwatt install script
+# Launch as root
+
+# Change Hostname
+echo "citizenwatt" > /etc/hostname
+
 # Add citizenWatt repository
 echo "deb http://ks.citoyenscapteurs.net/repos/apt/debian/ wheezy main" > /etc/apt/sources.list.d/citizenwatt.list
 
@@ -8,4 +14,11 @@ wget -O - http://ks.citoyenscapteurs.net/repos/apt/citizenwatt.public.key | apt-
 apt-get update
 
 # Install packages
-apt-get install librf24-dev citizenwatt-visu
+# TODO : add citizenwatt-visu
+apt-get install librf24-dev
+
+# Install Python
+/bin/bash install_python34.sh
+
+# Python modules
+pip3 install requests sqlalchemy mysql-connector-python pycrypto numpy cherrypy
