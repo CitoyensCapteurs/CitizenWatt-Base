@@ -10,15 +10,15 @@ echo "deb http://ks.citoyenscapteurs.net/repos/apt/debian/ wheezy main" > /etc/a
 # Add our GPG key
 wget -O - http://ks.citoyenscapteurs.net/repos/apt/citizenwatt.public.key | apt-key add -
 
-# Update
-apt-get update
-
-# Install packages
-# TODO : add citizenwatt-visu
-apt-get install librf24-dev
-
 # Install Python
 /bin/bash install_python34.sh
 
+# Install packages
+# TODO : add citizenwatt-visu
+apt-get install librf24-dev postgresql supervisor
+
+# Install Python module deps
+apt-get -t jessie --yes install postgresql-server-dev-all
+
 # Python modules
-pip3 install requests sqlalchemy mysql-connector-python pycrypto numpy cherrypy
+pip3 install requests sqlalchemy pycrypto numpy cherrypy psycopg2
