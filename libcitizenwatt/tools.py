@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import numpy
+import os
 import sys
 
 
@@ -73,3 +74,12 @@ def energy(powers, default_timestep=8):
         energy["day_rate"] = numpy.trapz(day_rate, x) / 1000 / 3600
         energy['value'] = energy['day_rate'] + energy['night_rate']
     return energy
+
+
+def update_base_address(base_address):
+    """Update the address of the base stored in
+    ~/.config/citizenwatt/base_address
+    """
+    path = os.path.expanduser("~/.config/citizenwatt/base_address")
+    with open(path, "w+") as fh:
+        fh.write(str(base_address))

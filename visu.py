@@ -644,6 +644,10 @@ def settings_post(db):
         settings_json = settings(db)
         settings_json.update({"err": error})
         return settings_json
+
+    if base_address != config.get("base_address"):
+        tools.update_base_address(base_address)
+
     aes_key = [int(i.strip()) for i in raw_aes_key.split(",")]
     if len(aes_key) != 16:
         error = {"title": "Format invalide",
@@ -840,6 +844,7 @@ def install_post(db):
                  "content": ("L'adresse de la base entrée est invalide.")}
         ret.update({"err": error})
         return ret
+    tools.update_base_address(base_address)
     aes_key = [int(i.strip()) for i in raw_aes_key.split(",")]
     if len(aes_key) != 16:
         error = {"title": "Format invalide",
