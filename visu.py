@@ -709,6 +709,7 @@ def update():
                       "/updater.sh"])
     sys.exit()
 
+
 @app.route("/community",
            name="community",
            template="community")
