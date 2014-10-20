@@ -19,7 +19,7 @@ def make_sure_path_exists(path):
 
 
 class Config():
-    def __init__(self, base_config_path="~/.config/citizenwatt/"):
+    def __init__(self, base_config_path="/home/pi/.config/citizenwatt/"):
         self.config_path = os.path.expanduser(base_config_path)
         self.config = {}
         self.load()

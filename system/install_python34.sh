@@ -13,5 +13,5 @@ apt-get update
 # Install
 apt-get -t jessie --yes install python3 gcc python3-pip python3-dev
 
-# Remove unused packets
-#apt-get --yes autoremove --purge
+# Remove unused packets (ie. Python3.2)
+apt-get --yes autoremove --purge
