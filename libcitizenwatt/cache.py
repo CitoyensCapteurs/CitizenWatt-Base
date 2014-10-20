@@ -125,14 +125,14 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
         time1 = data[0].timestamp
         time2 = data[-1].timestamp
         data_dict = tools.to_dict(data)
-        tmp = [[] for i in range(len(steps))]
+        tmp = [[] for i in range(len(steps) - 1)]
         for i in data_dict:
             tmp[bisect.bisect_left(steps, i["id"]) - 1].append(i)
 
         data = []
         for i in tmp:
             if len(i) == 0:
-                data.append(i)
+                data.append(None)
                 continue
 
             energy = tools.energy(i)
@@ -173,7 +173,7 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
               str(id1) + "_" + str(id2) + "_" +
               str(step) + "_" + str(timestep),
               json.dumps(data),
-              datetime.datetime.fromtimestamp(time2) - datetime.datetime.fromtimestamp(time1))
+              time2 - time1)
 
     return data
 
@@ -194,8 +194,8 @@ def do_cache_times(sensor, watt_euros, time1, time2, db, force_refresh=False):
 
     data = (db.query(database.Measures)
             .filter(database.Measures.sensor_id == sensor,
-                    database.Measures.timestamp >= datetime.datetime.fromtimestamp(time1),
-                    database.Measures.timestamp < datetime.datetime.fromtimestamp(time2))
+                    database.Measures.timestamp >= time1,
+                    database.Measures.timestamp < time2)
             .order_by(asc(database.Measures.timestamp))
             .all())
 
@@ -248,22 +248,21 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
     data = (db.query(database.Measures)
             .filter(database.Measures.sensor_id == sensor,
                     database.Measures.timestamp
-                    .between(datetime.datetime.fromtimestamp(time1),
-                             datetime.datetime.fromtimestamp(time2)))
+                    .between(time1, time2))
             .order_by(asc(database.Measures.timestamp))
             .all())
 
     if not data:
         data = None
     else:
-        tmp = [[] for i in range(len(steps))]
+        tmp = [[] for i in range(len(steps) - 1)]
         for i in data:
             tmp[bisect.bisect_left(steps, i.timestamp) - 1].append(i)
 
         data = []
         for i in tmp:
             if len(i) == 0:
-                data.append([])
+                data.append(None)
                 continue
 
             energy = tools.energy(i)
@@ -302,6 +301,6 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
         r.setex(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
                 str(time1) + "_" + str(time2) + "_" + str(step),
                 json.dumps(data),
-                datetime.datetime.fromtimestamp(time2) - datetime.datetime.fromtimestamp(time1))
+                time2 - time1)
 
     return data

@@ -276,7 +276,7 @@ def api_get_time(sensor, time1, db):
 
     data = (db.query(database.Measures)
             .filter_by(sensor_id=sensor,
-                       timestamp=datetime.datetime.fromtimestamp(time1))
+                       timestamp=time1)
             .first())
     if not data:
         data = None

@@ -59,15 +59,15 @@ try:
                           "complete ! Visit http://citizenwatt first.")
             db.close()
         else:
-            now = datetime.datetime.now()
+            now = datetime.datetime.now().timestamp()
             measure_db = database.Measures(sensor_id=sensor.id,
                                            value=power,
                                            timestamp=now,
                                            night_rate=get_rate_type(db))
             db.add(measure_db)
             db.commit()
-            print(now.timestamp())
+            print(now)
             print("Saved successfully.")
-        time.sleep(8)
+        time.sleep(2)
 except KeyboardInterrupt:
     pass

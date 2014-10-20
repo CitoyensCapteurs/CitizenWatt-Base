@@ -95,7 +95,7 @@ try:
                 db = create_session()
                 measure_db = database.Measures(sensor_id=sensor.id,
                                                value=power,
-                                               timestamp=datetime.datetime.now(),
+                                               timestamp=datetime.datetime.now().timestamp(),
                                                night_rate=get_rate_type(db))
                 db.add(measure_db)
                 sensor.last_timer = timer
