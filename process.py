@@ -6,6 +6,7 @@ import os
 import stat
 import struct
 import sys
+import time
 
 from libcitizenwatt import database
 from libcitizenwatt import tools
@@ -34,6 +35,15 @@ def get_rate_type(db):
         else:
             return 0
 
+def get_cw_sensor():
+    """Returns the citizenwatt sensor object or None"""
+    db = create_session()
+    sensor = (db.query(database.Sensor)
+              .filter_by(name="CitizenWatt")
+              .first())
+    db.close()
+    return sensor
+
 
 # Configuration
 config = Config()
@@ -46,16 +56,12 @@ engine = create_engine(database_url, echo=config.get("debug"))
 create_session = sessionmaker(bind=engine)
 database.Base.metadata.create_all(engine)
 
-db = create_session()
-sensor = None
-while not sensor:
-    sensor = (db.query(database.Sensor)
-              .filter_by(name="CitizenWatt")
-              .first())
-    if not sensor:
-        tools.warning("Install is not complete ! " +
-                      "Visit http://citizenwatt.local first.")
-db.close()
+sensor = get_cw_sensor()
+while not sensor or not sensor.aes_key:
+    tools.warning("Install is not complete ! " +
+                    "Visit http://citizenwatt.local first.")
+    time.sleep(1)
+    sensor = get_cw_sensor()
 
 key = json.loads(sensor.aes_key)
 key = struct.pack("<16B", *key)
