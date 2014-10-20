@@ -39,8 +39,8 @@ config = Config()
 key = struct.pack("<16B", *config.get("aes_key"))
 
 # DB initialization
-database_url = ("mysql+mysqlconnector://" + config.get("username") + ":" +
-                config.get("password") + "@" + config.get("host") + "/" +
+database_url = (config.get("database_type") + "://" + config.get("username") +
+                ":" + config.get("password") + "@" + config.get("host") + "/" +
                 config.get("database"))
 engine = create_engine(database_url, echo=config.get("debug"))
 create_session = sessionmaker(bind=engine)
