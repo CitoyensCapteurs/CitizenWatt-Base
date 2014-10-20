@@ -47,7 +47,6 @@ class Config():
         self.set("salt", crypt.mksalt())
         self.set("named_fifo", "/tmp/sensor")
         self.set("default_timestep", 8)
-        self.set("base_address", 963529426640)
         self.set("port", 8080)
         self.save()
 
