@@ -89,6 +89,19 @@ a:hover {
     text-decoration: underline;
 }
 
+article {
+    border-radius: 3px;
+    border: none;
+    margin: 3em 0;
+}
+
+h2 {
+    color: white;
+    font-size: 1.5em;
+    font-weight: 200;
+    margin-top: 2em;
+}
+
 main {
     width: 75%;
     margin: auto;
@@ -714,16 +727,6 @@ input[type="submit"] {
     color: white;
 }
 
-fieldset {
-    border-radius: 3px;
-    border: none;
-    margin: 3em 0;
-}
-
-legend {
-    color: white;
-    font-size: 1.5em;
-}
 
 
 .form-item {
@@ -754,6 +757,7 @@ legend {
     font-size: 0.9em;
     margin-bottom: 2em;
 }
+
 
 /******************************************************************************
  * 10. Tableaux
