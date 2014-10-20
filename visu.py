@@ -503,8 +503,11 @@ def settings_post(db):
     if base_address != config.get("base_address"):
         tools.update_base_address(base_address)
 
-    aes_key = [int(i.strip()) for i in raw_aes_key.split(",")]
-    if len(aes_key) != 16:
+    try:
+        aes_key = [int(i.strip()) for i in raw_aes_key.split("-")]
+        if len(aes_key) != 16:
+            raise ValueError
+    except ValueError:
         error = {"title": "Format invalide",
                  "content": ("La clé AES doit être constituée de 16 " +
                              "chiffres entre 0 et 255, séparés " +
@@ -513,7 +516,7 @@ def settings_post(db):
         settings_json.update({"err": error})
         return settings_json
     config.set("base_address", base_address)
-    config.set("aes_key", aes_key)
+    # TODO : aes key
     config.save()
 
     try:
@@ -708,8 +711,11 @@ def install_post(db):
         ret.update({"err": error})
         return ret
     tools.update_base_address(base_address)
-    aes_key = [int(i.strip()) for i in raw_aes_key.split(",")]
-    if len(aes_key) != 16:
+    try:
+        aes_key = [int(i.strip()) for i in raw_aes_key.split("-")]
+        if len(aes_key) != 16:
+            raise ValueError
+    except ValueError:
         error = {"title": "Format invalide",
                  "content": ("La clé AES doit être constituée de 16 " +
                              "chiffres entre 0 et 255, séparés " +
@@ -717,7 +723,7 @@ def install_post(db):
         ret.update({"err": error})
         return ret
     config.set("base_address", base_address)
-    config.set("aes_key", aes_key)
+    # TODO : aes key
     config.save()
 
     try:
