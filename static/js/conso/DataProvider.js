@@ -4,6 +4,7 @@
 var DataProvider = function() {
 	var api = {};
 	var slope_watt_euros, constant_watt_euros, saved_rate = null; // Cache for convertion rate
+	var sensor_id = null; // Cache for sensor ID
 
 	api.onratechange = function(rate){};
 
@@ -49,6 +50,25 @@ var DataProvider = function() {
 		} else {
 			callback(constant_watt_euros, slope_watt_euros);
 		}
+	}
+
+
+	/**
+	 * Get active sensor ID (active iff name is 'CitizenWatt')
+	 * @param callback: callback that takes sensor ID
+	 */
+	api.getSensorId = function(callback) {
+		if (sensor_id == null) {
+			api.get('/sensors', function(sensors) {
+				for (var i = sensors.length - 1; i >= 0; i--) {
+					if (sensors[i].name == 'CitizenWatt')
+						sensor_id = sensors[i].id;
+				};
+				callback(sensor_id);
+			});
+		} else {
+			callback(sensor_id);
+		}	
 	}
 
 	return api;

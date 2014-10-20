@@ -69,7 +69,7 @@ var Graph = function(unit) {
 	 */
 	api.setOverview = function(power) {
 		if (power === null) {
-			now.innerHTML = '';
+			now.innerHTML = '&nbsp;';
 			return;
 		}
 		if (api.unit == 'cents/min') power = power / 8 * 60 * 100;
