@@ -65,7 +65,7 @@ def energy(powers, default_timestep=8):
         day_rate = []
         night_rate = []
         for i in powers:
-            x.append(i.timestamp.timestamp())
+            x.append(i.timestamp)
             if i.night_rate == 1:
                 night_rate.append(i.value)
                 day_rate.append(0)
