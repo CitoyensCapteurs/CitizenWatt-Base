@@ -511,7 +511,7 @@ def settings_post(db):
         error = {"title": "Format invalide",
                  "content": ("La clé AES doit être constituée de 16 " +
                              "chiffres entre 0 et 255, séparés " +
-                             "par des virgules.")}
+                             "par des tirets.")}
         settings_json = settings(db)
         settings_json.update({"err": error})
         return settings_json
@@ -719,7 +719,7 @@ def install_post(db):
         error = {"title": "Format invalide",
                  "content": ("La clé AES doit être constituée de 16 " +
                              "chiffres entre 0 et 255, séparés " +
-                             "par des virgules.")}
+                             "par des tirets.")}
         ret.update({"err": error})
         return ret
     config.set("base_address", base_address)
