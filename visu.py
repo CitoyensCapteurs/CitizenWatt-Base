@@ -431,10 +431,15 @@ def settings(db):
         sensors = [{"id": sensor.id,
                     "name": sensor.name,
                     "type": sensor.type.name,
-                    "type_id": sensor.type_id}
+                    "type_id": sensor.type_id,
+                    "aes_key": sensor.aes_key,
+                    "base_address": sensor.base_address}
                    for sensor in sensors]
     else:
         sensors = []
+
+    sensor_cw = [sensor for sensor in sensors if sensor["name"] ==
+                 "CitizenWatt"][0]
 
     providers = update_providers(True, db)
 
@@ -449,8 +454,9 @@ def settings(db):
             "providers": providers,
             "start_night_rate": start_night_rate,
             "end_night_rate": end_night_rate,
-            "base_address": str(hex(config.get("base_address")).upper() + "LL"),
-            "aes_key": '-'.join([str(i) for i in config.get("aes_key")])}
+            "base_address": str(hex(sensor_cw["base_address"]).upper() + "LL"),
+            "aes_key": '-'.join([str(i) for i in
+                                 json.loads(sensor_cw["aes_key"])])}
 
 
 @app.route("/settings",
@@ -501,7 +507,8 @@ def settings_post(db):
         settings_json.update({"err": error})
         return settings_json
 
-    if base_address != config.get("base_address"):
+    sensor = db.query(database.Sensor).filter_by(name="CitizenWatt").first()
+    if base_address != sensor.base_address:
         tools.update_base_address(base_address)
 
     try:
