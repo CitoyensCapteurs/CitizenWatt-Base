@@ -2,10 +2,17 @@
 
 import bisect
 import datetime
+import json
+import redis
 
 from libcitizenwatt import database
 from libcitizenwatt import tools
 from sqlalchemy import asc, desc
+
+"""
+TODO:
+    * Handle expiration
+"""
 
 
 def do_cache_group_id(sensor, watt_euros, id1, id2, step, db, timestep=8):
@@ -15,6 +22,14 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db, timestep=8):
 
     Returns the stored (or computed) data.
     """
+    r = redis.Redis(decode_responses=True)
+    data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
+                 str(id1) + "_" + str(id2) + "_" +
+                 str(step) + "_" + str(timestep))
+    if data:
+        # If found in cache, return it
+        return json.loads(data)
+
     steps = [i for i in range(id1, id2, step)]
     steps.append(id2)
 
@@ -71,6 +86,11 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db, timestep=8):
                     day_rate = 0
                 tmp_data = {"value": night_rate + day_rate}
             data.append(tmp_data)
+    # Store in cache
+    r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
+          str(id1) + "_" + str(id2) + "_" +
+          str(step) + "_" + str(timestep),
+          json.dumps(data))
 
     return data
 
@@ -82,6 +102,13 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db):
 
     Returns the stored (or computed) data.
     """
+    r = redis.Redis(decode_responses=True)
+    data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
+                 str(time1) + "_" + str(time2) + "_" + str(step))
+    if data:
+        # If found in cache, return it
+        return json.loads(data)
+
     steps = [i for i in range(time1, time2, step)]
     steps.append(time2)
 
@@ -130,5 +157,9 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db):
                     day_rate = 0
                 tmp_data = {"value": night_rate + day_rate}
             data.append(tmp_data)
+    # Store in cache
+    r.set(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
+          str(time1) + "_" + str(time2) + "_" + str(step),
+          json.dumps(data))
 
     return data
