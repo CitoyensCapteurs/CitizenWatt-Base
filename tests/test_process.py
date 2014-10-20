@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Generate test data instead of piping from the sensor."""
 
 import datetime
 import random
@@ -53,7 +54,7 @@ try:
         sensor = (db.query(database.Sensor)
                   .filter_by(name="CitizenWatt")
                   .first())
-        if not sensor or not type:
+        if not sensor:
             tools.warning("Got packet "+str(power)+" but install is not " +
                           "complete ! Visit http://citizenwatt first.")
             db.close()

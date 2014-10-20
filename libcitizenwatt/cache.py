@@ -46,7 +46,7 @@ def do_cache_ids(sensor, watt_euros, id1, id2, db):
         return None
 
     if not data:
-        data = [] if watt_euros == "watts" else {}
+        data = None
     else:
         time1 = data[0].timestamp
         time2 = data[1].timestamp
@@ -113,9 +113,11 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
                 .slice(-id2, -id1)
                 .all())
         data.reverse()
+    else:
+        raise ValueError
 
     if not data:
-        data = []
+        data = None
     else:
         time1 = data[0].timestamp
         time2 = data[-1].timestamp
@@ -194,7 +196,7 @@ def do_cache_times(sensor, watt_euros, time1, time2, db):
             .all())
 
     if not data:
-        data = [] if watt_euros == "watts" else {}
+        data = None
     else:
         if watt_euros == "kwatthours" or watt_euros == "euros":
             data = tools.energy(data)
@@ -246,7 +248,7 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db):
             .all())
 
     if not data:
-        data = []
+        data = None
     else:
         tmp = [[] for i in range(len(steps))]
         for i in data:

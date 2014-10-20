@@ -111,7 +111,9 @@ valid_user = authenticator(session_manager, login_url='/login')
 @app.route("/api/sensors",
            apply=valid_user())
 def api_sensors(db):
-    """Returns a list of all the available sensors."""
+    """Returns a list of all the available sensors.
+
+    If no sensors are found, returns null"""
     sensors = db.query(database.Sensor).all()
     if sensors:
         sensors = [{"id": sensor.id,
@@ -119,7 +121,7 @@ def api_sensors(db):
                     "type": sensor.type.name,
                     "type_id": sensor.type_id} for sensor in sensors]
     else:
-        sensors = []
+        sensors = None
 
     return {"data": sensors}
 
@@ -127,7 +129,9 @@ def api_sensors(db):
 @app.route("/api/sensors/<id:int>",
            apply=valid_user())
 def api_sensor(id, db):
-    """Returns the sensor with id <id>."""
+    """Returns the sensor with id <id>.
+
+    If no matching sensor is found, returns null"""
     sensor = db.query(database.Sensor).filter_by(id=id).first()
     if sensor:
         sensor = {"id": sensor.id,
@@ -135,7 +139,7 @@ def api_sensor(id, db):
                   "type": sensor.type.name,
                   "type_id": sensor.type_id}
     else:
-        sensor = {}
+        sensor = None
 
     return {"data": sensor}
 
@@ -143,13 +147,15 @@ def api_sensor(id, db):
 @app.route("/api/types",
            apply=valid_user())
 def api_types(db):
-    """Returns a list of all the available measure types."""
+    """Returns a list of all the available measure types.
+
+    If no types are found, returns null"""
     types = db.query(database.MeasureType).all()
     if types:
         types = [{"id": mtype.id,
                   "name": mtype.name} for mtype in types]
     else:
-        types = []
+        types = None
 
     return {"data": types}
 
@@ -157,7 +163,8 @@ def api_types(db):
 @app.route("/api/time",
            apply=valid_user())
 def api_time(db):
-    """Returns current timestamp on the server side."""
+    """
+    Returns current timestamp on the server side."""
     now = datetime.datetime.now()
 
     return {"data": now.timestamp()}
@@ -166,8 +173,12 @@ def api_time(db):
 @app.route("/api/<sensor:int>/get/watts/by_id/<id1:int>",
            apply=valid_user())
 def api_get_id(sensor, id1, db):
-    """Returns measure with id <id1> associated to sensor <sensor>, in watts.
+    """
+    Returns measure with id <id1> associated to sensor <sensor>, in watts.
+
     If <id1> < 0, counts from the last measure, as in Python lists.
+
+    If no matching data is found, returns null.
     """
     if id1 >= 0:
         data = (db.query(database.Measures)
@@ -180,7 +191,7 @@ def api_get_id(sensor, id1, db):
                 .slice(id1, id1))
 
     if not data:
-        data = {}
+        data = None
     else:
         data = tools.to_dict(data)
 
@@ -190,15 +201,20 @@ def api_get_id(sensor, id1, db):
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>",
            apply=valid_user())
 def api_get_ids(sensor, watt_euros, id1, id2, db):
-    """Returns measures between ids <id1> and <id2> from sensor <sensor> in
+    """
+    Returns measures between ids <id1> and <id2> from sensor <sensor> in
     watts or euros.
 
     If id1 and id2 are negative, counts from the end of the measures.
 
-    If kwatthours is asked, returns the total energy of these measures.
-    If euros is asked, returns the total cost of these measures.
+    * If `watts_euros` is watts, returns the list of measures.
+    * If `watt_euros` is kwatthours, returns the total energy for all the
+    measures (dict).
+    * If `watt_euros` is euros, returns the cost of all the measures (dict).
 
-    Note: Returns measure in ASC order of timestamp.
+    Returns measure in ASC order of timestamp.
+
+    Returns null if no measures were found.
     """
     if (id2 - id1) > config.get("max_returned_values"):
         abort(403,
@@ -218,9 +234,13 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db,
     Returns all the measures of sensor `sensor` between ids `id1` and `id2`,
     grouped by step.
 
-    If `watts_euros` is watts, returns the mean power for each group.
-    If `watt_euros` is kwatthours, returns the total energy for each group.
-    If `watt_euros` is euros, returns the cost of each group.
+    * If `watts_euros` is watts, returns the mean power for each group.
+    * If `watt_euros` is kwatthours, returns the total energy for each group.
+    * If `watt_euros` is euros, returns the cost of each group.
+
+    Returns measure in ASC order of timestamp.
+
+    Returns null if no measures were found.
     """
     if id1 * id2 < 0 or id2 <= id1 or step <= 0:
         abort(400, "Invalid parameters")
@@ -229,15 +249,15 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db,
               "Too many values to return. " +
               "(Maximum is set to %d)" % config.get("max_returned_values"))
 
-    data = cache.do_cache_group_id(sensor,
-                                   watt_euros,
-                                   id1,
-                                   id2,
-                                   step,
-                                   db,
-                                   timestep)
-
-    if data is None:
+    try:
+        data = cache.do_cache_group_id(sensor,
+                                       watt_euros,
+                                       id1,
+                                       id2,
+                                       step,
+                                       db,
+                                       timestep)
+    except ValueError:
         abort(400, "Wrong parameters id1 and id2.")
 
     return {"data": data, "rate": get_rate_type(db)}
@@ -246,7 +266,11 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db,
 @app.route("/api/<sensor:int>/get/watts/by_time/<time1:float>",
            apply=valid_user())
 def api_get_time(sensor, time1, db):
-    """Returns measure at timestamp <time1> for sensor <sensor>, in watts."""
+    """
+    Returns measure at timestamp <time1> for sensor <sensor>, in watts.
+
+    Returns null if no measure is found.
+    """
     if time1 < 0:
         abort(400, "Invalid timestamp.")
 
@@ -255,7 +279,7 @@ def api_get_time(sensor, time1, db):
                        timestamp=datetime.datetime.fromtimestamp(time1))
             .first())
     if not data:
-        data = {}
+        data = None
     else:
         data = tools.to_dict(data)
 
@@ -265,13 +289,18 @@ def api_get_time(sensor, time1, db):
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>",
            apply=valid_user())
 def api_get_times(sensor, watt_euros, time1, time2, db):
-    """Returns measures between timestamps <time1> and <time2>
+    """
+    Returns measures between timestamps <time1> and <time2>
     from sensor <sensor> in watts or euros.
 
-    If kwatthours is asked, returns the total energy of these measures.
-    If euros is asked, returns the total cost of these measures.
+    * If `watts_euros` is watts, returns the list of measures.
+    * If `watt_euros` is kwatthours, returns the total energy for all the
+    measures (dict).
+    * If `watt_euros` is euros, returns the cost of all the measures (dict).
 
-    Note: Returns measure in ASC order of timestamp.
+    Returns measure in ASC order of timestamp.
+
+    Returns null if no matching measures are found.
     """
     if time1 < 0 or time2 < time1:
         abort(400, "Invalid timestamps.")
@@ -288,9 +317,13 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
     Returns all the measures of sensor `sensor` between timestamps `time1`
     and `time2`, grouped by step.
 
-    If `watts_euros` is watts, returns the mean power for each group.
-    If `watt_euros` is kwatthours, returns the total energy for each group.
-    If `watt_euros` is euros, returns the cost of each group.
+    * If `watts_euros` is watts, returns the mean power for each group.
+    * If `watt_euros` is kwatthours, returns the total energy for each group.
+    * If `watt_euros` is euros, returns the cost of each group.
+
+    Returns measure in ASC order of timestamp.
+
+    Returns null if no matching measures are found.
     """
     time1 = int(time1)
     time2 = int(time2)
@@ -311,10 +344,10 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
 @app.route("/api/energy_providers",
            apply=valid_user())
 def api_energy_providers(db):
-    """Returns all the available energy providers."""
+    """Returns all the available energy providers or null if none found."""
     providers = db.query(database.Provider).all()
     if not providers:
-        providers = []
+        providers = None
     else:
         providers = tools.to_dict(providers)
         for provider in providers:
@@ -334,8 +367,10 @@ def api_energy_providers(db):
 @app.route("/api/energy_providers/<id:re:current|\d*>",
            apply=valid_user())
 def api_specific_energy_providers(id, db):
-    """Returns the current energy provider,
-    or the specified energy provider."""
+    """
+    Returns the current energy provider,
+    or the specified energy provider.
+    """
     if id == "current":
         provider = (db.query(database.Provider)
                     .filter_by(current=1)
@@ -351,7 +386,7 @@ def api_specific_energy_providers(id, db):
                     .first())
 
     if not provider:
-        provider = {}
+        provider = None
     else:
         provider = tools.to_dict(provider)
         if provider["day_slope_watt_euros"] != provider["night_slope_watt_euros"]:
@@ -370,7 +405,14 @@ def api_specific_energy_providers(id, db):
 @app.route("/api/<energy_provider:re:current|\d>/watt_to_euros/<tariff:re:night|day>/<consumption:float>",
            apply=valid_user())
 def api_watt_euros(energy_provider, tariff, consumption, db):
-    """Returns the cost associated with a certain amount in watts"""
+    """
+    Returns the cost in € associated with a certain consumption, in kWh.
+
+    One should specify the tariff (night or day) and the id of the
+    energy_provider.
+
+    Returns null if no valid result to return.
+    """
     # Consumption should be in kWh !!!
 
     if energy_provider == "current":

@@ -88,14 +88,14 @@ def watt_euros(energy_provider, tariff, consumption, db):
                     .filter_by(current=1)
                     .first())
     if not provider:
-        data = -1
+        data = None
     else:
         if tariff == "night":
             data = provider.night_slope_watt_euros * consumption
         elif tariff == "day":
             data = provider.day_slope_watt_euros * consumption
         else:
-            data = -1
+            data = None
     return data
 
 
