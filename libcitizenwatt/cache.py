@@ -9,11 +9,6 @@ from libcitizenwatt import database
 from libcitizenwatt import tools
 from sqlalchemy import asc, desc
 
-"""
-TODO:
-    * Handle expiration
-"""
-
 
 def do_cache_group_id(sensor, watt_euros, id1, id2, step, db, timestep=8):
     """
@@ -87,10 +82,20 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db, timestep=8):
                 tmp_data = {"value": night_rate + day_rate}
             data.append(tmp_data)
     # Store in cache
-    r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
-          str(id1) + "_" + str(id2) + "_" +
-          str(step) + "_" + str(timestep),
-          json.dumps(data))
+    if time2 < datetime.datetime.now().timestamp():
+        # If new measures are to come, short lifetime (basically timestep)
+        r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
+              str(id1) + "_" + str(id2) + "_" +
+              str(step) + "_" + str(timestep),
+              json.dumps(data),
+              timestep)
+    else:
+        # Else, store for a greater lifetime (basically time2 - time1)
+        r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
+              str(id1) + "_" + str(id2) + "_" +
+              str(step) + "_" + str(timestep),
+              json.dumps(data),
+              datetime.datetime.fromtimestamp(time2) - datetime.datetime.fromtimestamp(time1))
 
     return data
 
@@ -158,8 +163,17 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db):
                 tmp_data = {"value": night_rate + day_rate}
             data.append(tmp_data)
     # Store in cache
-    r.set(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
-          str(time1) + "_" + str(time2) + "_" + str(step),
-          json.dumps(data))
+    if time2 < datetime.datetime.now().timestamp():
+        # If new measures are to come, short lifetime (basically timestep)
+        r.setex(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
+                str(time1) + "_" + str(time2) + "_" + str(step),
+                json.dumps(data),
+                step)
+    else:
+        # Else, store for a greater lifetime (basically time2 - time1)
+        r.setex(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
+                str(time1) + "_" + str(time2) + "_" + str(step),
+                json.dumps(data),
+                datetime.datetime.fromtimestamp(time2) - datetime.datetime.fromtimestamp(time1))
 
     return data
