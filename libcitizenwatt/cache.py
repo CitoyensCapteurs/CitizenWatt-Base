@@ -250,7 +250,7 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db):
     else:
         tmp = [[] for i in range(len(steps))]
         for i in data:
-            tmp[bisect.bisect_left(steps, i.timestamp.timestamp()) - 1].append(i)
+            tmp[bisect.bisect_left(steps, i.timestamp) - 1].append(i)
 
         data = []
         for i in tmp:

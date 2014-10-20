@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import datetime
 import hashlib
+import json
 import os
 import requests
 import subprocess
@@ -16,7 +17,7 @@ from bottle.ext import sqlalchemy
 from bottlesession import PickleSession, authenticator
 from libcitizenwatt.config import Config
 from sqlalchemy import create_engine, desc
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, ProgrammingError
 
 
 # =========
@@ -449,7 +450,7 @@ def settings(db):
             "start_night_rate": start_night_rate,
             "end_night_rate": end_night_rate,
             "base_address": str(hex(config.get("base_address")).upper() + "LL"),
-            "aes_key": ', '.join([str(i) for i in config.get("aes_key")])}
+            "aes_key": '-'.join([str(i) for i in config.get("aes_key")])}
 
 
 @app.route("/settings",
@@ -511,13 +512,14 @@ def settings_post(db):
         error = {"title": "Format invalide",
                  "content": ("La clé AES doit être constituée de 16 " +
                              "chiffres entre 0 et 255, séparés " +
-                             "par des virgules.")}
+                             "par des tirets.")}
         settings_json = settings(db)
         settings_json.update({"err": error})
         return settings_json
-    config.set("base_address", base_address)
-    # TODO : aes key
-    config.save()
+    (db.query(database.Sensor)
+     .filter_by(name="CitizenWatt")
+     .update({"base_address": base_address, "aes_key": json.dumps(aes_key)}))
+    db.commit()
 
     try:
         start_night_rate = raw_start_night_rate.split(":")
@@ -586,7 +588,10 @@ def help():
            template="login")
 def login(db):
     """Login view"""
-    if not db.query(database.User).all():
+    try:
+        if not db.query(database.User).all():
+            redirect("/install")
+    except ProgrammingError:
         redirect("/install")
     session = session_manager.get_session()
     if session['valid'] is True:
@@ -719,12 +724,13 @@ def install_post(db):
         error = {"title": "Format invalide",
                  "content": ("La clé AES doit être constituée de 16 " +
                              "chiffres entre 0 et 255, séparés " +
-                             "par des virgules.")}
+                             "par des tirets.")}
         ret.update({"err": error})
         return ret
-    config.set("base_address", base_address)
-    # TODO : aes key
-    config.save()
+    (db.query(database.Sensor)
+     .filter_by(name="CitizenWatt")
+     .update({"base_address": base_address, "aes_key": json.dumps(aes_key)}))
+    db.commit()
 
     try:
         start_night_rate = raw_start_night_rate.split(":")

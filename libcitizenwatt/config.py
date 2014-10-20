@@ -19,7 +19,7 @@ def make_sure_path_exists(path):
 
 
 class Config():
-    def __init__(self, base_config_path="/home/elie/.config/citizenwatt/"):
+    def __init__(self, base_config_path="/home/pi/.config/citizenwatt/"):
         self.config_path = os.path.expanduser(base_config_path)
         self.config = {}
         self.load()
@@ -47,11 +47,6 @@ class Config():
         self.set("salt", crypt.mksalt())
         self.set("named_fifo", "/tmp/sensor")
         self.set("default_timestep", 8)
-        self.set("aes_key", [0, 1, 2, 3,
-                             4, 5, 6, 7,
-                             8, 9, 10, 11,
-                             12, 13, 14, 15])
-        self.set("base_address", 963529426640)
         self.set("port", 8080)
         self.save()
 
