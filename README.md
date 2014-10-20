@@ -4,6 +4,7 @@
 * cherrypy
 * numpy
 * pycrypto
+* psycopg2 for communication with the PostgreSQL database
 
 ## API
 
