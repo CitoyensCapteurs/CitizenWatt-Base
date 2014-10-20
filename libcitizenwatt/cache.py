@@ -21,8 +21,8 @@ def do_cache_ids(sensor, watt_euros, id1, id2, db, force_refresh=False):
 
     Returns the stored (or computed) data or None if parameters are invalid.
     """
+    r = redis.Redis(decode_responses=True)
     if not force_refresh:
-        r = redis.Redis(decode_responses=True)
         data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
                      str(id1) + "_" + str(id2))
         if data:
@@ -90,8 +90,8 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
 
     Returns the stored (or computed) data.
     """
+    r = redis.Redis(decode_responses=True)
     if not force_refresh:
-        r = redis.Redis(decode_responses=True)
         data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
                      str(id1) + "_" + str(id2) + "_" +
                      str(step) + "_" + str(timestep))
@@ -184,8 +184,8 @@ def do_cache_times(sensor, watt_euros, time1, time2, db, force_refresh=False):
     /api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>
     Returns the stored (or computed) data.
     """
+    r = redis.Redis(decode_responses=True)
     if not force_refresh:
-        r = redis.Redis(decode_responses=True)
         data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
                      str(time1) + "_" + str(time2))
         if data:
@@ -234,8 +234,8 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
 
     Returns the stored (or computed) data.
     """
+    r = redis.Redis(decode_responses=True)
     if not force_refresh:
-        r = redis.Redis(decode_responses=True)
         data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
                      str(time1) + "_" + str(time2) + "_" + str(step))
         if data:
