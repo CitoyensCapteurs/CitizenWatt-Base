@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import datetime
+import json
 import os
 import stat
 import struct
@@ -36,7 +37,6 @@ def get_rate_type(db):
 
 # Configuration
 config = Config()
-key = struct.pack("<16B", *config.get("aes_key"))
 
 # DB initialization
 database_url = (config.get("database_type") + "://" + config.get("username") +
@@ -45,6 +45,20 @@ database_url = (config.get("database_type") + "://" + config.get("username") +
 engine = create_engine(database_url, echo=config.get("debug"))
 create_session = sessionmaker(bind=engine)
 database.Base.metadata.create_all(engine)
+
+db = create_session()
+sensor = None
+while not sensor:
+    sensor = (db.query(database.Sensor)
+              .filter_by(name="CitizenWatt")
+              .first())
+    if not sensor:
+        tools.warning("Install is not complete ! " +
+                      "Visit http://citizenwatt.local first.")
+db.close()
+
+key = json.loads(sensor.aes_key)
+key = struct.pack("<16B", *key)
 
 
 try:
@@ -68,31 +82,21 @@ try:
             battery = measure[2]
             timer = measure[3]
 
-            db = create_session()
-            sensor = (db.query(database.Sensor)
-                        .filter_by(name="CitizenWatt")
-                        .first())
-            last_timer = sensor.last_timer if sensor else 0
-
-            if last_timer > 0 and last_timer < 4233600000 and timer < last_timer:
+            if(sensor.last_timer > 0 and sensor.last_timer < 4233600000 and
+               timer < sensor.last_timer):
                 tools.warning("Invalid timer in the last packet, skipping it")
             else:
-                if not sensor or not type:
-                    tools.warning("Got packet "+str(measure)+" but install " +
-                                  "is not complete ! " +
-                                  "Visit http://citizenwatt.local first.")
-                    db.close()
-                else:
-                    measure_db = database.Measures(sensor_id=sensor.id,
-                                                   value=power,
-                                                   timestamp=datetime.datetime.now(),
-                                                   night_rate=get_rate_type(db))
-                    db.add(measure_db)
-                    sensor.last_timer = timer
-                    (db.query(database.Sensor)
-                     .filter_by(name="CitizenWatt")
-                     .update({"last_timer": last_timer}))
-                    db.commit()
-                    print("Saved successfully.")
+                db = create_session()
+                measure_db = database.Measures(sensor_id=sensor.id,
+                                               value=power,
+                                               timestamp=datetime.datetime.now(),
+                                               night_rate=get_rate_type(db))
+                db.add(measure_db)
+                sensor.last_timer = timer
+                (db.query(database.Sensor)
+                 .filter_by(name="CitizenWatt")
+                 .update({"last_timer": sensor.last_timer}))
+                db.commit()
+                print("Saved successfully.")
 except KeyboardInterrupt:
     pass

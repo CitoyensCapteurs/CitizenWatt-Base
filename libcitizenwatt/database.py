@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from sqlalchemy import Column, TIMESTAMP, Float
+from sqlalchemy import Column, Float
 from sqlalchemy import ForeignKey, Integer, Text, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -18,6 +18,8 @@ class Sensor(Base):
     measures = relationship("Measures", passive_deletes=True)
     last_timer = Column(Integer)
     type = relationship("MeasureType", lazy="joined")
+    aes_key = Column(VARCHAR(255))
+    base_address = Column(Integer)
 
 
 class Measures(Base):

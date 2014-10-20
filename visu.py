@@ -511,13 +511,14 @@ def settings_post(db):
         error = {"title": "Format invalide",
                  "content": ("La clé AES doit être constituée de 16 " +
                              "chiffres entre 0 et 255, séparés " +
-                             "par des virgules.")}
+                             "par des tirets.")}
         settings_json = settings(db)
         settings_json.update({"err": error})
         return settings_json
-    config.set("base_address", base_address)
-    # TODO : aes key
-    config.save()
+    sensor = (db.query(database.Sensor)
+              .filter_by(name="CitizenWatt")
+              .first())
+    sensor.update({"base_adress": base_address, "aes_key": aes_key})
 
     try:
         start_night_rate = raw_start_night_rate.split(":")
@@ -719,12 +720,13 @@ def install_post(db):
         error = {"title": "Format invalide",
                  "content": ("La clé AES doit être constituée de 16 " +
                              "chiffres entre 0 et 255, séparés " +
-                             "par des virgules.")}
+                             "par des tirets.")}
         ret.update({"err": error})
         return ret
-    config.set("base_address", base_address)
-    # TODO : aes key
-    config.save()
+    sensor = (db.query(database.Sensor)
+              .filter_by(name="CitizenWatt")
+              .first())
+    sensor.update({"base_adress": base_address, "aes_key": aes_key})
 
     try:
         start_night_rate = raw_start_night_rate.split(":")
