@@ -3,6 +3,8 @@ import numpy
 import os
 import sys
 
+from libcitizenwatt import database
+
 
 def warning(*objs):
     """Write warnings to stderr"""
@@ -74,6 +76,27 @@ def energy(powers, default_timestep=8):
         energy["day_rate"] = numpy.trapz(day_rate, x) / 1000 / 3600
         energy['value'] = energy['day_rate'] + energy['night_rate']
     return energy
+
+
+def watt_euros(energy_provider, tariff, consumption, db):
+    if energy_provider != 0:
+        provider = (db.query(database.Provider)
+                    .filter_by(id=energy_provider)
+                    .first())
+    else:
+        provider = (db.query(database.Provider)
+                    .filter_by(current=1)
+                    .first())
+    if not provider:
+        data = -1
+    else:
+        if tariff == "night":
+            data = provider.night_slope_watt_euros * consumption
+        elif tariff == "day":
+            data = provider.day_slope_watt_euros * consumption
+        else:
+            data = -1
+    return data
 
 
 def update_base_address(base_address):

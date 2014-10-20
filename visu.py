@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import bisect
 import datetime
 import hashlib
 import os
@@ -8,6 +7,7 @@ import subprocess
 import sys
 
 
+from libcitizenwatt import cache
 from libcitizenwatt import database
 from libcitizenwatt import tools
 from bottle import abort, Bottle, SimpleTemplate, static_file
@@ -250,7 +250,14 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>/<step:int>",
            apply=valid_user())
 def api_get_ids_step(sensor, watt_euros, id1, id2, step, db, timestep=8):
-    """TODO"""  # TODO
+    """
+    Returns all the measures of sensor `sensor` between ids `id1` and `id2`,
+    grouped by step.
+
+    If `watts_euros` is watts, returns the mean power for each group.
+    If `watt_euros` is kwatthours, returns the total energy for each group.
+    If `watt_euros` is euros, returns the cost of each group.
+    """
     if id1 * id2 < 0 or id2 <= id1 or step <= 0:
         abort(400, "Invalid parameters")
     elif (id2 - id1) > config.get("max_returned_values"):
@@ -258,62 +265,13 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db, timestep=8):
               "Too many values to return. " +
               "(Maximum is set to %d)" % config.get("max_returned_values"))
 
-    steps = [i for i in range(id1, id2, step)]
-    steps.append(id2)
-
-    if id1 >= 0 and id2 >= 0 and id2 >= id1:
-        data = (db.query(database.Measures)
-                .filter(database.Measures.sensor_id == sensor,
-                        database.Measures.id >= id1,
-                        database.Measures.id < id2)
-                .order_by(asc(database.Measures.timestamp))
-                .all())
-    elif id1 <= 0 and id2 <= 0 and id2 >= id1:
-        data = (db.query(database.Measures)
-                .filter_by(sensor_id=sensor)
-                .order_by(desc(database.Measures.timestamp))
-                .slice(-id2, -id1)
-                .all())
-        data.reverse()
-
-    if not data:
-        data = []
-    else:
-        data_dict = tools.to_dict(data)
-        tmp = [[] for i in range(len(steps))]
-        for i in data_dict:
-            tmp[bisect.bisect_left(steps, i["id"]) - 1].append(i)
-
-        data = []
-        for i in tmp:
-            if len(i) == 0:
-                data.append(i)
-                continue
-
-            energy = tools.energy(i)
-            if watt_euros == "watts":
-                tmp_data = {"value": energy["value"] / (step * timestep) * 1000 * 3600,
-                            "day_rate": energy["day_rate"] / (step * timestep) * 1000 * 3600,
-                            "night_rate": energy["night_rate"] / (step * timestep) * 1000 * 3600}
-            elif watt_euros == 'kwatthours':
-                tmp_data = energy
-            elif watt_euros == 'euros':
-                if energy["night_rate"] != 0:
-                    night_rate = api_watt_euros("current",
-                                                'night',
-                                                energy['night_rate'],
-                                                db)["data"]
-                else:
-                    night_rate = 0
-                if energy["day_rate"] != 0:
-                    day_rate = api_watt_euros("current",
-                                              'day',
-                                              energy['day_rate'],
-                                              db)["data"]
-                else:
-                    day_rate = 0
-                tmp_data = {"value": night_rate + day_rate}
-            data.append(tmp_data)
+    data = cache.do_cache_group_id(sensor,
+                                   watt_euros,
+                                   id1,
+                                   id2,
+                                   step,
+                                   db,
+                                   timestep)
 
     return {"data": data, "rate": get_rate_type(db)}
 
@@ -382,59 +340,26 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>/<step:float>",
            apply=valid_user())
 def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
-    """TODO"""  # TODO
+    """
+    Returns all the measures of sensor `sensor` between timestamps `time1`
+    and `time2`, grouped by step.
+
+    If `watts_euros` is watts, returns the mean power for each group.
+    If `watt_euros` is kwatthours, returns the total energy for each group.
+    If `watt_euros` is euros, returns the cost of each group.
+    """
     time1 = int(time1)
     time2 = int(time2)
     step = int(step)
     if time1 < 0 or time2 < 0 or step <= 0:
         abort(400, "Invalid parameters")
 
-    steps = [i for i in range(time1, time2, step)]
-    steps.append(time2)
-
-    data = (db.query(database.Measures)
-            .filter(database.Measures.sensor_id == sensor,
-                    database.Measures.timestamp.between(datetime.datetime.fromtimestamp(time1), datetime.datetime.fromtimestamp(time2)))
-            .order_by(asc(database.Measures.timestamp))
-            .all())
-
-    if not data:
-        data = []
-    else:
-        tmp = [[] for i in range(len(steps))]
-        for i in data:
-            tmp[bisect.bisect_left(steps, i.timestamp.timestamp()) - 1].append(i)
-
-        data = []
-        for i in tmp:
-            if len(i) == 0:
-                data.append([])
-                continue
-
-            energy = tools.energy(i)
-            if watt_euros == "watts":
-                tmp_data = {"value": energy["value"] / step * 1000 * 3600,
-                            "day_rate": energy["day_rate"] / step * 1000 * 3600,
-                            "night_rate": energy["night_rate"] / step * 1000 * 3600}
-            elif watt_euros == 'kwatthours':
-                tmp_data = energy
-            elif watt_euros == 'euros':
-                if energy["night_rate"] != 0:
-                    night_rate = api_watt_euros("current",
-                                                'night',
-                                                energy['night_rate'],
-                                                db)["data"]
-                else:
-                    night_rate = 0
-                if energy["day_rate"] != 0:
-                    day_rate = api_watt_euros("current",
-                                              'day',
-                                              energy['day_rate'],
-                                              db)["data"]
-                else:
-                    day_rate = 0
-                tmp_data = {"value": night_rate + day_rate}
-            data.append(tmp_data)
+    data = cache.do_cache_group_timestamp(sensor,
+                                          watt_euros,
+                                          time1,
+                                          time2,
+                                          step,
+                                          db)
 
     return {"data": data, "rate": get_rate_type(db)}
 
@@ -512,23 +437,7 @@ def api_watt_euros(energy_provider, tariff, consumption, db):
     except ValueError:
         abort(400, "Wrong parameter energy_provider.")
 
-    if energy_provider != 0:
-        provider = (db.query(database.Provider)
-                    .filter_by(id=energy_provider)
-                    .first())
-    else:
-        provider = (db.query(database.Provider)
-                    .filter_by(current=1)
-                    .first())
-    if not provider:
-        data = -1
-    else:
-        if tariff == "night":
-            data = provider.night_slope_watt_euros * consumption
-        elif tariff == "day":
-            data = provider.day_slope_watt_euros * consumption
-        else:
-            abort(400, "Wrong parameter tariff.")
+    data = tools.watt_euros(energy_provider, tariff, consumption, db)
     return {"data": data}
 
 
