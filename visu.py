@@ -454,7 +454,7 @@ def settings(db):
             "providers": providers,
             "start_night_rate": start_night_rate,
             "end_night_rate": end_night_rate,
-            "base_address": str(hex(sensor_cw["base_address"]).upper() + "LL"),
+            "base_address": sensor_cw["base_address"],
             "aes_key": '-'.join([str(i) for i in
                                  json.loads(sensor_cw["aes_key"])])}
 
@@ -499,7 +499,8 @@ def settings_post(db):
     raw_aes_key = request.forms.get("aes_key")
 
     try:
-        base_address = int(raw_base_address.strip("L"), 16)
+        base_address_int = int(raw_base_address.strip("L"), 16)
+        base_address = str(hex(base_address_int)).upper() + "LL"
     except ValueError:
         error = {"title": "Format invalide",
                  "content": ("L'adresse de la base entrée est invalide.")}
@@ -509,7 +510,7 @@ def settings_post(db):
 
     sensor = db.query(database.Sensor).filter_by(name="CitizenWatt").first()
     if base_address != sensor.base_address:
-        tools.update_base_address(base_address)
+        tools.update_base_address(base_address_int)
 
     try:
         aes_key = [int(i.strip()) for i in raw_aes_key.split("-")]
@@ -527,6 +528,7 @@ def settings_post(db):
      .filter_by(name="CitizenWatt")
      .update({"base_address": base_address, "aes_key": json.dumps(aes_key)}))
     db.commit()
+    print(base_address)
 
     try:
         start_night_rate = raw_start_night_rate.split(":")
@@ -716,13 +718,14 @@ def install_post(db):
            "aes_key": raw_aes_key}
 
     try:
-        base_address = int(raw_base_address.strip("L"), 16)
+        base_address_int = int(raw_base_address.strip("L"), 16)
+        base_address = str(hex(base_address_int)).upper() + "LL"
     except ValueError:
         error = {"title": "Format invalide",
                  "content": ("L'adresse de la base entrée est invalide.")}
         ret.update({"err": error})
         return ret
-    tools.update_base_address(base_address)
+    tools.update_base_address(base_address_int)
     try:
         aes_key = [int(i.strip()) for i in raw_aes_key.split("-")]
         if len(aes_key) != 16:
