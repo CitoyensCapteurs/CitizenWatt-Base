@@ -14,19 +14,20 @@ from libcitizenwatt.config import Config
 config = Config()
 
 
-def do_cache_ids(sensor, watt_euros, id1, id2, db):
+def do_cache_ids(sensor, watt_euros, id1, id2, db, force_refresh=False):
     """
     Computes the cache (if needed) for the API call
     /api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>
 
     Returns the stored (or computed) data or None if parameters are invalid.
     """
-    r = redis.Redis(decode_responses=True)
-    data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
-                 str(id1) + "_" + str(id2))
-    if data:
-        # If found in cache, return it
-        return json.loads(data)
+    if not force_refresh:
+        r = redis.Redis(decode_responses=True)
+        data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
+                     str(id1) + "_" + str(id2))
+        if data:
+            # If found in cache, return it
+            return json.loads(data)
 
     if id1 >= 0 and id2 >= 0 and id2 >= id1:
         data = (db.query(database.Measures)
@@ -81,20 +82,22 @@ def do_cache_ids(sensor, watt_euros, id1, id2, db):
 
 
 def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
-                      timestep=config.get("default_timestep")):
+                      timestep=config.get("default_timestep"),
+                      force_refresh=False):
     """
     Computes the cache (if needed) for the API call
     /api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>/<step:int>
 
     Returns the stored (or computed) data.
     """
-    r = redis.Redis(decode_responses=True)
-    data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
-                 str(id1) + "_" + str(id2) + "_" +
-                 str(step) + "_" + str(timestep))
-    if data:
-        # If found in cache, return it
-        return json.loads(data)
+    if not force_refresh:
+        r = redis.Redis(decode_responses=True)
+        data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
+                     str(id1) + "_" + str(id2) + "_" +
+                     str(step) + "_" + str(timestep))
+        if data:
+            # If found in cache, return it
+            return json.loads(data)
 
     steps = [i for i in range(id1, id2, step)]
     steps.append(id2)
@@ -175,18 +178,19 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
     return data
 
 
-def do_cache_times(sensor, watt_euros, time1, time2, db):
+def do_cache_times(sensor, watt_euros, time1, time2, db, force_refresh=False):
     """
     Computes the cache (if needed) for the API call
     /api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>
     Returns the stored (or computed) data.
     """
-    r = redis.Redis(decode_responses=True)
-    data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
-                 str(time1) + "_" + str(time2))
-    if data:
-        # If found in cache, return it
-        return json.loads(data)
+    if not force_refresh:
+        r = redis.Redis(decode_responses=True)
+        data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
+                     str(time1) + "_" + str(time2))
+        if data:
+            # If found in cache, return it
+            return json.loads(data)
 
     data = (db.query(database.Measures)
             .filter(database.Measures.sensor_id == sensor,
@@ -222,19 +226,21 @@ def do_cache_times(sensor, watt_euros, time1, time2, db):
     return data
 
 
-def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db):
+def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
+                             force_refresh=False):
     """
     Computes the cache (if needed) for the API call
     /api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>/<step:float>
 
     Returns the stored (or computed) data.
     """
-    r = redis.Redis(decode_responses=True)
-    data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
-                 str(time1) + "_" + str(time2) + "_" + str(step))
-    if data:
-        # If found in cache, return it
-        return json.loads(data)
+    if not force_refresh:
+        r = redis.Redis(decode_responses=True)
+        data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
+                     str(time1) + "_" + str(time2) + "_" + str(step))
+        if data:
+            # If found in cache, return it
+            return json.loads(data)
 
     steps = [i for i in range(time1, time2, step)]
     steps.append(time2)
