@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <iostream>
-#include <sstream>
+#include <fstream>
 #include <string>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -29,6 +29,8 @@ const rf24_pa_dbm_e NRF_PA_LEVEL = RF24_PA_LOW;
 // 76 is default safe channel in RF24
 const int NRF_CHANNEL = 0x4c;
 
+const uint64_t default_addr = 0xE056D446D0LL;
+
 //RF24 radio(RPI_V2_GPIO_P1_15, RPI_V2_GPIO_P1_24, BCM2835_SPI_SPEED_8MHZ);
 RF24 radio("/dev/spidev0.0",8000000 , 25);
 
@@ -47,9 +49,16 @@ int main() {
     fd = open(myfifo, O_WRONLY);
 
     // Get the address to listen on
-    std::fstream config_addr("~/.config/citizenwatt/base_address", std::ios_base::in);
+    std::ifstream config_addr;
+    config_addr.open("~/.config/citizenwatt/base_address", std::ios::in);
     uint64_t addr;
-    config_addr >> addr;
+    if (config_addr.is_open()) {
+        config_addr >> addr;
+        config_addr.close();
+    }
+    else {
+        addr = default_addr;
+    }
 
     // Initialize nRF
     radio.begin();
