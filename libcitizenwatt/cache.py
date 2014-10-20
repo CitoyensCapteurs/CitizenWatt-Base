@@ -8,9 +8,78 @@ import redis
 from libcitizenwatt import database
 from libcitizenwatt import tools
 from sqlalchemy import asc, desc
+from libcitizenwatt.config import Config
 
 
-def do_cache_group_id(sensor, watt_euros, id1, id2, step, db, timestep=8):
+config = Config()
+
+
+def do_cache_ids(sensor, watt_euros, id1, id2, db):
+    """
+    Computes the cache (if needed) for the API call
+    /api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>
+
+    Returns the stored (or computed) data or None if parameters are invalid.
+    """
+    r = redis.Redis(decode_responses=True)
+    data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
+                 str(id1) + "_" + str(id2))
+    if data:
+        # If found in cache, return it
+        return json.loads(data)
+
+    if id1 >= 0 and id2 >= 0 and id2 >= id1:
+        data = (db.query(database.Measures)
+                .filter(database.Measures.sensor_id == sensor,
+                        database.Measures.id >= id1,
+                        database.Measures.id < id2)
+                .order_by(asc(database.Measures.timestamp))
+                .all())
+    elif id1 <= 0 and id2 <= 0 and id2 >= id1:
+        data = (db.query(database.Measures)
+                .filter_by(sensor_id=sensor)
+                .order_by(desc(database.Measures.timestamp))
+                .slice(-id2, -id1)
+                .all())
+        data.reverse()
+    else:
+        return None
+
+    if not data:
+        data = [] if watt_euros == "watts" else {}
+    else:
+        if watt_euros == 'kwatthours' or watt_euros == 'euros':
+            data = tools.energy(data)
+            if watt_euros == 'euros':
+                if data["night_rate"] != 0:
+                    night_rate = tools.watt_euros("current",
+                                                  'night',
+                                                  data['night_rate'],
+                                                  db)["data"]
+                else:
+                    night_rate = 0
+                if data["day_rate"] != 0:
+                    day_rate = tools.watt_euros("current",
+                                                'day',
+                                                data['day_rate'],
+                                                db)["data"]
+                else:
+                    day_rate = 0
+                data = {"value": night_rate + day_rate}
+        else:
+            data = tools.to_dict(data)
+
+    # Store in cache
+    r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
+          str(id1) + "_" + str(id2),
+          json.dumps(data),
+          86400)  # TODO
+
+    return data
+
+
+def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
+                      timestep=config.get("default_timestep")):
     """
     Computes the cache (if needed) for the API call
     /api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>/<step:int>
@@ -46,6 +115,8 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db, timestep=8):
     if not data:
         data = []
     else:
+        time1 = data[0].timestamp
+        time2 = data[-1].timestamp
         data_dict = tools.to_dict(data)
         tmp = [[] for i in range(len(steps))]
         for i in data_dict:
@@ -96,6 +167,53 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db, timestep=8):
               str(step) + "_" + str(timestep),
               json.dumps(data),
               datetime.datetime.fromtimestamp(time2) - datetime.datetime.fromtimestamp(time1))
+
+    return data
+
+
+def do_cache_times(sensor, watt_euros, time1, time2, db):
+    """
+    Computes the cache (if needed) for the API call
+    /api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>
+    Returns the stored (or computed) data.
+    """
+    r = redis.Redis(decode_responses=True)
+    data = r.get(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
+                 str(time1) + "_" + str(time2))
+    if data:
+        # If found in cache, return it
+        return json.loads(data)
+
+    data = (db.query(database.Measures)
+            .filter(database.Measures.sensor_id == sensor,
+                    database.Measures.timestamp >= datetime.datetime.fromtimestamp(time1),
+                    database.Measures.timestamp < datetime.datetime.fromtimestamp(time2))
+            .order_by(asc(database.Measures.timestamp))
+            .all())
+
+    if not data:
+        data = [] if watt_euros == "watts" else {}
+    else:
+        if watt_euros == "kwatthours" or watt_euros == "euros":
+            data = tools.energy(data)
+            if watt_euros == "euros":
+                data = {"value": (tools.watt_euros("current",
+                                                   'night',
+                                                   data['night_rate'],
+                                                   db)["data"] +
+                                  tools.watt_euros("current",
+                                                   'day',
+                                                   data['day_rate'],
+                                                   db)["data"])}
+
+        else:
+            data = tools.to_dict(data)
+
+    # Store in cache
+    r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
+          str(time1) + "_" + str(time2),
+          json.dumps(data),
+          86400)  # TODO
 
     return data
 

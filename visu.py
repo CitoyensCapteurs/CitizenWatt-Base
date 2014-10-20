@@ -15,7 +15,7 @@ from bottle import redirect, request, run
 from bottle.ext import sqlalchemy
 from bottlesession import PickleSession, authenticator
 from libcitizenwatt.config import Config
-from sqlalchemy import asc, create_engine, desc
+from sqlalchemy import create_engine, desc
 from sqlalchemy.exc import OperationalError
 
 
@@ -204,52 +204,15 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
               "Too many values to return. " +
               "(Maximum is set to %d)" % config.get("max_returned_values"))
 
-    if id1 >= 0 and id2 >= 0 and id2 >= id1:
-        data = (db.query(database.Measures)
-                .filter(database.Measures.sensor_id == sensor,
-                        database.Measures.id >= id1,
-                        database.Measures.id < id2)
-                .order_by(asc(database.Measures.timestamp))
-                .all())
-    elif id1 <= 0 and id2 <= 0 and id2 >= id1:
-        data = (db.query(database.Measures)
-                .filter_by(sensor_id=sensor)
-                .order_by(desc(database.Measures.timestamp))
-                .slice(-id2, -id1)
-                .all())
-        data.reverse()
-    else:
-        abort(400, "Wrong parameters id1 and id2.")
+    data = cache.do_cache_ids(sensor, watt_euros, id1, id2, db)
 
-    if not data:
-        data = [] if watt_euros == "watts" else {}
-    else:
-        if watt_euros == 'kwatthours' or watt_euros == 'euros':
-            data = tools.energy(data)
-            if watt_euros == 'euros':
-                if data["night_rate"] != 0:
-                    night_rate = api_watt_euros("current",
-                                                'night',
-                                                data['night_rate'],
-                                                db)["data"]
-                else:
-                    night_rate = 0
-                if data["day_rate"] != 0:
-                    day_rate = api_watt_euros("current",
-                                              'day',
-                                              data['day_rate'],
-                                              db)["data"]
-                else:
-                    day_rate = 0
-                data = {"value": night_rate + day_rate}
-        else:
-            data = tools.to_dict(data)
     return {"data": data, "rate": get_rate_type(db)}
 
 
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>/<step:int>",
            apply=valid_user())
-def api_get_ids_step(sensor, watt_euros, id1, id2, step, db, timestep=8):
+def api_get_ids_step(sensor, watt_euros, id1, id2, step, db,
+                     timestep=config.get("default_timestep")):
     """
     Returns all the measures of sensor `sensor` between ids `id1` and `id2`,
     grouped by step.
@@ -272,6 +235,9 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db, timestep=8):
                                    step,
                                    db,
                                    timestep)
+
+    if data is None:
+        abort(400, "Wrong parameters id1 and id2.")
 
     return {"data": data, "rate": get_rate_type(db)}
 
@@ -309,30 +275,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     if time1 < 0 or time2 < time1:
         abort(400, "Invalid timestamps.")
 
-    data = (db.query(database.Measures)
-            .filter(database.Measures.sensor_id == sensor,
-                    database.Measures.timestamp >= datetime.datetime.fromtimestamp(time1),
-                    database.Measures.timestamp < datetime.datetime.fromtimestamp(time2))
-            .order_by(asc(database.Measures.timestamp))
-            .all())
-
-    if not data:
-        data = [] if watt_euros == "watts" else {}
-    else:
-        if watt_euros == "kwatthours" or watt_euros == "euros":
-            data = tools.energy(data)
-            if watt_euros == "euros":
-                data = {"value": (api_watt_euros("current",
-                                                 'night',
-                                                 data['night_rate'],
-                                                 db)["data"] +
-                                  api_watt_euros("current",
-                                                 'day',
-                                                 data['day_rate'],
-                                                 db)["data"])}
-
-        else:
-            data = tools.to_dict(data)
+    data = cache.do_cache_times(sensor, watt_euros, time1, time2, db)
 
     return {"data": data, "rate": get_rate_type(db)}
 
