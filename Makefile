@@ -11,7 +11,7 @@
 # You can change the install directory by editing the prefix line
 #
 prefix=$(DESTDIR)/opt/citizenwatt
-files=`ls -a | grep -v debian | grep -v '^\.$$' | grep -v '^\.\.$$'`
+files=`ls | grep -v debian`
 sup_prefix=$(DESTDIR)/etc/supervisor/conf.d/
 
 # The recommended compiler flags for the Raspberry Pi
