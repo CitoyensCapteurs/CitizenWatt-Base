@@ -91,7 +91,7 @@ var Graph = function(unit) {
 			power = 0;
 		}
 
-		if (unit='cents/min') {
+		if (unit == 'cents/min') {
 			power = power / 8 * 60 * 100;
 		}
 		
