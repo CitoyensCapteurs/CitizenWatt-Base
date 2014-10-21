@@ -35,7 +35,9 @@ var App = function() {
 	};
 
 	menu.onmodechange = function(ev, callback) {
-		menu.setDate(null, callback);
+		menu.setDate(null, function(){
+			reload(null, callback);
+		}, false);
 	}
 	menu.onunitchange = reload;
 	menu.ondatechange = reload;
