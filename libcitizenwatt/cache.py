@@ -58,14 +58,14 @@ def do_cache_ids(sensor, watt_euros, id1, id2, db, force_refresh=False):
                     night_rate = tools.watt_euros(0,
                                                   'night',
                                                   data['night_rate'],
-                                                  db)["data"]
+                                                  db)
                 else:
                     night_rate = 0
                 if data["day_rate"] != 0:
                     day_rate = tools.watt_euros(0,
                                                 'day',
                                                 data['day_rate'],
-                                                db)["data"]
+                                                db)
                 else:
                     day_rate = 0
                 data = {"value": night_rate + day_rate}
@@ -147,14 +147,14 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
                     night_rate = tools.watt_euros(0,
                                                   'night',
                                                   energy['night_rate'],
-                                                  db)["data"]
+                                                  db)
                 else:
                     night_rate = 0
                 if energy["day_rate"] != 0:
                     day_rate = tools.watt_euros(0,
                                                 'day',
                                                 energy['day_rate'],
-                                                db)["data"]
+                                                db)
                 else:
                     day_rate = 0
                 tmp_data = {"value": night_rate + day_rate}
@@ -208,11 +208,11 @@ def do_cache_times(sensor, watt_euros, time1, time2, db, force_refresh=False):
                 data = {"value": (tools.watt_euros(0,
                                                    'night',
                                                    data['night_rate'],
-                                                   db)["data"] +
+                                                   db) +
                                   tools.watt_euros(0,
                                                    'day',
                                                    data['day_rate'],
-                                                   db)["data"])}
+                                                   db))}
 
         else:
             data = tools.to_dict(data)
@@ -277,14 +277,14 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
                     night_rate = tools.watt_euros(0,
                                                   'night',
                                                   energy['night_rate'],
-                                                  db)["data"]
+                                                  db)
                 else:
                     night_rate = 0
                 if energy["day_rate"] != 0:
                     day_rate = tools.watt_euros(0,
                                                 'day',
                                                 energy['day_rate'],
-                                                db)["data"]
+                                                db)
                 else:
                     day_rate = 0
                 tmp_data = {"value": night_rate + day_rate}
