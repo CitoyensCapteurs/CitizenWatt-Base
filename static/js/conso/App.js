@@ -136,14 +136,27 @@ var App = function() {
 			provider.get(target, function(data) {
 				graph.rect_width = graph.getPixelWidth() / data.length - graph.rect_margin;
 				var s = 0, i = 0;
-				var last_value= null;
+				var last_good_value = null;
+				var before_last_value = null;
+				var last_value = null;
 				data.map(function(m) {
 					if (m !== null) {
+						if (last_value === null && before_last_value !== null) {
+							v = (before_last_value + m.value) / 2.0;
+							s += v;
+							graph
+							.removeRect()
+							.addRect(v, false, graph.getLegend(mode, date, i));
+						}
 						graph.addRect(m.value, false, graph.getLegend(mode, date, i));
 						s += m.value;
+						last_good_value = m.value;
+						before_last_value = last_value;
 						last_value = m.value;
 					} else if (mode != 'now' || i < data.length - 1) { // Avoid leading undefined rect in instant view
 						graph.addRect(undefined, false, graph.getLegend(mode, date, i));
+						before_last_value = last_value;
+						last_value = null;
 					}
 					i += 1;
 				});
@@ -153,7 +166,7 @@ var App = function() {
 						graph.setOverview(s + base_price * modifier);
 					});
 				} else {
-					graph.setOverview(last_value);
+					graph.setOverview(last_good_value);
 				}
 				graph.stopLoading();
 				if (callback) callback();
