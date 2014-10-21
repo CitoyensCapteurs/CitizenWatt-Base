@@ -31,4 +31,5 @@
                         <a {{ !'class="active"' if page=='community' else '' }} href="{{ get_url('community') }}">Communauté</a>
                     </nav>
                 % end
+                <p style="font-size: 10em; color: black; font-weight: bold;">GROS TEST</p>
             </header>
