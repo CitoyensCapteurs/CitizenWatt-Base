@@ -120,7 +120,7 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
         raise ValueError
 
     if not data:
-        data = [None for i in step]
+        data = [None for i in range(len(steps) - 1)]
     else:
         time1 = data[0].timestamp
         time2 = data[-1].timestamp
@@ -255,7 +255,7 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
             .all())
 
     if not data:
-        data = [None for i in steps]
+        data = [None for i in range(len(steps) - 1)]
     else:
         tmp = [[] for i in range(len(steps) - 1)]
         for i in data:
