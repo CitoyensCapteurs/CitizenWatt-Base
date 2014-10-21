@@ -36,8 +36,8 @@ assert(dateutils.getStringDay(d)    == 'Jeudi'   , 'String day by date'   );
 assert(dateutils.getStringMonth(11) == 'Décembre', 'String month by index');
 assert(dateutils.getStringMonth( d) == 'Décembre', 'String month by date' );
 
-assert(dateutils.humanDay(d)   == 'le 30 Décembre'                      , 'Human date' );
-assert(dateutils.humanWeek(d)  == 'entre le 27 Décembre et le 2 Janvier', 'Human week' );
-assert(dateutils.humanMonth(d) == 'en Décembre'                         , 'Human month');
+assert(dateutils.humanDay(d)   == 'le 30 décembre'                      , 'Human date' );
+assert(dateutils.humanWeek(d)  == 'entre le 27 décembre et le 2 janvier', 'Human week' );
+assert(dateutils.humanMonth(d) == 'en décembre'                         , 'Human month');
 
 console.log('Everything is ok.')

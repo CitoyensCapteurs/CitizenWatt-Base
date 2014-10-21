@@ -10,37 +10,19 @@ var App = function() {
 	  , rate = RateDisplay()
 	  ;
 
-	menu.onunitchange = function(unit, callback) {
-		var mode = menu.getMode();
-		graph.clean();
-		if (unit == 'price') {
-			graph = PriceGraph();
-			graph.round = function(v) { return Math.round(v * 100) / 100; };
-			hash.setUnit('euros');
-		} else {
-			graph = Graph(mode == 'now' ? 'W' : 'kWh');
-			if (mode == 'now') {
-				provider.getProviderInfo(function(provider) {
-					console.log(provider);
-					graph.addAbsoluteVerticalGraduation(provider['limit']);
-				});
-			}
-			hash.setUnit('watt');
-		}
-		graph.init();
-		api.initValues(callback);
-	};
-
 	function reload(_, callback) {
 		var mode = menu.getMode()
 		  , date = menu.getDate()
 		  , unit = menu.getUnit()
 		  ;
+
 		graph.clean();
-		graph = unit == 'watt' ? Graph(mode == 'now' ? 'W' : 'kWh') : PriceGraph(mode == 'now' ? 'cents/min' : '€');
+		graph = unit == 'energy' ? Graph(mode == 'now' ? 'W' : 'kWh') : PriceGraph(mode == 'now' ? 'cents/min' : '€');
 		graph.autoremove = mode == 'now' && date === null;
+
 		if (unit == 'price') graph.round = function(v) { return Math.round(v * 100) / 100; };
-		if (mode == 'now' && unit == 'watt') {
+
+		if (mode == 'now' && unit == 'energy') {
 			provider.getProviderInfo(function(provider) {
 				graph.addAbsoluteVerticalGraduation(provider['threshold']);
 			});
@@ -48,13 +30,14 @@ var App = function() {
 		graph.init();
 		hash.setMode(mode);
 		hash.setDate(date);
+		hash.setUnit(unit == 'price' ? 'euros' : 'watt');
 		api.initValues(callback);
-	}
+	};
 
 	menu.onmodechange = function(ev, callback) {
-		menu.setDate(null);
-		reload(ev, callback);
+		menu.setDate(null, callback);
 	}
+	menu.onunitchange = reload;
 	menu.ondatechange = reload;
 
 	provider.onratechange = rate.setRate;
@@ -74,16 +57,7 @@ var App = function() {
 		provider.get('/time', function(basetime) {
 			dateutils.offset = parseFloat(basetime) * 1000.0 - (new Date()).getTime();
 
-			var unit;
-			switch (hash.getUnit()) {
-				case 'euros':
-					graph = PriceGraph();
-					unit = 'price';
-					break;
-
-				default:
-					unit = 'energy'
-			}
+			var unit = hash.getUnit() == 'euros' ? 'price' : 'energy';
 
 			menu.setUnit(unit, function(){
 			menu.setMode(hash.getMode(), function(){
@@ -91,7 +65,7 @@ var App = function() {
 				reload(null, api.oninit);
 			}, false);
 			}, false);
-			});
+			}, false);
 
 		});
 	};

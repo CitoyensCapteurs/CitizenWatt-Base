@@ -23,7 +23,7 @@ var DataProvider = function() {
 					res = JSON.parse(req.responseText);
 				}
 				catch (e) {
-					console.log('ERROR', req.responseText);
+					console.log('ERROR while handling `' + target + '`:', req.responseText);
 				}
 				if (res.rate !== undefined) {
 					api.onratechange(res.rate);

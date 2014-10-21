@@ -269,9 +269,13 @@ var Graph = function(unit, max_value) {
 	 */
 	api.clean = function() {
 		while (graph_values.firstChild)
-			graph_values.removeChild(graph_values.firstChild)
+			graph_values.removeChild(graph_values.firstChild);
 		while (graph_vertical_axis.firstChild)
-			graph_vertical_axis.removeChild(graph_vertical_axis.firstChild)
+			graph_vertical_axis.removeChild(graph_vertical_axis.firstChild);
+
+		var hr;
+		while (hr = document.getElementsByClassName('absolute-graduation-hr')[0])
+			hr.parentNode.removeChild(hr);
 	}
 
 	/**
