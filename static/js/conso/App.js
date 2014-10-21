@@ -14,6 +14,7 @@ var App = function() {
 		graph.clean();
 		if (unit == 'price') {
 			graph = PriceGraph();
+			graph.round = function(v) { return Math.round(v * 100) / 100; };
 			hash.setUnit('euros');
 		} else {
 			graph = Graph(menu.getMode() == 'now' ? 'W' : 'kWh');
@@ -31,7 +32,7 @@ var App = function() {
 		graph.clean();
 		graph = hash.getUnit() == 'watt' ? Graph(mode == 'now' ? 'W' : 'kWh') : PriceGraph(mode == 'now' ? 'cents/min' : '€');
 		graph.autoremove = mode == 'now' && date === null;
-		if (mode == 'now' && unit == 'price') graph.round = function(v) { return Math.round(v * 100) / 100; };
+		if (unit == 'price') graph.round = function(v) { return Math.round(v * 100) / 100; };
 		graph.init();
 		hash.setMode(mode);
 		hash.setDate(date);
