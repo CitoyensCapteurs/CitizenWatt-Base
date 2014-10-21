@@ -706,7 +706,6 @@ def settings_post(db):
      .filter_by(name="CitizenWatt")
      .update({"base_address": base_address, "aes_key": json.dumps(aes_key)}))
     db.commit()
-    print(base_address)
 
     try:
         start_night_rate = raw_start_night_rate.split(":")
