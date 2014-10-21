@@ -75,7 +75,8 @@ def update_providers(fetch, db):
                                         night_constant_watt_euros=provider["night_constant_watt_euros"],
                                         night_slope_watt_euros=provider["night_slope_watt_euros"],
                                         type_id=type_id.id,
-                                        current=(1 if old_current and old_current.name == provider["name"] else 0))
+                                        current=(1 if old_current and old_current.name == provider["name"] else 0),
+                                        threshold=int(provider["threshold"]))
         db.add(provider_db)
     return providers
 

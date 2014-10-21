@@ -45,6 +45,7 @@ class Provider(Base):
     night_slope_watt_euros = Column(Float)
     night_constant_watt_euros = Column(Float)
     current = Column(Integer)
+    threshold = Column(Integer)
 
 
 class MeasureType(Base):

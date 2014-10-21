@@ -11,13 +11,20 @@ var App = function() {
 	  ;
 
 	menu.onunitchange = function(unit, callback) {
+		var mode = menu.getMode();
 		graph.clean();
 		if (unit == 'price') {
 			graph = PriceGraph();
 			graph.round = function(v) { return Math.round(v * 100) / 100; };
 			hash.setUnit('euros');
 		} else {
-			graph = Graph(menu.getMode() == 'now' ? 'W' : 'kWh');
+			graph = Graph(mode == 'now' ? 'W' : 'kWh');
+			if (mode == 'now') {
+				provider.getProviderInfo(function(provider) {
+					console.log(provider);
+					graph.addAbsoluteVerticalGraduation(provider['limit']);
+				});
+			}
 			hash.setUnit('watt');
 		}
 		graph.init();
@@ -30,9 +37,14 @@ var App = function() {
 		  , unit = menu.getUnit()
 		  ;
 		graph.clean();
-		graph = hash.getUnit() == 'watt' ? Graph(mode == 'now' ? 'W' : 'kWh') : PriceGraph(mode == 'now' ? 'cents/min' : '€');
+		graph = unit == 'watt' ? Graph(mode == 'now' ? 'W' : 'kWh') : PriceGraph(mode == 'now' ? 'cents/min' : '€');
 		graph.autoremove = mode == 'now' && date === null;
 		if (unit == 'price') graph.round = function(v) { return Math.round(v * 100) / 100; };
+		if (mode == 'now' && unit == 'watt') {
+			provider.getProviderInfo(function(provider) {
+				graph.addAbsoluteVerticalGraduation(provider['threshold']);
+			});
+		}
 		graph.init();
 		hash.setMode(mode);
 		hash.setDate(date);

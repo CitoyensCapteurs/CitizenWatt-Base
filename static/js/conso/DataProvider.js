@@ -3,7 +3,7 @@
  */
 var DataProvider = function() {
 	var api = {};
-	var slope_watt_euros, constant_watt_euros, saved_rate = null; // Cache for convertion rate
+	var energy_provider = null; // Cache for energy provider info
 	var sensor_id = null; // Cache for sensor ID
 
 	api.onratechange = function(rate){};
@@ -36,21 +36,33 @@ var DataProvider = function() {
 
 
 	/**
+	 * Get current provider info
+	 * @param callback: callback that takes provider
+	 */
+	api.getProviderInfo = function(callback) {
+		if (energy_provider === null) {
+			api.get('/energy_providers/current', function(provider) {
+				energy_provider = provider;
+				callback(energy_provider);
+			});
+		} else {
+			callback(energy_provider);
+		}
+	}
+
+
+	/**
 	 * Get watt_euros convertion info
 	 * @param rate: day or night tariff
 	 * @param callback: callback that takes origin value and slope
 	 */
 	api.getConvertInfo = function(rate, callback) {
-		if (saved_rate != rate) {
-			api.get('/energy_providers/current', function(provider) {
-				slope_watt_euros	= provider[rate+'_slope_watt_euros'];
-				constant_watt_euros	= provider[rate+'_constant_watt_euros'];
-				saved_rate = rate;
-				callback(constant_watt_euros, slope_watt_euros);
-			});
-		} else {
-			callback(constant_watt_euros, slope_watt_euros);
-		}
+		api.getProviderInfo(function(provider){
+			callback(
+				provider[rate+'_slope_watt_euros'],
+				provider[rate+'_constant_watt_euros']
+				);
+		});
 	}
 
 

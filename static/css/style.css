@@ -507,6 +507,10 @@ footer p {
     z-index: 20;
 }
 
+#graph hr.absolute-graduation-hr {
+    background-color: rgba(255,0,0,0.5);
+}
+
 #graph_vertical_axis span {
     position:absolute;
     z-index: 20;

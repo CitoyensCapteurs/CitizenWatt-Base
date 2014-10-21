@@ -1,7 +1,9 @@
 /**
  * Gather graph-related functions
+ * @param unit: (optional) Graphe unit
+ * @param max_value: (optional) Defautl graph max_value
  */
-var Graph = function(unit) {
+var Graph = function(unit, max_value) {
 	var api = {};
 
 	var graph = document.getElementById('graph')
@@ -18,12 +20,12 @@ var Graph = function(unit) {
 	 */
 	api.convertValue = function(v){ return v; };
 
-	api.max_value = 1e-6;
 	api.unit = unit || 'W';
 	api.type = 'energy';
 	api.rect_width = Config.rect_width;
 	api.rect_margin = Config.rect_margin;
 	api.autoremove = true;
+	api.max_value = max_value || 1e-6;
 
 	/**
 	 * Set color class name from height (between 0.0 and 1.0)
@@ -165,12 +167,51 @@ var Graph = function(unit) {
 	}
 
 	/**
+	 * Add an horizontal absolute graduation line
+	 * @param pos: Absolute position at which the graduation is placed
+	 */
+	api.addAbsoluteVerticalGraduation = function(pos) {
+		if (pos * 1.1 > api.max_value) {
+			api.scaleVertically(pos * 1.1 / api.max_value);
+		}
+
+		var height = pos / api.max_value * 100;
+		var span = document.createElement('span');
+		var hr_id = rand64(5);
+		graph_vertical_axis.appendChild(span);
+
+		span.style.bottom = height + '%';
+		span.setAttribute('cw-absolute-graduation-position', pos);
+		span.setAttribute('cw-absolute-graduation-hr', hr_id);
+
+		var hr = document.createElement('hr');
+		hr.style.bottom = height + '%';
+		hr.id = hr_id;
+		hr.className = 'absolute-graduation-hr';
+		graph.appendChild(hr);
+
+		api.updateVerticalGraduation(span);
+
+		return api;
+	}
+
+	/**
 	 * Update displayed value of vertical graduation
 	 * @param graduation: graduation to resize
 	 */
 	api.updateVerticalGraduation = function(graduation) {
-		var power = api.round(graduation.getAttribute('cw-graduation-position') * api.max_value);
-		graduation.innerHTML = power + api.unit;
+		if (graduation.getAttribute('cw-graduation-position') !== null) {
+			var power = api.round(graduation.getAttribute('cw-graduation-position') * api.max_value);
+			graduation.innerHTML = power + api.unit;
+		}
+		if (graduation.getAttribute('cw-absolute-graduation-position') !== null) {
+			var pos = graduation.getAttribute('cw-absolute-graduation-position');
+			var hr_id = graduation.getAttribute('cw-absolute-graduation-hr');
+			var hr = document.getElementById(hr_id);
+			hr.style.bottom = graduation.style.bottom = (pos / api.max_value * 100) + '%';
+			var power = api.round(pos);
+			graduation.innerHTML = power + api.unit;
+		}
 		return api;
 	};
 
