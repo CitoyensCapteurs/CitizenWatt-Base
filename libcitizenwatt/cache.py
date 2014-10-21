@@ -120,6 +120,7 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
     else:
         raise ValueError
 
+    time2 = None
     if not data:
         data = [None for i in range(len(steps) - 1)]
     else:
@@ -162,21 +163,22 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
             data.append(tmp_data)
     if len(data) == 0:
         data = None
-    # Store in cache
-    if time2 < datetime.datetime.now().timestamp():
-        # If new measures are to come, short lifetime (basically timestep)
-        r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
-              str(id1) + "_" + str(id2) + "_" +
-              str(step) + "_" + str(timestep),
-              json.dumps(data),
-              timestep)
-    else:
-        # Else, store for a greater lifetime (basically time2 - time1)
-        r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
-              str(id1) + "_" + str(id2) + "_" +
-              str(step) + "_" + str(timestep),
-              json.dumps(data),
-              time2 - time1)
+    if time2 is not None:
+        # Store in cache
+        if time2 < datetime.datetime.now().timestamp():
+            # If new measures are to come, short lifetime (basically timestep)
+            r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
+                str(id1) + "_" + str(id2) + "_" +
+                str(step) + "_" + str(timestep),
+                json.dumps(data),
+                timestep)
+        else:
+            # Else, store for a greater lifetime (basically time2 - time1)
+            r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
+                str(id1) + "_" + str(id2) + "_" +
+                str(step) + "_" + str(timestep),
+                json.dumps(data),
+                time2 - time1)
 
     return data
 
