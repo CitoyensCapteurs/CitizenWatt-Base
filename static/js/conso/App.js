@@ -136,10 +136,12 @@ var App = function() {
 			provider.get(target, function(data) {
 				graph.rect_width = graph.getPixelWidth() / data.length - graph.rect_margin;
 				var s = 0, i = 0;
+				var last_value= null;
 				data.map(function(m) {
 					if (m !== null) {
 						graph.addRect(m.value, false, graph.getLegend(mode, date, i));
 						s += m.value;
+						last_value = m.value;
 					} else if (mode != 'now' || i < data.length - 1) { // Avoid leading undefined rect in instant view
 						graph.addRect(undefined, false, graph.getLegend(mode, date, i));
 					}
@@ -150,6 +152,8 @@ var App = function() {
 						// Assume that base_price is not dependent of rate type
 						graph.setOverview(s + base_price * modifier);
 					});
+				} else {
+					graph.setOverview(last_value);
 				}
 				graph.stopLoading();
 				if (callback) callback();
@@ -163,7 +167,7 @@ var App = function() {
 	 * Go and get new values. This function should be called regularely by the main loop.
 	 */
 	api.update = function() {
-		if (menu.getMode() == 'now' && menu.getDate() === null) {
+		if (menu.getMode() == 'now' && menu.getDate() === null && menu.isUpdated()) {
 			provider.getSensorId(function(sensor_id) {
 				var target
 				= '/' + sensor_id + '/get/'

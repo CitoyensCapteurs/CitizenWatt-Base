@@ -9,11 +9,13 @@ var Menu = function() {
 	  , month_btn = document.getElementById('scale-month')
 	  , unit_energy = document.getElementById('unit-energy')
 	  , unit_price = document.getElementById('unit-price')
+	  , update_toggle = document.getElementById('update-toggle')
 	  , prev = document.getElementById('prev')
 	  , next = document.getElementById('next')
 	  , mode = ''
 	  , unit = ''
 	  , date = null // means 'now'
+	  , is_updated = true
 	  ;
 
 	api.onunitchange = function(unit, callback){};
@@ -65,6 +67,10 @@ var Menu = function() {
 			week_btn.className = '';
 			month_btn.className = '';
 			api.setDate(new Date((date || new Date()).getTime() + api.getTimeWidth()));
+		});
+
+		update_toggle.addEventListener('click', function() {
+			is_updated = !is_updated;
 		});
 	}
 
@@ -223,6 +229,13 @@ var Menu = function() {
 				return dateutils.getMonthLength(date);
 		}
 	};
+
+	/**
+	 * @return whether auto-update is activated
+	 */
+	api.isUpdated = function() {
+		return is_updated;
+	}
 
 
 	return api;
