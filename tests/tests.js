@@ -1,5 +1,7 @@
 #!/usr/bin/node
 
+/* You have to uncomment the latest lines of ../static/js/datetutils.js to use these tests. */
+
 var assert = require('assert');
 var dateutils = require('../static/js/dateutils');
 
