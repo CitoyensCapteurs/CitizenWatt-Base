@@ -109,9 +109,9 @@ var App = function() {
 				case 'week':
 					target
 					+= '/by_time/'
-					+  dateutils.getWeekStart(date) / 1000.0 + '/'
-					+  dateutils.getWeekEnd(date) / 1000.0 + '/'
-					+  dateutils.getDayLength(date) / 1000.0;
+					+  (dateutils.getWeekStart(date) / 1000.0) + '/'
+					+  ((dateutils.getWeekStart(date) + dateutils.getDayLength(date) * 7) / 1000.0) + '/' // Avoid pbs with Daylight Saving Time
+					+  (dateutils.getDayLength(date) / 1000.0);
 					graph.setOverviewLabel('Consommation ' + dateutils.humanWeek(date));
 					modifier = 7. / (dateutils.getMonthLength(date) / dateutils.getDayLength());
 					break;

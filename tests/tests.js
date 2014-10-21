@@ -31,6 +31,7 @@ assert(dateutils.getWeekEnd(d)    == (new Date(2000, 0, 3,0,0,0,0)).getTime(), '
 assert(dateutils.getMonthStart(d) == (new Date(1999,11, 1,0,0,0,0)).getTime(), '[2] Month start');
 assert(dateutils.getMonthEnd(d)   == (new Date(2000, 0, 1,0,0,0,0)).getTime(), '[2] Month end'  );
 
+console.log(dateutils.getWeekEnd(d)   - dateutils.getWeekStart(d))
 assert(dateutils.getDayEnd(d)   - dateutils.getDayStart(d)   == dateutils.getDayLength()  , 'Day length consistency  ');
 assert(dateutils.getWeekEnd(d)  - dateutils.getWeekStart(d)  == dateutils.getWeekLength() , 'Week length consistency ');
 assert(dateutils.getMonthEnd(d) - dateutils.getMonthStart(d) == dateutils.getMonthLength(d), 'Month length consistency');
