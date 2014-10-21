@@ -140,7 +140,7 @@ var App = function() {
 					if (m !== null) {
 						graph.addRect(m.value, false, graph.getLegend(mode, date, i));
 						s += m.value;
-					} else {
+					} else if (mode != 'now' || i < data.length - 1) { // Avoid leading undefined rect in instant view
 						graph.addRect(undefined, false, graph.getLegend(mode, date, i));
 					}
 					i += 1;
@@ -175,7 +175,7 @@ var App = function() {
 
 				provider.get(target, function(data) {
 					data.map(function(m) {
-						if (m.value !== undefined) {
+						if (m !== null) {
 							graph.addRect(m.value);
 							graph.setOverview(m.value);
 						}
