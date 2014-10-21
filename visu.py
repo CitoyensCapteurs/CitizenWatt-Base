@@ -24,14 +24,13 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 # Functions
 # =========
 def get_rate_type(db):
-    """Returns "day" or "night" according to current time
-    """
+    """Returns "day" or "night" according to current time"""
     session = session_manager.get_session()
-    user = db.query(database.User).filter_by(login=session["login"]).first()
+    user = db.query(database.User).filter_by(login=session.get("login")).first()
     now = datetime.datetime.now()
     now = 3600 * now.hour + 60 * now.minute
     if user is None:
-        return -1
+        return None
     elif user.end_night_rate > user.start_night_rate:
         if now > user.start_night_rate and now < user.end_night_rate:
             return "night"
@@ -81,6 +80,24 @@ def update_providers(fetch, db):
     return providers
 
 
+def api_auth(post, db):
+    """
+    Handles login authentication for API.
+
+    Returns True if login is ok, False otherwise.
+    """
+    login = post.get("login")
+    user = db.query(database.User).filter_by(login=login).first()
+
+    password = (config.get("salt") +
+                hashlib.sha256(post.get("password", "").encode('utf-8'))
+                .hexdigest())
+    if user and user.password == password:
+        return True
+    else:
+        return False
+
+
 # ===============
 # Initializations
 # ===============
@@ -126,6 +143,15 @@ def api_sensors(db):
     return {"data": sensors}
 
 
+@app.route("/api/sensors",
+           method="post")
+def api_sensors_post(db):
+    if api_auth(request.POST, db):
+        return api_sensors(db)
+    else:
+        abort(403, "Access forbidden")
+
+
 @app.route("/api/sensors/<id:int>",
            apply=valid_user())
 def api_sensor(id, db):
@@ -144,6 +170,15 @@ def api_sensor(id, db):
     return {"data": sensor}
 
 
+@app.route("/api/sensors/<id:int>",
+           method="post")
+def api_sensor_post(id, db):
+    if api_auth(request.POST, db):
+        return api_sensor(id, db)
+    else:
+        abort(403, "Access forbidden")
+
+
 @app.route("/api/types",
            apply=valid_user())
 def api_types(db):
@@ -160,6 +195,15 @@ def api_types(db):
     return {"data": types}
 
 
+@app.route("/api/types",
+           method="post")
+def api_types_post(db):
+    if api_auth(request.POST, db):
+        return api_types(db)
+    else:
+        abort(403, "Access forbidden")
+
+
 @app.route("/api/time",
            apply=valid_user())
 def api_time(db):
@@ -168,6 +212,15 @@ def api_time(db):
     now = datetime.datetime.now()
 
     return {"data": now.timestamp()}
+
+
+@app.route("/api/time",
+           method="post")
+def api_time_post(db):
+    if api_auth(request.POST, db):
+        return api_time(db)
+    else:
+        abort(403, "Access forbidden")
 
 
 @app.route("/api/<sensor:int>/get/watts/by_id/<id1:int>",
@@ -198,6 +251,15 @@ def api_get_id(sensor, id1, db):
     return {"data": data, "rate": get_rate_type(db)}
 
 
+@app.route("/api/<sensor:int>/get/watts/by_id/<id1:int>",
+           method="post")
+def api_get_id_post(sensor, id1, db):
+    if api_auth(request.POST, db):
+        return api_get_id(sensor, id1, db)
+    else:
+        abort(403, "Access forbidden")
+
+
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>",
            apply=valid_user())
 def api_get_ids(sensor, watt_euros, id1, id2, db):
@@ -224,6 +286,15 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
     data = cache.do_cache_ids(sensor, watt_euros, id1, id2, db)
 
     return {"data": data, "rate": get_rate_type(db)}
+
+
+@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>",
+           method="post")
+def api_get_ids_post(sensor, watt_euros, id1, id2, db):
+    if api_auth(request.POST, db):
+        return api_get_ids(sensor, watt_euros, id1, id2, db)
+    else:
+        abort(403, "Access forbidden")
 
 
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>/<step:int>",
@@ -263,6 +334,16 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db,
     return {"data": data, "rate": get_rate_type(db)}
 
 
+@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>/<step:int>",
+           method="post")
+def api_get_ids_step_post(sensor, watt_euros, id1, id2, step, db,
+                          timestep=config.get("default_timestep")):
+    if api_auth(request.POST, db):
+        return api_get_ids_step(sensor, watt_euros, id1, id2, step, db, timestep)
+    else:
+        abort(403, "Access forbidden")
+
+
 @app.route("/api/<sensor:int>/get/watts/by_time/<time1:float>",
            apply=valid_user())
 def api_get_time(sensor, time1, db):
@@ -284,6 +365,15 @@ def api_get_time(sensor, time1, db):
         data = tools.to_dict(data)
 
     return {"data": data, "rate": get_rate_type(db)}
+
+
+@app.route("/api/<sensor:int>/get/watts/by_time/<time1:float>",
+           method="post")
+def api_get_time_post(sensor, time1, db):
+    if api_auth(request.POST, db):
+        return api_get_time(sensor, time1, db)
+    else:
+        abort(403, "Access forbidden")
 
 
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>",
@@ -308,6 +398,15 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
     data = cache.do_cache_times(sensor, watt_euros, time1, time2, db)
 
     return {"data": data, "rate": get_rate_type(db)}
+
+
+@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>",
+           method="post")
+def api_get_times_post(sensor, watt_euros, time1, time2, db):
+    if api_auth(request.POST, db):
+        return api_get_times(sensor, watt_euros, time1, time2, db)
+    else:
+        abort(403, "Access forbidden")
 
 
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>/<step:float>",
@@ -341,6 +440,15 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
     return {"data": data, "rate": get_rate_type(db)}
 
 
+@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>/<step:float>",
+           method="post")
+def api_get_times_step_post(sensor, watt_euros, time1, time2, step, db):
+    if api_auth(request.POST, db):
+        return api_get_times_step(sensor, watt_euros, time1, time2, step, db)
+    else:
+        abort(403, "Access forbidden")
+
+
 @app.route("/api/energy_providers",
            apply=valid_user())
 def api_energy_providers(db):
@@ -362,6 +470,15 @@ def api_energy_providers(db):
                 provider["end_night_rate"] = end_night_rate
 
     return {"data": providers}
+
+
+@app.route("/api/energy_providers",
+           method="post")
+def api_energy_providers_post(db):
+    if api_auth(request.POST, db):
+        return api_energy_providers(db)
+    else:
+        abort(403, "Access forbidden")
 
 
 @app.route("/api/energy_providers/<id:re:current|\d*>",
@@ -402,6 +519,15 @@ def api_specific_energy_providers(id, db):
     return {"data": provider}
 
 
+@app.route("/api/energy_providers/<id:re:current|\d*>",
+           method="post")
+def api_specific_energy_providers_post(id, db):
+    if api_auth(request.POST, db):
+        return api_specific_energy_providers(id, db)
+    else:
+        abort(403, "Access forbidden")
+
+
 @app.route("/api/<energy_provider:re:current|\d>/watt_to_euros/<tariff:re:night|day>/<consumption:float>",
            apply=valid_user())
 def api_watt_euros(energy_provider, tariff, consumption, db):
@@ -425,6 +551,15 @@ def api_watt_euros(energy_provider, tariff, consumption, db):
 
     data = tools.watt_euros(energy_provider, tariff, consumption, db)
     return {"data": data}
+
+
+@app.route("/api/<energy_provider:re:current|\d>/watt_to_euros/<tariff:re:night|day>/<consumption:float>",
+           method="post")
+def api_watt_euros_post(energy_provider, tariff, consumption, db):
+    if api_auth(request.POST, db):
+        return api_watt_euros(energy_provider, tariff, consumption, db)
+    else:
+        abort(403, "Access forbidden")
 
 
 # ======
