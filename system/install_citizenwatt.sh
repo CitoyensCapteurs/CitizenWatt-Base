@@ -15,7 +15,7 @@ wget -O - http://ks.citoyenscapteurs.net/repos/apt/citizenwatt.public.key | apt-
 
 # Install packages
 # TODO : add citizenwatt-visu
-apt-get install librf24-dev postgresql supervisor avahi-daemon redis-server
+apt-get --yes install librf24-dev postgresql supervisor avahi-daemon redis-server iptables-persistent
 
 # Install Python module deps
 apt-get -t jessie --yes install postgresql-server-dev-all
@@ -29,3 +29,7 @@ psql -c "CREATE DATABASE citizenwatt;"
 psql -c "CREATE USER citizenwatt PASSWORD 'citizenwatt';"
 psql -c "GRANT ALL ON DATABASE citizenwatt TO citizenwatt;"
 exit
+
+# Firewall setup
+iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination :8080
+/etc/init.d/iptables-persistent save
