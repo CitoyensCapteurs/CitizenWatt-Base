@@ -36,6 +36,8 @@
                     <button id="unit-price">Euros</button>
                 </nav>
 
+                <button id="update-toggle">Start/Stop update</button>
+
                 <p style="text-align: center;">{{ provider }}</p>
             </main>
 
