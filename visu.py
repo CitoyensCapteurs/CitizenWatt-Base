@@ -306,8 +306,9 @@ def api_get_ids_post(sensor, watt_euros, id1, id2, db):
 def api_get_ids_step(sensor, watt_euros, id1, id2, step, db,
                      timestep=config.get("default_timestep")):
     """
-    Returns all the measures of sensor `sensor` between ids `id1` and `id2`,
-    grouped by step.
+    Returns all the measures of sensor `sensor` between ids `id1`
+    and `id2`, grouped by step, as a list of the number of steps element.
+    Each item is null if no matching measures are found.
 
     * If `watts_euros` is watts, returns the mean power for each group.
     * If `watt_euros` is kwatthours, returns the total energy for each group.
@@ -418,15 +419,14 @@ def api_get_times_post(sensor, watt_euros, time1, time2, db):
 def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
     """
     Returns all the measures of sensor `sensor` between timestamps `time1`
-    and `time2`, grouped by step.
+    and `time2`, grouped by step, as a list of the number of steps element.
+    Each item is null if no matching measures are found.
 
     * If `watts_euros` is watts, returns the mean power for each group.
     * If `watt_euros` is kwatthours, returns the total energy for each group.
     * If `watt_euros` is euros, returns the cost of each group.
 
     Returns measure in ASC order of timestamp.
-
-    Returns null if no matching measures are found.
     """
     time1 = int(time1)
     time2 = int(time2)

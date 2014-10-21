@@ -120,7 +120,7 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
         raise ValueError
 
     if not data:
-        data = None
+        data = [None for i in step]
     else:
         time1 = data[0].timestamp
         time2 = data[-1].timestamp
@@ -159,8 +159,8 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
                     day_rate = 0
                 tmp_data = {"value": night_rate + day_rate}
             data.append(tmp_data)
-        if len(data) == 0:
-            data = None
+    if len(data) == 0:
+        data = None
     # Store in cache
     if time2 < datetime.datetime.now().timestamp():
         # If new measures are to come, short lifetime (basically timestep)
@@ -255,7 +255,7 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
             .all())
 
     if not data:
-        data = None
+        data = [None for i in steps]
     else:
         tmp = [[] for i in range(len(steps) - 1)]
         for i in data:
@@ -291,8 +291,8 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
                     day_rate = 0
                 tmp_data = {"value": night_rate + day_rate}
             data.append(tmp_data)
-        if len(data) == 0:
-            data = None
+    if len(data) == 0:
+        data = None
     # Store in cache
     if time2 < datetime.datetime.now().timestamp():
         # If new measures are to come, short lifetime (basically timestep)
