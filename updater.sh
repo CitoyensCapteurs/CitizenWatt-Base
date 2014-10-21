@@ -2,8 +2,19 @@
 
 # Stop on any error
 set -e
+cd /opt/citizenwatt
 
 echo "Start CitizenWatt update..."
-sudo apt-get update
-sudo apt-get --yes --only-upgrade install libnrf24-dev citizenwatt-visu
+
+# Update
+git pull
+sudo ./post_update.sh
+
+# Start back everything
+sudo supervisorctl reload
+
 echo "End CitizenWatt update"
+
+# Old packages
+#sudo apt-get update
+#sudo apt-get --yes --only-upgrade install libnrf24-dev citizenwatt-visu
