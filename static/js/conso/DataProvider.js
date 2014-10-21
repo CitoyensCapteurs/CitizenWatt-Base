@@ -19,6 +19,7 @@ var DataProvider = function() {
 		req.send();
 		req.onreadystatechange = function() {
 			if (req.readyState == 4) {
+				var res;
 				try {
 					res = JSON.parse(req.responseText);
 				}

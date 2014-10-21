@@ -6,7 +6,7 @@
                 </div>
                 <div id="overview">
                     <div>
-                        <p id="now" class="blurry red"></p>
+                        <p id="now" class="blurry red">&nbsp;</p>
                         <p id="now_label">Consommation actuelle</p>
                     </div>
                 </div>
