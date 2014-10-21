@@ -300,7 +300,7 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
         r.setex(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
                 str(time1) + "_" + str(time2) + "_" + str(step),
                 json.dumps(data),
-                step)
+                int(step))
     else:
         # Else, store for a greater lifetime (basically time2 - time1)
         r.setex(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
