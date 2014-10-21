@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Start update"
-sleep 5
+sudo apt-get update
+sudo apt-get --yes --only-upgrade install libnrf24-dev citizenwatt-visu
 echo "End update"
