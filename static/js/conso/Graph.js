@@ -49,17 +49,7 @@ var Graph = function(unit) {
 		graduations.map(function (t) {
 			api.addVerticalGraduation(t)
 		});
-
-		/*
-		graph.addEventListener('mouseover', function() {
-			now.innerHTML = 'blabla';
-		});
-
-		graph.addEventListener('mouseout', function() {
-			now.innerHTML = 'blo';
-		});
-		*/
-
+		
 		return api;
 	}
 
