@@ -68,6 +68,6 @@ try:
             db.commit()
             print(now)
             print("Saved successfully.")
-        time.sleep(2)
+        time.sleep(8)
 except KeyboardInterrupt:
     pass

@@ -28,6 +28,7 @@ var DataProvider = function() {
 				if (res.rate !== undefined) {
 					api.onratechange(res.rate);
 				}
+				if (res.data === null) res.data = [];
 				callback(res.data);
 			}
 		}

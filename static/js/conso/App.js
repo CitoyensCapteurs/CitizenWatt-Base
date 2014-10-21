@@ -148,7 +148,7 @@ var App = function() {
 				graph.rect_width = graph.getPixelWidth() / data.length - graph.rect_margin;
 				var s = 0, i = 0;
 				data.map(function(m) {
-					if (m.value !== undefined) {
+					if (m !== null) {
 						graph.addRect(m.value, false, graph.getLegend(mode, date, i));
 						s += m.value;
 					} else {
