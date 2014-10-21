@@ -750,7 +750,7 @@ def update():
     """Handles updating"""
     subprocess.Popen([os.path.dirname(os.path.realpath(__file__)) +
                       "/updater.sh"])
-    sys.exit()
+    redirect("/settings")
 
 
 @app.route("/community",
