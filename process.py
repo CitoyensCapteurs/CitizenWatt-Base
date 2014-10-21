@@ -88,7 +88,8 @@ try:
             battery = measure[2]
             timer = measure[3]
 
-            if(sensor.last_timer > 0 and sensor.last_timer < 4233600000 and
+            if(sensor.last_timer and sensor.last_timer > 0 and
+               sensor.last_timer < 4233600000 and
                timer < sensor.last_timer):
                 tools.warning("Invalid timer in the last packet, skipping it")
             else:

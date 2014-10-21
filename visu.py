@@ -852,7 +852,8 @@ def install(db):
     providers = update_providers(True, db)
 
     sensor = database.Sensor(name="CitizenWatt",
-                             type_id=electricity_type.id)
+                             type_id=electricity_type.id,
+                             last_timer=0)
     db.add(sensor)
 
     return {"login": '',
