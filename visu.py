@@ -983,4 +983,5 @@ if __name__ == '__main__':
     SimpleTemplate.defaults["get_url"] = app.get_url
     SimpleTemplate.defaults["API_URL"] = app.get_url("index")
     SimpleTemplate.defaults["valid_session"] = lambda: session_manager.get_session()['valid']
-    run(app, host="0.0.0.0", port=config.get("port"), debug=config.get("debug"), reloader=True, server="cherrypy")
+    run(app, host="0.0.0.0", port=config.get("port"), debug=config.get("debug"),
+        reloader=config.get("autoreload"), server="cherrypy")

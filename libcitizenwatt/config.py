@@ -47,6 +47,7 @@ class Config():
         self.set("named_fifo", "/tmp/sensor")
         self.set("default_timestep", 8)
         self.set("port", 8080)
+        self.set("autoreload", False)
         self.save()
 
     def load(self):
