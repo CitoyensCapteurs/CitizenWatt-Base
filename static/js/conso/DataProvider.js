@@ -26,10 +26,10 @@ var DataProvider = function() {
 				catch (e) {
 					console.log('ERROR while handling `' + target + '`:', req.responseText);
 				}
-				if (res.rate !== undefined) {
+				if (res && res.rate) {
 					api.onratechange(res.rate);
 				}
-				if (res.data === null) res.data = [];
+				if (res && res.data === null) res.data = [];
 				callback(res.data);
 			}
 		}
