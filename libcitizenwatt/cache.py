@@ -50,7 +50,7 @@ def do_cache_ids(sensor, watt_euros, id1, id2, db, force_refresh=False):
         data = None
     else:
         time1 = data[0].timestamp
-        time2 = data[1].timestamp
+        time2 = data[-1].timestamp
         if watt_euros == 'kwatthours' or watt_euros == 'euros':
             data = tools.energy(data)
             if watt_euros == 'euros':
@@ -223,7 +223,7 @@ def do_cache_times(sensor, watt_euros, time1, time2, db, force_refresh=False):
     r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
           str(time1) + "_" + str(time2),
           json.dumps(data),
-          time2 - time1)
+          int(time2) - int(time1))
 
     return data
 

@@ -242,7 +242,8 @@ def api_get_id(sensor, id1, db):
         data = (db.query(database.Measures)
                 .filter_by(sensor_id=sensor)
                 .order_by(desc(database.Measures.timestamp))
-                .slice(id1, id1))
+                .slice(-id1, -id1)
+                .first())
 
     if not data:
         data = None
@@ -283,8 +284,10 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
         abort(403,
               "Too many values to return. " +
               "(Maximum is set to %d)" % config.get("max_returned_values"))
-
-    data = cache.do_cache_ids(sensor, watt_euros, id1, id2, db)
+    elif id2 < id1 or id2 * id1 < 0:
+        abort(400, "Invalid parameters")
+    else:
+        data = cache.do_cache_ids(sensor, watt_euros, id1, id2, db)
 
     return {"data": data, "rate": get_rate_type(db)}
 
