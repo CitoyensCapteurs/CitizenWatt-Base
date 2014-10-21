@@ -148,7 +148,18 @@ var Graph = function(unit, max_value) {
 
 
 		return api;
-	}
+	};
+
+	/**
+	 * Remove last rect from graph
+	 * @return api;
+	 */
+	api.removeRect = function() {
+		if (graph_values.lastChild)
+			graph_values.removeChild(graph_values.lastChild);
+		
+		return api;
+	};
 
 	/**
 	 * Add an horizontal graduation line (so a graduation for the vertical axis)
