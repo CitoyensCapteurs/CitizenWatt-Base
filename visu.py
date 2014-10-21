@@ -428,9 +428,6 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
 
     Returns measure in ASC order of timestamp.
     """
-    time1 = int(time1)
-    time2 = int(time2)
-    step = int(step)
     if time1 < 0 or time2 < 0 or step <= 0:
         abort(400, "Invalid parameters")
 

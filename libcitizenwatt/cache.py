@@ -3,6 +3,7 @@
 import bisect
 import datetime
 import json
+import numpy
 import redis
 
 from libcitizenwatt import database
@@ -229,7 +230,7 @@ def do_cache_times(sensor, watt_euros, time1, time2, db, force_refresh=False):
 
 
 def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
-                             force_refresh=False):
+                             force_refresh=True):
     """
     Computes the cache (if needed) for the API call
     /api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>/<step:float>
@@ -244,7 +245,7 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
             # If found in cache, return it
             return json.loads(data)
 
-    steps = [i for i in range(time1, time2, step)]
+    steps = [i for i in numpy.arange(time1, time2, step)]
     steps.append(time2)
 
     data = (db.query(database.Measures)
@@ -305,6 +306,6 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
         r.setex(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
                 str(time1) + "_" + str(time2) + "_" + str(step),
                 json.dumps(data),
-                time2 - time1)
+                int(time2 - time1))
 
     return data
