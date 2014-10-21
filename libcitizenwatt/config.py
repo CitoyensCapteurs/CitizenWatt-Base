@@ -46,7 +46,7 @@ class Config():
         self.set("salt", crypt.mksalt())
         self.set("named_fifo", "/tmp/sensor")
         self.set("default_timestep", 8)
-        self.set("port", 80)
+        self.set("port", 8080)
         self.save()
 
     def load(self):
