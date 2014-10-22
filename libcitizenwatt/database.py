@@ -19,7 +19,6 @@ class Sensor(Base):
     last_timer = Column(Integer)
     type = relationship("MeasureType", lazy="joined")
     aes_key = Column(VARCHAR(255))
-    base_address = Column(VARCHAR(30))
 
 
 class Measures(Base):

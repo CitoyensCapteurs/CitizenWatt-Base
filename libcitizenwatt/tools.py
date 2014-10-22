@@ -100,9 +100,20 @@ def watt_euros(energy_provider, tariff, consumption, db):
 
 
 def update_base_address(base_address):
-    """Update the address of the base stored in
+    """
+    Update the address of the base stored in
     ~/.config/citizenwatt/base_address
     """
     path = os.path.expanduser("~/.config/citizenwatt/base_address")
     with open(path, "w+") as fh:
         fh.write(str(base_address))
+
+
+def get_base_address():
+    """
+    Get the base address stored in
+    ~/.config/citizenwatt/base_address
+    """
+    path = os.path.expanduser("~/.config/citizenwatt/base_address")
+    with open(path, "r") as fh:
+        return fh.read()

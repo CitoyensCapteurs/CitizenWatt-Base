@@ -5,7 +5,6 @@ import json
 import os
 import requests
 import subprocess
-import sys
 
 
 from libcitizenwatt import cache
@@ -611,7 +610,7 @@ def settings(db):
                     "type": sensor.type.name,
                     "type_id": sensor.type_id,
                     "aes_key": sensor.aes_key,
-                    "base_address": sensor.base_address}
+                    "base_address": tools.get_base_address()}
                    for sensor in sensors]
     else:
         sensors = []
@@ -632,7 +631,7 @@ def settings(db):
             "providers": providers,
             "start_night_rate": start_night_rate,
             "end_night_rate": end_night_rate,
-            "base_address": sensor_cw["base_address"],
+            "base_address": tools.get_base_address(),
             "aes_key": '-'.join([str(i) for i in
                                  json.loads(sensor_cw["aes_key"])])}
 
@@ -686,8 +685,7 @@ def settings_post(db):
         settings_json.update({"err": error})
         return settings_json
 
-    sensor = db.query(database.Sensor).filter_by(name="CitizenWatt").first()
-    if base_address != sensor.base_address:
+    if base_address != tools.get_base_address():
         tools.update_base_address(base_address_int)
 
     try:
@@ -704,7 +702,7 @@ def settings_post(db):
         return settings_json
     (db.query(database.Sensor)
      .filter_by(name="CitizenWatt")
-     .update({"base_address": base_address, "aes_key": json.dumps(aes_key)}))
+     .update({"aes_key": json.dumps(aes_key)}))
     db.commit()
 
     try:
@@ -897,7 +895,6 @@ def install_post(db):
 
     try:
         base_address_int = int(raw_base_address.strip("L"), 16)
-        base_address = str(hex(base_address_int)).upper() + "LL"
     except ValueError:
         error = {"title": "Format invalide",
                  "content": ("L'adresse de la base entrée est invalide.")}
@@ -917,7 +914,7 @@ def install_post(db):
         return ret
     (db.query(database.Sensor)
      .filter_by(name="CitizenWatt")
-     .update({"base_address": base_address, "aes_key": json.dumps(aes_key)}))
+     .update({"aes_key": json.dumps(aes_key)}))
     db.commit()
 
     try:
