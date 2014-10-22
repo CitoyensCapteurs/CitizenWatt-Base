@@ -33,6 +33,9 @@ class Config():
     def set(self, param, value):
         self.config[param] = value
 
+    def unset(self, param):
+        del(self.config[param])
+
     def initialize(self):
         self.set("max_returned_values", 500)
         self.set("database_type", "postgresql+psycopg2")
