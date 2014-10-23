@@ -9,7 +9,7 @@
                     % end
                 </p>
                 <p>
-                    Licence GNU GPL | <a href="http://citoyenscapteurs.net/">Citoyens Capteurs</a>
+                    Licence GNU GPL | <a href="http://www.citizenwatt.paris/">CitizenWatt</a>
                 </p>
             </footer>
         </div>
