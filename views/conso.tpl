@@ -2,7 +2,11 @@
 
             <main>
                 <div class="menu">
-                    <h1><img alt="" src="{{ get_url('static', filename='img/data.svg') }}" />Consommation</h1>
+                    <h1>
+                        <img alt="" src="{{ get_url('static', filename='img/data.svg') }}" />
+                        Consommation
+                        <span class="menu--subtitle">(Estimation)</span>
+                    </h1>
                 </div>
                 <div id="overview">
                     <div>

@@ -450,7 +450,7 @@ footer p {
 }
 
 #graph_values .rect.undefined {
-    background-color: #5C2D2D;
+    background-color: #222;
 }
 
 #graph_values .rect.animated {
@@ -659,6 +659,12 @@ footer p {
 
 .menu h1 {
     font-weight: 200;
+}
+
+.menu--subtitle {
+    color: #888;
+    font-size: 0.7em;
+    text-transform: none;
 }
 
 .menu a {
