@@ -1,5 +1,21 @@
-# Citizenwatt install script
+#!/bin/bash
+
+### Citizenwatt install script
+# Install Citizenwatt packages and configure hostname
+# 
+# Author: AlexFaraino
+# Date: 29/10/2014
+#
+###
+
+# Stop on error
+set -e
+
 # Launch as root
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
 
 # Change Hostname
 echo "citizenwatt" > /etc/hostname
