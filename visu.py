@@ -767,6 +767,19 @@ def help():
     return {}
 
 
+@app.route("/faq",
+           name="faq",
+           template="faq")
+def faq():
+    """Show the FAQ from the wiki"""
+    try:
+        r = requests.get("http://wiki.citizenwatt.paris/doku.php?id=les_questions_que_vous_vous_posez_tous&do=export&do=export_xhtmlbody")
+        text = r.text
+    except requests.exceptions.RequestException:
+        text = ''
+    return {"faq": text}
+
+
 @app.route("/login",
            name="login",
            template="login")
