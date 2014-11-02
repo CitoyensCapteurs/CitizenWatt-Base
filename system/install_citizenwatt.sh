@@ -40,7 +40,7 @@ apt-get -t jessie --yes install postgresql-server-dev-all
 pip3 install requests sqlalchemy pycrypto numpy cherrypy psycopg2 redis
 
 # Database setup
-su - postgresql
+su - postgres
 psql -c "CREATE DATABASE citizenwatt;"
 psql -c "CREATE USER citizenwatt PASSWORD 'citizenwatt';"
 psql -c "GRANT ALL ON DATABASE citizenwatt TO citizenwatt;"
