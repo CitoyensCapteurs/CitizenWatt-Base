@@ -24,9 +24,12 @@
                     <div id="graph_values_wrapper">
                         <div id="graph_values"></div>
                     </div>
-                    <div id="graph_vertical_axis"></div>
-                    <hr style="bottom:33.3%"/>
-                    <hr style="bottom:66.7%"/>
+                    <div id="graph_abscissa_background"></div>
+                    <div id="graph_vertical_axis_wrapper">
+                        <div id="graph_vertical_axis"></div>
+                        <hr style="bottom:33.3%"/>
+                        <hr style="bottom:66.7%"/>
+                    </div>
                     <button id="next">&gt;</button>
                 </div>
 

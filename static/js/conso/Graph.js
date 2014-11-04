@@ -8,6 +8,7 @@ var Graph = function(unit, max_value) {
 
 	var graph = document.getElementById('graph')
 	  , graph_vertical_axis = document.getElementById('graph_vertical_axis')
+	  , graph_vertical_axis_wrapper = document.getElementById('graph_vertical_axis_wrapper')
 	  , graph_values = document.getElementById('graph_values')
 	  , graph_loading = document.getElementById('graph_loading')
 	  , now = document.getElementById('now')
@@ -208,7 +209,7 @@ var Graph = function(unit, max_value) {
 		hr.style.bottom = height + '%';
 		hr.id = hr_id;
 		hr.className = 'absolute-graduation-hr';
-		graph.appendChild(hr);
+		graph_vertical_axis_wrapper.appendChild(hr);
 
 		api.updateVerticalGraduation(span);
 
