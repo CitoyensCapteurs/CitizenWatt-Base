@@ -8,6 +8,7 @@ var Graph = function(unit, max_value) {
 
 	var graph = document.getElementById('graph')
 	  , graph_vertical_axis = document.getElementById('graph_vertical_axis')
+	  , graph_vertical_axis_wrapper = document.getElementById('graph_vertical_axis_wrapper')
 	  , graph_values = document.getElementById('graph_values')
 	  , graph_loading = document.getElementById('graph_loading')
 	  , now = document.getElementById('now')
@@ -85,7 +86,7 @@ var Graph = function(unit, max_value) {
 	 * @param animated: (optional) Whether the addition of the value must be animated. Default to True
 	 * @param legend: (optional) Legend to add to the rect
 	 */
-	api.addRect = function(power, animated, legend) {
+	api.addRect = function(power, animated, mode, legend, abscissa) {
 		if (animated === undefined) animated = true;
 		var defined = true;
 		if (power === undefined) {
@@ -110,6 +111,7 @@ var Graph = function(unit, max_value) {
 		if (animated) div.className += ' animated';
 		div.className += ' ' + api.type;
 
+		/* Tooltip */
 		var info = document.createElement('div');
 		div.appendChild(info);
 
@@ -118,6 +120,14 @@ var Graph = function(unit, max_value) {
 		else         info.innerHTML = '<em>Pas de donnée</em>';
 		if (legend) info.innerHTML += '<br/>' + legend;
 
+		/* Legend */
+		var absc = document.createElement('div');
+		div.appendChild(absc);
+
+		absc.className = 'rect-abscissa' + (mode == 'day' ? '' : '-middle');
+		if (abscissa) absc.innerHTML = abscissa;
+
+		/* Color */
 		var color = document.createElement('div');
 		div.appendChild(color);
 
@@ -199,7 +209,7 @@ var Graph = function(unit, max_value) {
 		hr.style.bottom = height + '%';
 		hr.id = hr_id;
 		hr.className = 'absolute-graduation-hr';
-		graph.appendChild(hr);
+		graph_vertical_axis_wrapper.appendChild(hr);
 
 		api.updateVerticalGraduation(span);
 
@@ -324,6 +334,30 @@ var Graph = function(unit, max_value) {
 
 			case 'month':
 				return i + ' ' + dateutils.getStringMonth(date);
+		}
+	};
+
+
+	/**
+	 * Return a human readable abscissa
+	 * @param mode: 'now', 'day', 'week', 'month'
+	 * @param date: view date
+	 * @param i: index
+	 * [Static]
+	 */
+	api.getAbscissa = function(mode, date, i) {
+		switch(mode) {
+			case 'now':
+				return '';
+
+			case 'day':
+				return i + 'h';
+
+			case 'week':
+				return dateutils.getStringDay(i);
+
+			case 'month':
+				return i;
 		}
 	};
 

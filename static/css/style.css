@@ -439,18 +439,13 @@ footer p {
 #graph_values .rect {
     display: block;
     margin-left: 2px;
-    height: 100%;
-    position: relative;
-}
-
-#graph_values .rect {
-    margin-left: 2px;
-    height: 100%;
+    margin-bottom: 2em;
+    height: calc(100% - 2em);
     position: relative;
 }
 
 #graph_values .rect.undefined {
-    background-color: #5C2D2D;
+    background-color: #222;
 }
 
 #graph_values .rect.animated {
@@ -477,6 +472,27 @@ footer p {
     display: none;
 }
 
+#graph_values .rect-abscissa-middle,
+#graph_values .rect-abscissa {
+    color: #ddd;
+    padding: 0 3px;
+    text-align: center;
+
+    position: absolute;
+    bottom: -2em;
+    
+    width: 100%;
+    left: 0;
+    margin-left: -50%;
+    
+    z-index: 20;
+    line-height: 2em;
+}
+
+#graph_values .rect-abscissa-middle {
+    margin-left: 0;
+}
+
 #graph_values .rect:hover .rect-info {
     display: block;
 }
@@ -497,7 +513,7 @@ footer p {
  */
 
 
-#graph hr {
+#graph_vertical_axis_wrapper hr {
     position: absolute;
     margin: 0;
     border: 0;
@@ -507,8 +523,21 @@ footer p {
     z-index: 20;
 }
 
-#graph hr.absolute-graduation-hr {
+#graph_vertical_axis_wrapper hr.absolute-graduation-hr {
     background-color: rgba(255,0,0,0.5);
+}
+
+#graph_vertical_axis_wrapper {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: calc(100% - 2em);
+}
+
+#graph_vertical_axis {
+    position:relative;
+    top: 0;
+    height: 100%;
 }
 
 #graph_vertical_axis span {
@@ -517,6 +546,14 @@ footer p {
     /*text-shadow:  1px  1px 0px rgba(  0,  0,  0,0.5),
                  -1px -1px 0px rgba(255,255,255,0.5);
     background-color: #363032;*/
+}
+
+#graph_abscissa_background {
+    background-color: #111;
+    height: 2em;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
 }
 
 /*
@@ -659,6 +696,12 @@ footer p {
 
 .menu h1 {
     font-weight: 200;
+}
+
+.menu--subtitle {
+    color: #888;
+    font-size: 0.7em;
+    text-transform: none;
 }
 
 .menu a {

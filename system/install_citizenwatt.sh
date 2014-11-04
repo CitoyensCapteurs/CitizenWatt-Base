@@ -30,8 +30,7 @@ wget -O - http://ks.citoyenscapteurs.net/repos/apt/citizenwatt.public.key | apt-
 /bin/bash install_python34.sh
 
 # Install packages
-# TODO : add citizenwatt-visu
-apt-get --yes install librf24-dev postgresql supervisor avahi-daemon redis-server iptables-persistent
+apt-get --yes install citizenwatt-visu librf24-dev postgresql supervisor avahi-daemon redis-server iptables-persistent
 
 # Install Python module deps
 apt-get -t jessie --yes install postgresql-server-dev-all
@@ -40,7 +39,7 @@ apt-get -t jessie --yes install postgresql-server-dev-all
 pip3 install requests sqlalchemy pycrypto numpy cherrypy psycopg2 redis
 
 # Database setup
-su - postgresql
+su - postgres
 psql -c "CREATE DATABASE citizenwatt;"
 psql -c "CREATE USER citizenwatt PASSWORD 'citizenwatt';"
 psql -c "GRANT ALL ON DATABASE citizenwatt TO citizenwatt;"

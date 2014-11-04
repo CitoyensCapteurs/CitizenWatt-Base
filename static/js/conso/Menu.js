@@ -200,9 +200,20 @@ var Menu = function() {
 		if (date != new_date) {
 			date = new_date;
 
+			var now = new Date();
+			// If we are about to be in the future
+			if (date !== null) {
+				if (Math.floor(date.getTime() / api.getTimeWidth()) - Math.floor(now.getTime() / api.getTimeWidth()) >= 0) {
+					next.style.display = 'none';
+				} else {
+					next.style.display = 'block';
+				}
+			} else {
+				next.style.display = 'none';
+			}
+
 			// If 'now' view and new date near now, restore auto update
 			if (mode == 'now' && date !== null) {
-				var now = new Date();
 				if (Math.abs(date.getTime() - now.getTime()) < api.timeWidth / 2) {
 					date = null;
 				}

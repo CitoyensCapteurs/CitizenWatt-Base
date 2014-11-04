@@ -146,15 +146,15 @@ var App = function() {
 							s += v;
 							graph
 							.removeRect()
-							.addRect(v, false, graph.getLegend(mode, date, i));
+							.addRect(v, false, mode, graph.getLegend(mode, date, i), graph.getAbscissa(mode, date, i));
 						}
-						graph.addRect(m.value, false, graph.getLegend(mode, date, i));
+						graph.addRect(m.value, false, mode, graph.getLegend(mode, date, i), graph.getAbscissa(mode, date, i));
 						s += m.value;
 						last_good_value = m.value;
 						before_last_value = last_value;
 						last_value = m.value;
 					} else if (mode != 'now' || i < data.length - 1) { // Avoid leading undefined rect in instant view
-						graph.addRect(undefined, false, graph.getLegend(mode, date, i));
+						graph.addRect(undefined, false, mode, graph.getLegend(mode, date, i), graph.getAbscissa(mode, date, i));
 						before_last_value = last_value;
 						last_value = null;
 					}
