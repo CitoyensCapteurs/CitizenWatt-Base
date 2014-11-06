@@ -610,7 +610,7 @@ def settings(db):
                     "type": sensor.type.name,
                     "type_id": sensor.type_id,
                     "aes_key": sensor.aes_key,
-                    "base_address": tools.get_base_address()}
+                    "base_address": hex(int(tools.get_base_address())).upper() + "LL"}
                    for sensor in sensors]
     else:
         sensors = []
@@ -631,7 +631,7 @@ def settings(db):
             "providers": providers,
             "start_night_rate": start_night_rate,
             "end_night_rate": end_night_rate,
-            "base_address": tools.get_base_address(),
+            "base_address": hex(int(tools.get_base_address())).upper() + "LL",
             "aes_key": '-'.join([str(i) for i in
                                  json.loads(sensor_cw["aes_key"])])}
 
