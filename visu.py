@@ -638,6 +638,7 @@ def settings(db):
 
 @app.route("/settings",
            name="settings",
+           template="settings",
            apply=valid_user(),
            method="post")
 def settings_post(db):

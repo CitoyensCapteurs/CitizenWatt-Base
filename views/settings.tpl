@@ -7,6 +7,15 @@
 
                 <article id="user">
                     <form method="post" action="/settings">
+                        % if defined('err'):
+                        <div class="dialog-err">
+                            <h4>{{ err['title'] }}</h4>
+                            <p>
+                                {{ err['content'] }}
+                            </p>
+                        </div>
+                        % end
+
                         <h2>Utilisateur</h2>
 
                         <p class="form-item">
