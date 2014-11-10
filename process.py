@@ -35,6 +35,7 @@ def get_rate_type(db):
         else:
             return 0
 
+
 def get_cw_sensor():
     """Returns the citizenwatt sensor object or None"""
     db = create_session()
@@ -56,17 +57,6 @@ engine = create_engine(database_url, echo=config.get("debug"))
 create_session = sessionmaker(bind=engine)
 database.Base.metadata.create_all(engine)
 
-sensor = get_cw_sensor()
-while not sensor or not sensor.aes_key:
-    tools.warning("Install is not complete ! " +
-                    "Visit http://citizenwatt.local first.")
-    time.sleep(1)
-    sensor = get_cw_sensor()
-
-key = json.loads(sensor.aes_key)
-key = struct.pack("<16B", *key)
-
-
 try:
     assert(stat.S_ISFIFO(os.stat(config.get("named_fifo")).st_mode))
 except (AssertionError, FileNotFoundError):
@@ -77,6 +67,16 @@ try:
         while True:
             measure = fifo.read(16)
             print("New encrypted packet:" + str(measure))
+
+            sensor = get_cw_sensor()
+            while not sensor or not sensor.aes_key:
+                tools.warning("Install is not complete ! " +
+                              "Visit http://citizenwatt.local first.")
+                time.sleep(1)
+                sensor = get_cw_sensor()
+
+            key = json.loads(sensor.aes_key)
+            key = struct.pack("<16B", *key)
 
             decryptor = AES.new(key, AES.MODE_ECB)
             measure = decryptor.decrypt(measure)
@@ -93,17 +93,19 @@ try:
                timer < sensor.last_timer):
                 tools.warning("Invalid timer in the last packet, skipping it")
             else:
-                db = create_session()
-                measure_db = database.Measures(sensor_id=sensor.id,
-                                               value=power,
-                                               timestamp=datetime.datetime.now().timestamp(),
-                                               night_rate=get_rate_type(db))
-                db.add(measure_db)
-                sensor.last_timer = timer
-                (db.query(database.Sensor)
-                 .filter_by(name="CitizenWatt")
-                 .update({"last_timer": sensor.last_timer}))
-                db.commit()
-                print("Saved successfully.")
+                try:
+                    db = create_session()
+                    measure_db = database.Measures(sensor_id=sensor.id,
+                                                   value=power,
+                                                   timestamp=datetime.datetime.now().timestamp(),
+                                                   night_rate=get_rate_type(db))
+                    db.add(measure_db)
+                    sensor.last_timer = timer
+                    (db.query(database.Sensor)
+                     .filter_by(name="CitizenWatt")
+                     .update({"last_timer": sensor.last_timer}))
+                    print("Saved successfully.")
+                finally:
+                    db.commit()
 except KeyboardInterrupt:
     pass
