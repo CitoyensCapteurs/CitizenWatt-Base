@@ -27,14 +27,16 @@
                     <div class="menu">
                         <h1><a href="{{ get_url('help') }}"><img alt="" src="{{ get_url('static', filename='img/help.svg') }}" />Guide</a></h1>
                         <a href="{{ get_url('faq') }}#faq">
-                            <img alt="" src="{{ get_url('static', filename='img/faq.svg') }}" />FAQ
+                            <img alt="" src="{{ get_url('static', filename='img/faq.svg') }}" />Questions fréquentes
                         </a>
                         <a href="http://wiki.citizenwatt.paris">
                             <img alt="" src="{{ get_url('static', filename='img/wiki.svg') }}" />Wiki
                         </a>
+                        <!--
                         <a href="{{ get_url('help') }}#contact">
                             <img alt="" src="{{ get_url('static', filename='img/contact.svg') }}" />Contact
                         </a>
+                        -->
                     </div>
 
                     <div class="menu">

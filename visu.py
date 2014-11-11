@@ -5,6 +5,7 @@ import json
 import os
 import requests
 import subprocess
+import re
 
 
 from libcitizenwatt import cache
@@ -17,6 +18,8 @@ from bottlesession import PickleSession, authenticator
 from libcitizenwatt.config import Config
 from sqlalchemy import create_engine, desc
 from sqlalchemy.exc import OperationalError, ProgrammingError
+from xmlrpc.client import ServerProxy
+
 
 
 # =========
@@ -774,11 +777,14 @@ def help():
 def faq():
     """Show the FAQ from the wiki"""
     try:
-        r = requests.get("http://wiki.citizenwatt.paris/doku.php?id=les_questions_que_vous_vous_posez_tous&do=export&do=export_xhtmlbody")
-        text = r.text
+        wiki = ServerProxy('http://wiki.citizenwatt.paris/lib/exe/xmlrpc.php')
+        text = wiki.wiki.getPage('les_questions_que_vous_vous_posez_tous')
+        parsed = re.split('====== (.*) ======', text)
+        l = [c.strip() for c in parsed if c.strip() != '']
+        faq = list(zip(l[::2], l[1::2]))
     except requests.exceptions.RequestException:
-        text = ''
-    return {"faq": text}
+        faq = []
+    return {"faq": faq}
 
 
 @app.route("/login",

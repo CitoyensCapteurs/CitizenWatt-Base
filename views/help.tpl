@@ -5,6 +5,16 @@
                     <h1><img alt="" src="{{ get_url('static', filename='img/help.svg') }}" />Guide</h1>
                 </div>
                 <div class="menu">
+                    <a href="{{ get_url('faq') }}">
+                        <img alt="" src="{{ get_url('static', filename='img/faq.svg') }}" />Questions fréquentes
+                    </a>
+                </div>
+                <div class="content">
+                    <p>
+                        Les <a href="{{ get_url('faq') }}">questions fréquentes</a> donnent des réponses aux questions que vous êtes le plus suceptible de vous poser à propos de CitizenWatt.
+                    </p>
+                </div>
+                <div class="menu">
                     <a href="http://wiki.citizenwatt.paris">
                         <img alt="" src="{{ get_url('static', filename='img/wiki.svg') }}" />Wiki
                     </a>
