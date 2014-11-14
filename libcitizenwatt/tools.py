@@ -137,10 +137,46 @@ def get_base_address():
     """
     Get the base address stored in
     ~/.config/citizenwatt/base_address
+
+    Returns false if an error happened.
     """
     path = os.path.expanduser("~/.config/citizenwatt/base_address")
-    with open(path, "r") as fh:
-        return fh.read()
+    try:
+        with open(path, "r") as fh:
+            return fh.read()
+    except FileNotFoundError:
+        return False
+
+
+nrf_power_dict = {"min": 0, "low": 1, "med": 2, "high": 3}
+
+
+def update_nrf_power(nrf_power):
+    """
+    Update the power for the nrf stored in
+    ~/.config/citizenwatt/nrf_power
+    """
+    path = os.path.expanduser("~/.config/citizenwatt/nrf_power")
+    with open(path, "w+") as fh:
+        fh.write(str(nrf_power_dict[nrf_power]))
+
+
+def get_nrf_power():
+    """
+    Get the power for the nrf stored in
+    ~/.config/citizenwatt/nrf_power
+
+    Returns false if an error happened.
+    """
+    path = os.path.expanduser("~/.config/citizenwatt/nrf_power")
+    try:
+        nrf_power = 3
+        with open(path, "r") as fh:
+            nrf_power = int(fh.read())
+        return [name for name, index in nrf_power_dict.items()
+                if index == nrf_power][0]
+    except FileNotFoundError:
+        return False
 
 
 def update_providers(url_energy_providers, fetch, db):

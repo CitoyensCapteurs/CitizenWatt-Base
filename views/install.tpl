@@ -69,7 +69,16 @@
                     <p class="form-help">
                         Par exemple <code>1-254-0-145-23-3-4-5-6-6-7-8-0-1-15-64</code>.
                     </p>
-                    
+
+                    <p class="form-item">
+                        <label for="nrf_power">Puissance du nRF&nbsp;: </label>
+                        <select name="nrf_power" id="nrf_power">
+                            <option value="min" {{! 'selected="selected"' if nrf_power == "min" else ''}}>Minimale</option>
+                            <option value="low" {{! 'selected="selected"' if nrf_power == "low" else ''}}>Faible</option>
+                            <option value="med" {{! 'selected="selected"' if nrf_power == "med" else ''}}>Moyenne</option>
+                            <option value="high" {{! 'selected="selected"' if nrf_power == "high" else ''}}>Haute</option>
+                        </select>
+                    </p>
 
                     <p class="form-item">
                         <input type="submit" value="Installer"/>

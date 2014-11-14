@@ -29,7 +29,7 @@ const rf24_datarate_e NRF_SPEED = RF24_1MBPS;
 
 // PreAmplifier level for the nRF
 // Lower this to reduce power consumption. This will reduce range.
-const rf24_pa_dbm_e NRF_PA_LEVEL = RF24_PA_LOW;
+const rf24_pa_dbm_e NRF_DEFAULT_PA_LEVEL = RF24_PA_HIGH;
 
 // Channel for the nrf module
 // 76 is default safe channel in RF24
@@ -57,6 +57,8 @@ int main() {
     // Get the address to listen on
     std::ifstream config_addr;
     config_addr.open("~/.config/citizenwatt/base_address", std::ios::in);
+    std::ifstream nrf_power;
+    nrf_power.open("~/.config/citizenwatt/nrf_power", std::ios::in);
     uint64_t addr;
     if (config_addr.is_open()) {
         config_addr >> addr;
@@ -64,6 +66,35 @@ int main() {
     }
     else {
         addr = default_addr;
+    }
+    uint64_t power;
+    if (nrf_power.is_open()) {
+        nrf_power >> power;
+        nrf_power.close();
+        switch (power) {
+            case 0:
+                power = RF24_PA_MIN;
+                break;
+
+            case 1:
+                power = RF24_PA_LOW;
+                break;
+
+            case 2:
+                power = RF24_PA_MED;
+                break;
+
+            case 3:
+                power = RF24_PA_HIGH;
+                break;
+
+            default:
+                power = NRF_DEFAULT_PA_LEVEL;
+                break;
+        }
+    }
+    else {
+        power = NRF_DEFAULT_PA_LEVEL;
     }
 
     // Initialize nRF
@@ -80,7 +111,7 @@ int main() {
     // Ensure auto ACK is enabled
     radio.setAutoAck(1);
     // Use the best PA level
-    radio.setPALevel(NRF_PA_LEVEL);
+    radio.setPALevel(power);
     // Open reading pipe
     radio.openReadingPipe(1, addr);
 
