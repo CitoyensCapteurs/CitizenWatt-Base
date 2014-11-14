@@ -120,9 +120,9 @@
                     <p>
                         <a href="{{ get_url('update') }}">Mettre à jour le système</a>
                     </p>
-                    <p class="form-help">
+                    <!--<p class="form-help">
                         La mise à jour est automatique. N'utilisez ce bouton que pour forcer la mise à jour.
-                    </p>
+                    </p>-->
                 </article>
 
             </main>
