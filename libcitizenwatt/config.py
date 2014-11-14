@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+"""
+Implementation of a config file stored as JSON in ~/.config
+"""
+
 import crypt
 import errno
 import json

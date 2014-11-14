@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
+
+"""
+Misc functions
+"""
+
 import numpy
 import os
+import requests
 import sys
 
 from libcitizenwatt import database
@@ -12,7 +18,8 @@ def warning(*objs):
 
 
 def to_dict(model):
-    """Returns a JSON representation of an SQLAlchemy-backed object.
+    """
+    Returns a JSON representation of an SQLAlchemy-backed object.
 
     Returns a timestamp for DateTime fields, to be easily JSON serializable.
 
@@ -47,8 +54,22 @@ def last_day(month, year):
         return 30
 
 
+def is_day_night_rate(db):
+    """
+    Returns true if night and day rates are distincts, false otherwise (meaning
+    that such a distinction is useless)
+    """
+    provider = db.query(database.Provider).filter_by(current=1).first()
+    ds = provider.day_slope_watt_euros
+    dc = provider.day_constant_watt_euros
+    ns = provider.night_slope_watt_euros
+    nc = provider.night_constant_watt_euros
+    return ds != ns or dc != nc
+
+
 def energy(powers, default_timestep=8):
-    """Compute the energy associated to a list of measures (in W)
+    """
+    Compute the energy associated to a list of measures (in W)
     and associated timestamps (in s).
     """
     energy = {'night_rate': 0, 'day_rate': 0, 'value': 0}
@@ -79,6 +100,9 @@ def energy(powers, default_timestep=8):
 
 
 def watt_euros(energy_provider, tariff, consumption, db):
+    """
+    Given an energy_provider, tariff (night or day) and a consumption in kWh
+    it returns the associated cost."""
     if energy_provider != 0:
         provider = (db.query(database.Provider)
                     .filter_by(id=energy_provider)
@@ -117,3 +141,41 @@ def get_base_address():
     path = os.path.expanduser("~/.config/citizenwatt/base_address")
     with open(path, "r") as fh:
         return fh.read()
+
+
+def update_providers(url_energy_providers, fetch, db):
+    """Updates the available providers. Simply returns them without updating if
+    fetch is False.
+    """
+    try:
+        assert(fetch)
+        providers = requests.get(url_energy_providers).json()
+    except (requests.ConnectionError, AssertionError):
+        providers = db.query(database.Provider).all()
+        if not providers:
+            providers = []
+        return to_dict(providers)
+
+    old_current = db.query(database.Provider).filter_by(current=1).first()
+    db.query(database.Provider).delete()
+
+    for provider in providers:
+        type_id = (db.query(database.MeasureType)
+                   .filter_by(name=provider["type_name"])
+                   .first())
+        if not type_id:
+            type_db = database.MeasureType(name=provider["type_name"])
+            db.add(type_db)
+            db.flush()
+            type_id = database.MeasureType(name=provider["type_name"]).first()
+
+        provider_db = database.Provider(name=provider["name"],
+                                        day_constant_watt_euros=provider["day_constant_watt_euros"],
+                                        day_slope_watt_euros=provider["day_slope_watt_euros"],
+                                        night_constant_watt_euros=provider["night_constant_watt_euros"],
+                                        night_slope_watt_euros=provider["night_slope_watt_euros"],
+                                        type_id=type_id.id,
+                                        current=(1 if old_current and old_current.name == provider["name"] else 0),
+                                        threshold=int(provider["threshold"]))
+        db.add(provider_db)
+    return providers

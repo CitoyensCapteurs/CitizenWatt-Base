@@ -21,97 +21,6 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 from xmlrpc.client import ServerProxy
 
 
-
-# =========
-# Functions
-# =========
-def is_day_night_rate(db):
-    provider = db.query(database.Provider).filter_by(current=1).first()
-    ds = provider.day_slope_watt_euros
-    dc = provider.day_constant_watt_euros
-    ns = provider.night_slope_watt_euros
-    nc = provider.night_constant_watt_euros
-    return ds != ns or dc != nc
-
-
-def get_rate_type(db):
-    """Returns "day" or "night" according to current time"""
-    if not is_day_night_rate(db):
-        return "none"
-    session = session_manager.get_session()
-    user = db.query(database.User).filter_by(login=session.get("login")).first()
-    now = datetime.datetime.now()
-    now = 3600 * now.hour + 60 * now.minute
-    if user is None:
-        return None
-    elif user.end_night_rate > user.start_night_rate:
-        if now > user.start_night_rate and now < user.end_night_rate:
-            return "night"
-        else:
-            return "day"
-    else:
-        if now > user.start_night_rate or now < user.end_night_rate:
-            return "night"
-        else:
-            return "day"
-
-
-def update_providers(fetch, db):
-    """Updates the available providers. Simply returns them without updating if
-    fetch is False.
-    """
-    try:
-        assert(fetch)
-        providers = requests.get(config.get("url_energy_providers")).json()
-    except (requests.ConnectionError, AssertionError):
-        providers = db.query(database.Provider).all()
-        if not providers:
-            providers = []
-        return tools.to_dict(providers)
-
-    old_current = db.query(database.Provider).filter_by(current=1).first()
-    db.query(database.Provider).delete()
-
-    for provider in providers:
-        type_id = (db.query(database.MeasureType)
-                   .filter_by(name=provider["type_name"])
-                   .first())
-        if not type_id:
-            type_db = database.MeasureType(name=provider["type_name"])
-            db.add(type_db)
-            db.flush()
-            type_id = database.MeasureType(name=provider["type_name"]).first()
-
-        provider_db = database.Provider(name=provider["name"],
-                                        day_constant_watt_euros=provider["day_constant_watt_euros"],
-                                        day_slope_watt_euros=provider["day_slope_watt_euros"],
-                                        night_constant_watt_euros=provider["night_constant_watt_euros"],
-                                        night_slope_watt_euros=provider["night_slope_watt_euros"],
-                                        type_id=type_id.id,
-                                        current=(1 if old_current and old_current.name == provider["name"] else 0),
-                                        threshold=int(provider["threshold"]))
-        db.add(provider_db)
-    return providers
-
-
-def api_auth(post, db):
-    """
-    Handles login authentication for API.
-
-    Returns True if login is ok, False otherwise.
-    """
-    login = post.get("login")
-    user = db.query(database.User).filter_by(login=login).first()
-
-    password = (config.get("salt") +
-                hashlib.sha256(post.get("password", "").encode('utf-8'))
-                .hexdigest())
-    if user and user.password == password:
-        return True
-    else:
-        return False
-
-
 # ===============
 # Initializations
 # ===============
@@ -134,6 +43,49 @@ app.install(plugin)
 
 session_manager = PickleSession()
 valid_user = authenticator(session_manager, login_url='/login')
+
+
+# =========
+# Functions
+# =========
+def get_rate_type(db):
+    """Returns "day" or "night" according to current time"""
+    if not tools.is_day_night_rate(db):
+        return "none"
+    session = session_manager.get_session()
+    user = db.query(database.User).filter_by(login=session.get("login")).first()
+    now = datetime.datetime.now()
+    now = 3600 * now.hour + 60 * now.minute
+    if user is None:
+        return None
+    elif user.end_night_rate > user.start_night_rate:
+        if now > user.start_night_rate and now < user.end_night_rate:
+            return "night"
+        else:
+            return "day"
+    else:
+        if now > user.start_night_rate or now < user.end_night_rate:
+            return "night"
+        else:
+            return "day"
+
+
+def api_auth(post, db):
+    """
+    Handles login authentication for API.
+
+    Returns True if login is ok, False otherwise.
+    """
+    login = post.get("login")
+    user = db.query(database.User).filter_by(login=login).first()
+
+    password = (config.get("salt") +
+                hashlib.sha256(post.get("password", "").encode('utf-8'))
+                .hexdigest())
+    if user and user.password == password:
+        return True
+    else:
+        return False
 
 
 # ===
@@ -160,6 +112,7 @@ def api_sensors(db):
 @app.route("/api/sensors",
            method="post")
 def api_sensors_post(db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_sensors(db)
     else:
@@ -187,6 +140,7 @@ def api_sensor(id, db):
 @app.route("/api/sensors/<id:int>",
            method="post")
 def api_sensor_post(id, db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_sensor(id, db)
     else:
@@ -212,6 +166,7 @@ def api_types(db):
 @app.route("/api/types",
            method="post")
 def api_types_post(db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_types(db)
     else:
@@ -231,6 +186,7 @@ def api_time(db):
 @app.route("/api/time",
            method="post")
 def api_time_post(db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_time(db)
     else:
@@ -248,13 +204,13 @@ def api_get_id(sensor, id1, db):
     If no matching data is found, returns null.
     """
     if id1 >= 0:
-        data = (db.query(database.Measures)
+        data = (db.query(database.Measure)
                 .filter_by(sensor_id=sensor, id=id1)
                 .first())
     else:
-        data = (db.query(database.Measures)
+        data = (db.query(database.Measure)
                 .filter_by(sensor_id=sensor)
-                .order_by(desc(database.Measures.timestamp))
+                .order_by(desc(database.Measure.timestamp))
                 .slice(-id1, -id1)
                 .first())
 
@@ -269,6 +225,7 @@ def api_get_id(sensor, id1, db):
 @app.route("/api/<sensor:int>/get/watts/by_id/<id1:int>",
            method="post")
 def api_get_id_post(sensor, id1, db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_get_id(sensor, id1, db)
     else:
@@ -308,6 +265,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>",
            method="post")
 def api_get_ids_post(sensor, watt_euros, id1, id2, db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_get_ids(sensor, watt_euros, id1, id2, db)
     else:
@@ -356,6 +314,7 @@ def api_get_ids_step(sensor, watt_euros, id1, id2, step, db,
            method="post")
 def api_get_ids_step_post(sensor, watt_euros, id1, id2, step, db,
                           timestep=config.get("default_timestep")):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_get_ids_step(sensor, watt_euros, id1, id2, step, db, timestep)
     else:
@@ -373,7 +332,7 @@ def api_get_time(sensor, time1, db):
     if time1 < 0:
         abort(400, "Invalid timestamp.")
 
-    data = (db.query(database.Measures)
+    data = (db.query(database.Measure)
             .filter_by(sensor_id=sensor,
                        timestamp=time1)
             .first())
@@ -388,6 +347,7 @@ def api_get_time(sensor, time1, db):
 @app.route("/api/<sensor:int>/get/watts/by_time/<time1:float>",
            method="post")
 def api_get_time_post(sensor, time1, db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_get_time(sensor, time1, db)
     else:
@@ -421,6 +381,7 @@ def api_get_times(sensor, watt_euros, time1, time2, db):
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>",
            method="post")
 def api_get_times_post(sensor, watt_euros, time1, time2, db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_get_times(sensor, watt_euros, time1, time2, db)
     else:
@@ -457,6 +418,7 @@ def api_get_times_step(sensor, watt_euros, time1, time2, step, db):
 @app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>/<step:float>",
            method="post")
 def api_get_times_step_post(sensor, watt_euros, time1, time2, step, db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_get_times_step(sensor, watt_euros, time1, time2, step, db)
     else:
@@ -489,6 +451,7 @@ def api_energy_providers(db):
 @app.route("/api/energy_providers",
            method="post")
 def api_energy_providers_post(db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_energy_providers(db)
     else:
@@ -536,6 +499,7 @@ def api_specific_energy_providers(id, db):
 @app.route("/api/energy_providers/<id:re:current|\d*>",
            method="post")
 def api_specific_energy_providers_post(id, db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_specific_energy_providers(id, db)
     else:
@@ -570,6 +534,7 @@ def api_watt_euros(energy_provider, tariff, consumption, db):
 @app.route("/api/<energy_provider:re:current|\d>/watt_to_euros/<tariff:re:night|day>/<consumption:float>",
            method="post")
 def api_watt_euros_post(energy_provider, tariff, consumption, db):
+    """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_watt_euros(energy_provider, tariff, consumption, db)
     else:
@@ -607,6 +572,7 @@ def conso(db):
 
 @app.route("/reset_timer/<sensor:int>", apply=valid_user())
 def reset_timer(sensor, db):
+    """Reset the timer for specified sensor"""
     db.query(database.Sensor).filter_by(id=sensor).update({"last_timer": 0})
     redirect("/settings")
 
@@ -632,7 +598,9 @@ def settings(db):
     sensor_cw = [sensor for sensor in sensors if sensor["name"] ==
                  "CitizenWatt"][0]
 
-    providers = update_providers(True, db)
+    providers = tools.update_providers(config.get("url_energy_providers"),
+                                       True,
+                                       db)
 
     session = session_manager.get_session()
     user = db.query(database.User).filter_by(login=session["login"]).first()
@@ -875,7 +843,9 @@ def install(db):
     db.add(electricity_type)
     db.flush()
 
-    providers = update_providers(True, db)
+    providers = tools.update_providers(config.get("url_energy_providers"),
+                                       True,
+                                       db)
 
     sensor = database.Sensor(name="CitizenWatt",
                              type_id=electricity_type.id,
@@ -918,7 +888,9 @@ def install_post(db):
     raw_aes_key = request.forms.get("aes_key")
 
     ret = {"login": login,
-           "providers": update_providers(False, db),
+           "providers": tools.update_providers(config.get("url_energy_providers"),
+                                               False,
+                                               db),
            "start_night_rate": raw_start_night_rate,
            "end_night_rate": raw_end_night_rate,
            "base_address": raw_base_address,

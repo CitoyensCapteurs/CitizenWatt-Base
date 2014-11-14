@@ -60,10 +60,10 @@ try:
             db.close()
         else:
             now = datetime.datetime.now().timestamp()
-            measure_db = database.Measures(sensor_id=sensor.id,
-                                           value=power,
-                                           timestamp=now,
-                                           night_rate=get_rate_type(db))
+            measure_db = database.Measure(sensor_id=sensor.id,
+                                          value=power,
+                                          timestamp=now,
+                                          night_rate=get_rate_type(db))
             db.add(measure_db)
             db.commit()
             print(now)

@@ -9,6 +9,12 @@
 #include <signal.h>
 #include <RF24.h>
 
+/**
+ * This program receives a measure packet through the nRF and pipes it to a named fifo.
+ *
+ * It is to be seen as an (ugly) wrapper to use the nRF24 lib written in C++ in Python.
+ */
+
 volatile sig_atomic_t flag = 0;
 void quit(int sig) {
   flag = 1;

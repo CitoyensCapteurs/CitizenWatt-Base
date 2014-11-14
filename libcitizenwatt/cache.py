@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""
+Handles the cache related functions, to display faster the week and month view.
+"""
+
 import bisect
 import datetime
 import json
@@ -31,16 +35,16 @@ def do_cache_ids(sensor, watt_euros, id1, id2, db, force_refresh=False):
             return json.loads(data)
 
     if id1 >= 0 and id2 >= 0 and id2 >= id1:
-        data = (db.query(database.Measures)
-                .filter(database.Measures.sensor_id == sensor,
-                        database.Measures.id >= id1,
-                        database.Measures.id < id2)
-                .order_by(asc(database.Measures.timestamp))
+        data = (db.query(database.Measure)
+                .filter(database.Measure.sensor_id == sensor,
+                        database.Measure.id >= id1,
+                        database.Measure.id < id2)
+                .order_by(asc(database.Measure.timestamp))
                 .all())
     elif id1 <= 0 and id2 <= 0 and id2 >= id1:
-        data = (db.query(database.Measures)
+        data = (db.query(database.Measure)
                 .filter_by(sensor_id=sensor)
-                .order_by(desc(database.Measures.timestamp))
+                .order_by(desc(database.Measure.timestamp))
                 .slice(-id2, -id1)
                 .all())
         data.reverse()
@@ -104,16 +108,16 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
     steps.append(id2)
 
     if id1 >= 0 and id2 >= 0 and id2 >= id1:
-        data = (db.query(database.Measures)
-                .filter(database.Measures.sensor_id == sensor,
-                        database.Measures.id >= id1,
-                        database.Measures.id < id2)
-                .order_by(asc(database.Measures.timestamp))
+        data = (db.query(database.Measure)
+                .filter(database.Measure.sensor_id == sensor,
+                        database.Measure.id >= id1,
+                        database.Measure.id < id2)
+                .order_by(asc(database.Measure.timestamp))
                 .all())
     elif id1 <= 0 and id2 <= 0 and id2 >= id1:
-        data = (db.query(database.Measures)
+        data = (db.query(database.Measure)
                 .filter_by(sensor_id=sensor)
-                .order_by(desc(database.Measures.timestamp))
+                .order_by(desc(database.Measure.timestamp))
                 .slice(-id2, -id1)
                 .all())
         data.reverse()
@@ -197,11 +201,11 @@ def do_cache_times(sensor, watt_euros, time1, time2, db, force_refresh=False):
             # If found in cache, return it
             return json.loads(data)
 
-    data = (db.query(database.Measures)
-            .filter(database.Measures.sensor_id == sensor,
-                    database.Measures.timestamp >= time1,
-                    database.Measures.timestamp < time2)
-            .order_by(asc(database.Measures.timestamp))
+    data = (db.query(database.Measure)
+            .filter(database.Measure.sensor_id == sensor,
+                    database.Measure.timestamp >= time1,
+                    database.Measure.timestamp < time2)
+            .order_by(asc(database.Measure.timestamp))
             .all())
 
     if not data:
@@ -250,11 +254,11 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
     steps = [i for i in numpy.arange(time1, time2, step)]
     steps.append(time2)
 
-    data = (db.query(database.Measures)
-            .filter(database.Measures.sensor_id == sensor,
-                    database.Measures.timestamp
+    data = (db.query(database.Measure)
+            .filter(database.Measure.sensor_id == sensor,
+                    database.Measure.timestamp
                     .between(time1, time2))
-            .order_by(asc(database.Measures.timestamp))
+            .order_by(asc(database.Measure.timestamp))
             .all())
 
     if not data:

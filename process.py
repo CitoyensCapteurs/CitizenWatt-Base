@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""
+This script receives incoming AES encrypted measures from `receive` via
+a named pipe and do the necessary to store them in database.
+"""
+
+
 import datetime
 import json
 import os
@@ -95,7 +101,7 @@ try:
             else:
                 try:
                     db = create_session()
-                    measure_db = database.Measures(sensor_id=sensor.id,
+                    measure_db = database.Measure(sensor_id=sensor.id,
                                                    value=power,
                                                    timestamp=datetime.datetime.now().timestamp(),
                                                    night_rate=get_rate_type(db))
