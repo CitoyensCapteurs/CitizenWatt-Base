@@ -239,7 +239,7 @@ def api_get_ids(sensor, watt_euros, id1, id2, db):
     Returns measures between ids <id1> and <id2> from sensor <sensor> in
     watts or euros.
 
-    If id1 and id2 are negative, counts from the end of the measures.
+    If <id1> and <id2> are negative, counts from the end of the measures.
 
     * If `watts_euros` is watts, returns the list of measures.
     * If `watt_euros` is kwatthours, returns the total energy for all the

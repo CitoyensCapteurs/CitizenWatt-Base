@@ -1,41 +1,84 @@
-* Compile receive
+CitizenWatt-Base
+================
 
-## Package needed
+This is the code running on the base (Raspberry Pi) for the CitizenWatt project. It receives incoming measures from the sensor and displays a web visualization to manage the measures.
 
-* sqlalchemy
-* cherrypy
-* numpy
-* pycrypto
-* psycopg2 for communication with the PostgreSQL database
+## Installation
 
-## API
+1. Write a Raspbian SD card.
+2. Run the scripts in the `system` folder to install the necessary packages.
+3. Run `make` to compile the `receive` program (needs extra librf24)
+4. Use supervisord with the conf file in the `system` dir to handles the startup of the services.
+4. (bis) Alternatively, launch `receive` (to actually receive the data), `process.py` (to receive the data from `receive` and store them in database) and the main script, `visu.py` which will serve the visualization.
+
+## API documentation
+
+This is a list of all the endpoints available in the API. You should authenticate yourself to use the API. For this purpose, use a POST request with `login` and `password` fields.
+
+All the results are in a JSON dict, under the key `data`, for security purpose.
 
 * /api/sensors
-	* Returns all the available sensors with their types
-* /api/sensors/<id:int>
-    * Returns the infos for the specified sensor.
-* /api/types
-	* Returns all the available measure types
-* /api/time
-    * Returns the current timestamp of the server side.
-* /api/energy_providers
-    * Returns all available energy providers
-* /api/energy_providers/<current|<int>>
-    * Returns the targeted energy provider
-* /api/<sensor:int>/get/watts/by_id/<nb:int>
-	* Get measure with id nb
-	* Get measure nth to last measure if nb < 0 (behaviour of Python lists)
-* /api/<sensor:int>/get/[watts|kwatthours|euros]/by_id/<nb1:int>/<nb2:int>
-	* Get all the measures with id between nb1 and nb2 (nb1 < nb2)
-	* Get all the measures between nb1 and nb2 starting from the end if nb1, nb2 < 0 (behaviour of Python lists)
-    * Get the energy / cost associated with these measures if kwatthours or euros is specified
-* /api/<sensor:int>/get/watts/by_time/<time:int>
-	* Idem as above, but with timestamps
-* /api/<provider:re:current|\d>/watt_to_euros/<tarif:re:night|day>/<consumption:int>
-    * Returns the price associated to the consumption (in kWh) for the specified provider
-* /api/<sensor:int>/get/[watts|kwatthours|euros]/by_time/<time1:int>/<time2:int>/<timestep:int>
-    * Idem as above, but with timestamps
-    * idem avec id
-* idem with ids
+	* Returns all the available sensors with their associated measure types. If no sensors are found, returns `null`.
 
-step > 0
+* /api/sensors/<id:int>
+    * Returns all the infos for the specified sensor. If no matching sensor is found, returns `null`.
+
+* /api/types
+	* Returns all the available measure types. If no types are found, returns `null`.
+
+* /api/time
+    * Returns the current timestamp of the server.
+
+* /api/<sensor:int>/get/watts/by_id/<nb:int>
+    * Returns measure with id `<id1>` associated to sensor `<sensor>`, in watts.
+    * If `<id1>` < 0, counts from the last measure, as in Python lists.
+    * If no matching data is found, returns `null`.
+
+* /api/<sensor:int>/get/<watt_euros:watts|kwatthours|euros>/by_id/<nb1:int>/<nb2:int>
+    * Returns measures between ids `<id1>` and `<id2>` from sensor `<sensor>` in watts or euros.
+    * If `<id1>` and `<id2>` are negative, counts from the end of the measures.
+    * Depending on `<watt_euros>`:
+        * If it is `watts`, returns the list of measures.
+        * If it is `kwatthours`, returns the total energy for all the measures (dict).
+        * If it is `euros`, returns the cost of all the measures (dict).
+    * Returns measure in ASC order of timestamp.
+    * Returns `null` if no measures were found.
+
+* /api/<sensor:int>/get/<[watt_euros:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>/<step:int>
+    * Returns all the measures of sensor `sensor` between ids `<id1>` and `<id2>`, grouped by `<step>`, as a list of the number of steps element.`<step>` should be positive.
+    * Each item is `null` if no matching measures are found.
+    * Depending on `<watt_euros>`:
+        * If it is `watts`, returns the mean power for each group.
+        * If it is `kwatthours`, returns the total energy for each group.
+        * If it is `euros`, returns the cost of each group.
+    * Returns measure in ASC order of timestamp.
+    * Returns `null` if no measures were found.
+
+* /api/<sensor:int>/get/<watt_euros:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>
+    * Returns measures between timestamps `<time1>` and `<time2>` from sensor `<sensor>` in watts or euros.
+    * Depending on `<watt_euros>`:
+        * If it is `watts`, returns the list of measures.
+        * If it is `kwatthours`, returns the total energy for all the measures (dict).
+        * If it is `euros`, returns the cost of all the measures (dict).
+    * Returns measure in ASC order of timestamp.
+    * Returns `null` if no matching measures are found.
+
+* /api/<sensor:int>/get/<watt_euros:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>/<step:float>"
+    * Returns all the measures of sensor `sensor` between timestamps `time1` and `time2`, grouped by step, as a list of the number of steps element.
+    * Each item is `null` if no matching measures are found.
+    * Depending on `<watt_euros>`:
+        * If it is `watts`, returns the mean power for each group.
+        * If it is `kwatthours`, returns the total energy for each group.
+        * If it is `euros`, returns the cost of each group.
+    * Returns measure in ASC order of timestamp.
+
+* /api/energy_providers
+    * Returns all the available energy providers or `null` if none found.
+
+* /api/energy_providers/<id:current|int>
+    * Returns the current energy provider (if `id == "current"`), or the energy provider with the specified id.
+
+* /api/<energy_provider:current|int>/watt_to_euros/<tariff:night|day>/<consumption:float>
+    * Returns the cost in euros associated with a certain consumption, in kWh.
+    * One should specify the tariff (night or day, day if no such distinction is to be done) and the id of the energy_provider.
+    * Returns `null` if no valid result to return.
