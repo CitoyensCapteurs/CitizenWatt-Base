@@ -25,8 +25,19 @@ from xmlrpc.client import ServerProxy
 # =========
 # Functions
 # =========
+def is_day_night_rate(db):
+    provider = db.query(database.Provider).filter_by(current=1).first()
+    ds = provider.day_slope_watt_euros
+    dc = provider.day_constant_watt_euros
+    ns = provider.night_slope_watt_euros
+    nc = provider.night_constant_watt_euros
+    return ds != ns or dc != nc
+
+
 def get_rate_type(db):
     """Returns "day" or "night" according to current time"""
+    if not is_day_night_rate(db):
+        return "none"
     session = session_manager.get_session()
     user = db.query(database.User).filter_by(login=session.get("login")).first()
     now = datetime.datetime.now()

@@ -9,10 +9,24 @@ var RateDisplay = function() {
 	  ;
 	var rate;
 
+	/**
+	 * Set rate and show the corresponding image in header
+	 */
 	api.setRate = function(new_rate) {
 		if (new_rate != rate) {
 			logo_day.style.display = logo_night.style.display = 'none';
-			(new_rate == 'day' ? logo_day : logo_night).style.display = 'block';
+			switch (new_rate) {
+				case 'day':
+					logo_day.style.display = 'block';
+					break;
+
+				case 'night':
+					logo_night.style.display = 'block';
+					break;
+
+				case 'none':
+					alert('none');
+			}
 			rate = new_rate;
 		}
 	};
