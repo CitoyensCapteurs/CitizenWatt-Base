@@ -16,7 +16,7 @@ from bottle import redirect, request, run
 from bottle.ext import sqlalchemy
 from bottlesession import PickleSession, authenticator
 from libcitizenwatt.config import Config
-from sqlalchemy import create_engine, desc
+from sqlalchemy import asc, create_engine, desc
 from sqlalchemy.exc import OperationalError, ProgrammingError
 from xmlrpc.client import ServerProxy
 
@@ -91,6 +91,9 @@ def api_auth(post, db):
 # ===
 # API
 # ===
+
+# Sensors management
+# ==================
 @app.route("/api/sensors",
            apply=valid_user())
 def api_sensors(db):
@@ -147,6 +150,8 @@ def api_sensor_post(id, db):
         abort(403, "Access forbidden")
 
 
+# Measure types
+# =============
 @app.route("/api/types",
            apply=valid_user())
 def api_types(db):
@@ -173,6 +178,8 @@ def api_types_post(db):
         abort(403, "Access forbidden")
 
 
+# Time
+# ====
 @app.route("/api/time",
            apply=valid_user())
 def api_time(db):
@@ -193,6 +200,8 @@ def api_time_post(db):
         abort(403, "Access forbidden")
 
 
+# Get measures
+# ============
 @app.route("/api/<sensor:int>/get/watts/by_id/<id1:int>",
            apply=valid_user())
 def api_get_id(sensor, id1, db):
@@ -228,46 +237,6 @@ def api_get_id_post(sensor, id1, db):
     """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_get_id(sensor, id1, db)
-    else:
-        abort(403, "Access forbidden")
-
-
-@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>",
-           apply=valid_user())
-def api_get_ids(sensor, watt_euros, id1, id2, db):
-    """
-    Returns measures between ids <id1> and <id2> from sensor <sensor> in
-    watts or euros.
-
-    If <id1> and <id2> are negative, counts from the end of the measures.
-
-    * If `watts_euros` is watts, returns the list of measures.
-    * If `watt_euros` is kwatthours, returns the total energy for all the
-    measures (dict).
-    * If `watt_euros` is euros, returns the cost of all the measures (dict).
-
-    Returns measure in ASC order of timestamp.
-
-    Returns null if no measures were found.
-    """
-    if (id2 - id1) > config.get("max_returned_values"):
-        abort(403,
-              "Too many values to return. " +
-              "(Maximum is set to %d)" % config.get("max_returned_values"))
-    elif id2 < id1 or id2 * id1 < 0:
-        abort(400, "Invalid parameters")
-    else:
-        data = cache.do_cache_ids(sensor, watt_euros, id1, id2, db)
-
-    return {"data": data, "rate": get_rate_type(db)}
-
-
-@app.route("/api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_id/<id1:int>/<id2:int>",
-           method="post")
-def api_get_ids_post(sensor, watt_euros, id1, id2, db):
-    """Same as above, but with POST auth"""
-    if api_auth(request.POST, db):
-        return api_get_ids(sensor, watt_euros, id1, id2, db)
     else:
         abort(403, "Access forbidden")
 
@@ -425,6 +394,174 @@ def api_get_times_step_post(sensor, watt_euros, time1, time2, step, db):
         abort(403, "Access forbidden")
 
 
+# Delete measures
+# ===============
+@app.route("/api/<sensor:int>/delete/by_id/<id1:int>",
+           apply=valid_user())
+def api_delete_id(sensor, id1, db):
+    """
+    Deletes measure with id <id1> associated to sensor <sensor>.
+
+    If <id1> < 0, counts from the last measure, as in Python lists.
+
+    If no matching data is found, returns null. Else, returns the number of
+    deleted measures (1).
+    """
+    if id1 >= 0:
+        data = (db.query(database.Measure)
+                .filter_by(sensor_id=sensor, id=id1)
+                .delete())
+    else:
+        data = (db.query(database.Measure)
+                .filter_by(sensor_id=sensor)
+                .order_by(desc(database.Measure.timestamp))
+                .slice(-id1, -id1)
+                .first())
+        data = db.delete(data)
+    print()
+    print(data)
+    print()
+
+    if data == 0:
+        data = None
+
+    return {"data": data, "rate": get_rate_type(db)}
+
+
+@app.route("/api/<sensor:int>/delete/by_id/<id1:int>",
+           method="post")
+def api_delete_id_post(sensor, id1, db):
+    """Same as above, but with POST auth"""
+    if api_auth(request.POST, db):
+        return api_delete_id(sensor, id1, db)
+    else:
+        abort(403, "Access forbidden")
+
+
+@app.route("/api/<sensor:int>/delete/by_id/<id1:int>/<id2:int>",
+           apply=valid_user())
+def api_delete_ids(sensor, id1, id2, db):
+    """
+    Deletes measures between ids <id1> and <id2>
+    from sensor <sensor>.
+
+    Returns null if no matching measures are found. Else, returns the number of
+    deleted measures.
+    """
+    if id2 < id1 or id2 * id1 < 0:
+        abort(400, "Invalid parameters")
+    else:
+        if id1 >= 0 and id2 >= 0 and id2 >= id1:
+            data = (db.query(database.Measure)
+                    .filter(database.Measure.sensor_id == sensor,
+                            database.Measure.id >= id1,
+                            database.Measure.id < id2)
+                    .delete())
+        elif id1 <= 0 and id2 <= 0 and id2 >= id1:
+            to_delete = (db.query(database.Measure)
+                         .filter_by(sensor_id=sensor)
+                         .order_by(desc(database.Measure.timestamp))
+                         .slice(-id2, -id1)
+                         .all())
+            if to_delete:
+                data = len(to_delete)
+                for delete in to_delete:
+                    db.delete(delete)
+            else:
+                data = 0
+
+    if data == 0:
+        data = None
+
+    return {"data": data, "rate": get_rate_type(db)}
+
+
+@app.route("/api/<sensor:int>/delete/by_id/<id1:int>/<id2:int>",
+           method="post")
+def api_delete_ids_post(sensor, id1, id2, db):
+    """Same as above, but with POST auth"""
+    if api_auth(request.POST, db):
+        return api_delete_ids(sensor, id1, id2, db)
+    else:
+        abort(403, "Access forbidden")
+
+
+@app.route("/api/<sensor:int>/delete/by_time/<time1:float>",
+           apply=valid_user())
+def api_delete_time(sensor, time1, db):
+    """
+    Deletes measure at timestamp <time1> for sensor <sensor>.
+
+    Returns null if no measure is found. Else, returns the number of deleted
+    measures (1).
+    """
+    if time1 < 0:
+        abort(400, "Invalid timestamp.")
+
+    data = (db.query(database.Measure)
+            .filter_by(sensor_id=sensor,
+                       timestamp=time1)
+            .delete())
+    if data == 0:
+        data = None
+
+    return {"data": data, "rate": get_rate_type(db)}
+
+
+@app.route("/api/<sensor:int>/delete/by_time/<time1:float>",
+           method="post")
+def api_delete_time_post(sensor, time1, db):
+    """Same as above, but with POST auth"""
+    if api_auth(request.POST, db):
+        return api_delete_time(sensor, time1, db)
+    else:
+        abort(403, "Access forbidden")
+
+
+@app.route("/api/<sensor:int>/delete/by_time/<time1:float>/<time2:float>",
+           apply=valid_user())
+def api_delete_times(sensor, time1, time2, db):
+    """
+    Deletes measures between timestamps <time1> and <time2>
+    from sensor <sensor>.
+
+    Returns null if no matching measures are found. Else, returns the number of
+    deleted measures.
+    """
+    if time1 < 0 or time2 < time1:
+        abort(400, "Invalid timestamps.")
+
+    to_delete = (db.query(database.Measure)
+                 .filter(database.Measure.sensor_id == sensor,
+                         database.Measure.timestamp >= time1,
+                         database.Measure.timestamp < time2)
+                 .order_by(asc(database.Measure.timestamp))
+                 .all())
+    if to_delete:
+        data = len(to_delete)
+        for delete in to_delete:
+            db.delete(delete)
+    else:
+        data = 0
+
+    if data == 0:
+        data = None
+
+    return {"data": data, "rate": get_rate_type(db)}
+
+
+@app.route("/api/<sensor:int>/delete/by_time/<time1:float>/<time2:float>",
+           method="post")
+def api_delete_times_post(sensor, time1, time2, db):
+    """Same as above, but with POST auth"""
+    if api_auth(request.POST, db):
+        return api_delete_times(sensor, time1, time2, db)
+    else:
+        abort(403, "Access forbidden")
+
+
+# Energy providers
+# ================
 @app.route("/api/energy_providers",
            apply=valid_user())
 def api_energy_providers(db):
