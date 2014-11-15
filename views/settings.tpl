@@ -40,7 +40,7 @@
                             <label for="provider">Fournisseur d'énergie&nbsp;: </label>
                             <select name="provider" id="provider">
                                 % for provider in providers:
-                                    <option value="{{ provider["name"] }}">{{ provider["name"] }}</option>
+                                    <option value="{{ provider["name"] }}" {{ 'selected' if provider["current"] else '' }}>{{ provider["name"] }}</option>
                                 % end
                             </select>
                         </p>
