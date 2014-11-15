@@ -34,23 +34,28 @@
                     <h2>Abonnement</h2>
 
                     <p class="form-item">
-                        <label for="provider">Fournisseur d'énergie&nbsp;: </label>
-                        <select name="provider" id="provider">
-                            % for provider in providers:
-                                <option value="{{ provider["name"]}}">{{ provider["name"] }}</option>
-                            % end
-                        </select>
-                    </p>
+                            <label for="provider">Fournisseur d'énergie&nbsp;: </label>
+                            <select name="provider" id="provider">
+                                % for provider in providers:
+                                    % if provider["current"]:
+                                        % need_rate_info = provider["is_day_night_rate"]
+                                    % end
+                                    <option value="{{ provider["name"] }}" {{ 'selected' if provider["current"] else '' }} {{ 'class=need-rate-info' if provider["is_day_night_rate"] else '' }}>{{ provider["name"] }}</option>
+                                % end
+                            </select>
+                        </p>
 
-                    <p class="form-item">
-                        <label for="start_night_rate">Début des heures creuses&nbsp;: </label>
-                        <input type="time" name="start_night_rate" id="start_night_rate" value="{{ start_night_rate }}" placeholder="hh:mm"/>
-                    </p>
+                        <div id="night-rate-info" style="display:{{ 'block' if need_rate_info else 'none' }}">
+                            <p class="form-item">
+                                <label for="start_night_rate">Début des heures creuses&nbsp;: </label>
+                                <input type="time" name="start_night_rate" id="start_night_rate" value="{{ start_night_rate }}" placeholder="hh:mm"/>
+                            </p>
 
-                    <p class="form-item">
-                        <label for="end_night_rate">Fin des heures creuses&nbsp;: </label>
-                        <input type="time" name="end_night_rate" id="end_night_rate" value="{{ end_night_rate }}" placeholder="hh:mm"/>
-                    </p>
+                            <p class="form-item">
+                                <label for="end_night_rate">Fin des heures creuses&nbsp;: </label>
+                                <input type="time" name="end_night_rate" id="end_night_rate" value="{{ end_night_rate }}" placeholder="hh:mm"/>
+                            </p>
+                        </div>
 
                     <h2>Sécurité</h2>
 

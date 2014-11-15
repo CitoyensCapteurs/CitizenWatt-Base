@@ -60,11 +60,11 @@ def is_day_night_rate(db, provider=None):
     that such a distinction is useless)
     """
     if provider is None:
-        provider = db.query(database.Provider).filter_by(current=1).first()
-    ds = provider.day_slope_watt_euros
-    dc = provider.day_constant_watt_euros
-    ns = provider.night_slope_watt_euros
-    nc = provider.night_constant_watt_euros
+        provider = db.query(database.Provider).filter_by(current=1).first().__dict__
+    ds = provider['day_slope_watt_euros']
+    dc = provider['day_constant_watt_euros']
+    ns = provider['night_slope_watt_euros']
+    nc = provider['night_constant_watt_euros']
     return ds != ns or dc != nc
 
 

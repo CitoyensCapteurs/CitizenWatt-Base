@@ -787,6 +787,9 @@ def settings(db):
     end_night_rate = ("%02d" % (user.end_night_rate // 3600) + ":" +
                       "%02d" % ((user.end_night_rate % 3600) // 60))
 
+    for p in providers:
+        p['is_day_night_rate'] = tools.is_day_night_rate(db, p)
+
     return {"sensors": sensors,
             "providers": providers,
             "start_night_rate": start_night_rate,
@@ -1057,6 +1060,9 @@ def install(db):
     providers = tools.update_providers(config.get("url_energy_providers"),
                                        True,
                                        db)
+
+    for p in providers:
+        p['is_day_night_rate'] = tools.is_day_night_rate(db, p)
 
     sensor = database.Sensor(name="CitizenWatt",
                              type_id=electricity_type.id,
