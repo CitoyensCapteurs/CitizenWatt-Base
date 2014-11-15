@@ -967,6 +967,15 @@ def install_post(db):
      .update({"aes_key": json.dumps(aes_key)}))
     db.commit()
 
+    provider = (db.query(database.Provider)
+                .filter_by(name=raw_provider)
+                .first())
+    if not provider:
+        error = {"title": "Fournisseur d'électricité invalide.",
+                 "content": "Le fournisseur choisi n'existe pas."}
+        ret.update({"err": error})
+        return ret
+
     try:
         if tools.is_day_night_rate(db, provider):
             start_night_rate = 0
@@ -1011,14 +1020,6 @@ def install_post(db):
                               end_night_rate=end_night_rate)
         db.add(admin)
 
-        provider = (db.query(database.Provider)
-                    .filter_by(name=raw_provider)
-                    .first())
-        if not provider:
-            error = {"title": "Fournisseur d'électricité invalide.",
-                    "content": "Le fournisseur choisi n'existe pas."}
-            ret.update({"err": error})
-            return ret
         db.query(database.Provider).update({"current": 0})
         (db.query(database.Provider)
          .filter_by(name=raw_provider)
