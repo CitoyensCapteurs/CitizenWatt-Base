@@ -1020,6 +1020,9 @@ def install(db):
                                        True,
                                        db)
 
+    for p in providers:
+        p['is_day_night_rate'] = tools.is_day_night_rate(db, p)
+
     sensor = database.Sensor(name="CitizenWatt",
                              type_id=electricity_type.id,
                              last_timer=0)
