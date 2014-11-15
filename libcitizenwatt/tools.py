@@ -54,12 +54,13 @@ def last_day(month, year):
         return 30
 
 
-def is_day_night_rate(db):
+def is_day_night_rate(db, provider=None):
     """
     Returns true if night and day rates are distincts, false otherwise (meaning
     that such a distinction is useless)
     """
-    provider = db.query(database.Provider).filter_by(current=1).first()
+    if provider is None:
+        provider = db.query(database.Provider).filter_by(current=1).first()
     ds = provider.day_slope_watt_euros
     dc = provider.day_constant_watt_euros
     ns = provider.night_slope_watt_euros

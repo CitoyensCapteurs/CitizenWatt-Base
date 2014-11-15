@@ -648,11 +648,20 @@ def settings_post(db):
             settings_json.update({"err": error})
             return settings_json
 
-    provider = request.forms.get("provider")
-    db.query(database.Provider).update({"current": 0})
+    raw_provider = request.forms.get("provider")
     provider = (db.query(database.Provider)
-                .filter_by(name=provider)
-                .update({"current": 1}))
+                .filter_by(name=raw_provider)
+                .first())
+    if not provider:
+        error = {"title": "Fournisseur d'électricité invalide.",
+                 "content": "Le fournisseur choisi n'existe pas."}
+        settings_json = settings(db)
+        settings_json.update({"err": error})
+        return settings_json
+    db.query(database.Provider).update({"current": 0})
+    (db.query(database.Provider)
+     .filter_by(name=raw_provider)
+     .update({"current": 1}))
 
     raw_start_night_rate = request.forms.get("start_night_rate")
     raw_end_night_rate = request.forms.get("end_night_rate")
@@ -707,12 +716,15 @@ def settings_post(db):
     db.commit()
 
     try:
-        start_night_rate = raw_start_night_rate.split(":")
-        assert(len(start_night_rate) == 2)
-        start_night_rate = [int(i) for i in start_night_rate]
-        assert(start_night_rate[0] >= 0 and start_night_rate[0] <= 23)
-        assert(start_night_rate[1] >= 0 and start_night_rate[1] <= 59)
-        start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
+        if tools.is_day_night_rate(db, provider):
+            start_night_rate = 0
+        else:
+            start_night_rate = raw_start_night_rate.split(":")
+            assert(len(start_night_rate) == 2)
+            start_night_rate = [int(i) for i in start_night_rate]
+            assert(start_night_rate[0] >= 0 and start_night_rate[0] <= 23)
+            assert(start_night_rate[1] >= 0 and start_night_rate[1] <= 59)
+            start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
     except (AssertionError, ValueError):
         error = {"title": "Format invalide",
                  "content": ("La date de début d'heures " +
@@ -721,12 +733,15 @@ def settings_post(db):
         settings_json.update({"err": error})
         return settings_json
     try:
-        end_night_rate = raw_end_night_rate.split(":")
-        assert(len(end_night_rate) == 2)
-        end_night_rate = [int(i) for i in end_night_rate]
-        assert(end_night_rate[0] >= 0 and end_night_rate[0] <= 23)
-        assert(end_night_rate[1] >= 0 and end_night_rate[1] <= 59)
-        end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
+        if tools.is_day_night_rate(db, provider):
+            end_night_rate = 0
+        else:
+            end_night_rate = raw_end_night_rate.split(":")
+            assert(len(end_night_rate) == 2)
+            end_night_rate = [int(i) for i in end_night_rate]
+            assert(end_night_rate[0] >= 0 and end_night_rate[0] <= 23)
+            assert(end_night_rate[1] >= 0 and end_night_rate[1] <= 59)
+            end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
     except (AssertionError, ValueError):
         error = {"title": "Format invalide",
                  "content": ("La date de fin d'heures " +
@@ -900,12 +915,12 @@ def install_post(db):
     login = request.forms.get("login").strip()
     password = request.forms.get("password")
     password_confirm = request.forms.get("password_confirm")
-    provider = request.forms.get("provider")
     raw_start_night_rate = request.forms.get("start_night_rate")
     raw_end_night_rate = request.forms.get("end_night_rate")
     raw_base_address = request.forms.get("base_address")
     raw_aes_key = request.forms.get("aes_key")
     raw_nrf_power = request.forms.get("nrf_power")
+    raw_provider = request.forms.get("provider")
 
     ret = {"login": login,
            "providers": tools.update_providers(config.get("url_energy_providers"),
@@ -953,12 +968,15 @@ def install_post(db):
     db.commit()
 
     try:
-        start_night_rate = raw_start_night_rate.split(":")
-        assert(len(start_night_rate) == 2)
-        start_night_rate = [int(i) for i in start_night_rate]
-        assert(start_night_rate[0] >= 0 and start_night_rate[0] <= 23)
-        assert(start_night_rate[1] >= 0 and start_night_rate[1] <= 59)
-        start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
+        if tools.is_day_night_rate(db, provider):
+            start_night_rate = 0
+        else:
+            start_night_rate = raw_start_night_rate.split(":")
+            assert(len(start_night_rate) == 2)
+            start_night_rate = [int(i) for i in start_night_rate]
+            assert(start_night_rate[0] >= 0 and start_night_rate[0] <= 23)
+            assert(start_night_rate[1] >= 0 and start_night_rate[1] <= 59)
+            start_night_rate = 3600 * start_night_rate[0] + 60*start_night_rate[1]
     except (AssertionError, ValueError):
         error = {"title": "Format invalide",
                  "content": ("La date de début d'heures creuses " +
@@ -967,12 +985,15 @@ def install_post(db):
         return ret
 
     try:
-        end_night_rate = raw_end_night_rate.split(":")
-        assert(len(end_night_rate) == 2)
-        end_night_rate = [int(i) for i in end_night_rate]
-        assert(end_night_rate[0] >= 0 and end_night_rate[0] <= 23)
-        assert(end_night_rate[1] >= 0 and end_night_rate[1] <= 59)
-        end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
+        if tools.is_day_night_rate(db, provider):
+            end_night_rate = 0
+        else:
+            end_night_rate = raw_end_night_rate.split(":")
+            assert(len(end_night_rate) == 2)
+            end_night_rate = [int(i) for i in end_night_rate]
+            assert(end_night_rate[0] >= 0 and end_night_rate[0] <= 23)
+            assert(end_night_rate[1] >= 0 and end_night_rate[1] <= 59)
+            end_night_rate = 3600 * end_night_rate[0] + 60*end_night_rate[1]
     except (AssertionError, ValueError):
         error = {"title": "Format invalide",
                  "content": ("La date de fin d'heures creuses " +
@@ -991,8 +1012,17 @@ def install_post(db):
         db.add(admin)
 
         provider = (db.query(database.Provider)
-                    .filter_by(name=provider)
-                    .update({"current": 1}))
+                    .filter_by(name=raw_provider)
+                    .first())
+        if not provider:
+            error = {"title": "Fournisseur d'électricité invalide.",
+                    "content": "Le fournisseur choisi n'existe pas."}
+            ret.update({"err": error})
+            return ret
+        db.query(database.Provider).update({"current": 0})
+        (db.query(database.Provider)
+         .filter_by(name=raw_provider)
+         .update({"current": 1}))
 
         session = session_manager.get_session()
         session['valid'] = True
@@ -1009,9 +1039,6 @@ def install_post(db):
 
 
 if __name__ == '__main__':
-    # ===
-    # App
-    # ===
     SimpleTemplate.defaults["get_url"] = app.get_url
     SimpleTemplate.defaults["API_URL"] = app.get_url("index")
     SimpleTemplate.defaults["valid_session"] = lambda: session_manager.get_session()['valid']
