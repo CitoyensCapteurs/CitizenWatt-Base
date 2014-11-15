@@ -89,6 +89,13 @@ All the results are in a JSON dict, under the key `data`, for security purpose.
     * Deletes measures between timestamps <time1> and <time2> from sensor <sensor>.
     * Returns null if no matching measures are found. Else, returns the number of deleted measures.
 
+* `/api/<sensor:int>/insert/<value:float>/<timestamp:int>/<night_rate:int>`
+    * Insert a measure with:
+        * Timestamp `<timestamp>`
+        * Value `<value>`
+        * Tariff "day" if `<night_rate> == 0`, "night" otherwise.
+    * Returns `True` if successful, `False` otherwise.
+
 * `/api/energy_providers`
     * Returns all the available energy providers or `null` if none found.
 

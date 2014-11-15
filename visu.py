@@ -17,7 +17,8 @@ from bottle.ext import sqlalchemy
 from bottlesession import PickleSession, authenticator
 from libcitizenwatt.config import Config
 from sqlalchemy import asc, create_engine, desc
-from sqlalchemy.exc import OperationalError, ProgrammingError
+from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
+from sqlalchemy.exc import InvalidRequestError
 from xmlrpc.client import ServerProxy
 
 
@@ -418,9 +419,6 @@ def api_delete_id(sensor, id1, db):
                 .slice(-id1, -id1)
                 .first())
         data = db.delete(data)
-    print()
-    print(data)
-    print()
 
     if data == 0:
         data = None
@@ -556,6 +554,49 @@ def api_delete_times_post(sensor, time1, time2, db):
     """Same as above, but with POST auth"""
     if api_auth(request.POST, db):
         return api_delete_times(sensor, time1, time2, db)
+    else:
+        abort(403, "Access forbidden")
+
+
+# Insert measures
+# ===============
+@app.route("/api/<sensor:int>/insert/<value:float>/<timestamp:int>/<night_rate:int>",
+           apply=valid_user())
+def api_insert_measure(sensor, value, timestamp, night_rate, db):
+    """
+    Insert a measure with:
+        * Timestamp `<timestamp>`
+        * Value `<value>`
+        * Tariff "day" if `<night_rate> == 0`, "night" otherwise.
+
+    Returns `True` if successful. `False` otherwise.
+    """
+    if timestamp < 0:
+        abort(400, "Invalid timestamp.")
+
+    if night_rate != 0:
+        night_rate = 1
+
+    measure = database.Measure(value=value,
+                                timestamp=timestamp,
+                                night_rate=night_rate,
+                                sensor_id=sensor)
+    try:
+        db.commit()
+        data = True
+    except IntegrityError:
+        data = False
+        db.rollback()
+
+    return {"data": data, "rate": get_rate_type(db)}
+
+
+@app.route("/api/<sensor:int>/insert/<value:float>/<timestamp:int>/<night_rate:int>",
+           method="post")
+def api_insert_measure_post(sensor, value, timestamp, night_rate, db):
+    """Same as above, but with POST auth"""
+    if api_auth(request.POST, db):
+        return api_insert_measure(sensor, value, timestamp, night_rate, db)
     else:
         abort(403, "Access forbidden")
 
