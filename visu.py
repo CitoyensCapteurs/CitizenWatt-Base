@@ -649,6 +649,7 @@ def settings_post(db):
             return settings_json
 
     provider = request.forms.get("provider")
+    db.query(database.Provider).update({"current": 0})
     provider = (db.query(database.Provider)
                 .filter_by(name=provider)
                 .update({"current": 1}))
