@@ -755,6 +755,13 @@ def reset_timer(sensor, db):
     redirect("/settings")
 
 
+@app.route("/toggle_ssh", apply=valid_user())
+def toggle_ssh(state, db):
+    """Enable or disable SSH service"""
+    tools.toggle_ssh()
+    redirect("/settings")
+
+
 @app.route("/settings",
            name="settings",
            template="settings",
@@ -797,7 +804,8 @@ def settings(db):
             "base_address": hex(int(tools.get_base_address())).upper() + "LL",
             "aes_key": '-'.join([str(i) for i in
                                  json.loads(sensor_cw["aes_key"])]),
-            "nrf_power": tools.get_nrf_power()}
+            "nrf_power": tools.get_nrf_power(),
+            "ssh_status": tools.ssh_status()}
 
 
 @app.route("/settings",

@@ -7,6 +7,7 @@ Misc functions
 import numpy
 import os
 import requests
+import subprocess
 import sys
 
 from libcitizenwatt import database
@@ -220,3 +221,24 @@ def update_providers(url_energy_providers, fetch, db):
                                         threshold=int(provider["threshold"]))
         db.add(provider_db)
     return providers
+
+
+def ssh_status():
+    """Check SSH status. Returns `True` if SSH is running, `False` otherwise.
+    """
+    try:
+        subprocess.check_call(["/etc/init.d/ssh", "status"])
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
+def toggle_ssh():
+    """Start / stop SSH service."""
+    status = ssh_status()
+    if status is True:
+        # Start the service
+        subprocess.call(["sudo", "/etc/init.d/ssh", "start"])
+    elif status is False:
+        # Stop it
+        subprocess.call(["sudo", "/etc/init.d/ssh", "stop"])
