@@ -195,6 +195,10 @@ def update_providers(url_energy_providers, fetch, db):
     old_current = db.query(database.Provider).filter_by(current=1).first()
     db.query(database.Provider).delete()
 
+    providers = [dict(provider, **{'current': (1 if old_current and old_current.name == provider["name"]
+                                               else 0)})
+                 for provider in providers]
+
     for provider in providers:
         type_id = (db.query(database.MeasureType)
                    .filter_by(name=provider["type_name"])
@@ -211,7 +215,7 @@ def update_providers(url_energy_providers, fetch, db):
                                         night_constant_watt_euros=provider["night_constant_watt_euros"],
                                         night_slope_watt_euros=provider["night_slope_watt_euros"],
                                         type_id=type_id.id,
-                                        current=(1 if old_current and old_current.name == provider["name"] else 0),
+                                        current=provider['current'],
                                         threshold=int(provider["threshold"]))
         db.add(provider_db)
     return providers
