@@ -229,7 +229,7 @@ def ssh_status():
     try:
         subprocess.check_call(["/etc/init.d/ssh", "status"])
         return True
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
 
@@ -238,7 +238,14 @@ def toggle_ssh():
     status = ssh_status()
     if status is True:
         # Start the service
-        subprocess.call(["sudo", "/etc/init.d/ssh", "start"])
+        try:
+            subprocess.call(["sudo", "/etc/init.d/ssh", "start"])
+            return True
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return False
     elif status is False:
         # Stop it
-        subprocess.call(["sudo", "/etc/init.d/ssh", "stop"])
+        try:
+            subprocess.call(["sudo", "/etc/init.d/ssh", "stop"])
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return False
