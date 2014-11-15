@@ -18,7 +18,6 @@ from bottlesession import PickleSession, authenticator
 from libcitizenwatt.config import Config
 from sqlalchemy import asc, create_engine, desc
 from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
-from sqlalchemy.exc import InvalidRequestError
 from xmlrpc.client import ServerProxy
 
 
@@ -578,9 +577,10 @@ def api_insert_measure(sensor, value, timestamp, night_rate, db):
         night_rate = 1
 
     measure = database.Measure(value=value,
-                                timestamp=timestamp,
-                                night_rate=night_rate,
-                                sensor_id=sensor)
+                               timestamp=timestamp,
+                               night_rate=night_rate,
+                               sensor_id=sensor)
+    db.add(measure)
     try:
         db.commit()
         data = True
