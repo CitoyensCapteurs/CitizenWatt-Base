@@ -746,6 +746,9 @@ def settings(db):
     end_night_rate = ("%02d" % (user.end_night_rate // 3600) + ":" +
                       "%02d" % ((user.end_night_rate % 3600) // 60))
 
+    for p in providers:
+        p['is_day_night_rate'] = tools.is_day_night_rate(db, p)
+
     return {"sensors": sensors,
             "providers": providers,
             "start_night_rate": start_night_rate,
