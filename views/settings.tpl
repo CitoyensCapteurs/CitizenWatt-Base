@@ -131,6 +131,14 @@
                     </p>-->
                 </article>
 
+                <article id="avance">
+                    <h2>Avancé</h2>
+
+                    <p>
+                        <a href="{{ get_url('toggle_ssh') }}">{{ 'Désactiver' if ssh_status else 'Activer' }} SSH</a>
+                    </p>
+                </article>
+
             </main>
 
 % include('_end.tpl', scripts=['settings'])

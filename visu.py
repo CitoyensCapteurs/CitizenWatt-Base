@@ -755,7 +755,7 @@ def reset_timer(sensor, db):
     redirect("/settings")
 
 
-@app.route("/toggle_ssh", apply=valid_user())
+@app.route("/toggle_ssh", name="toggle_ssh", apply=valid_user())
 def toggle_ssh(state, db):
     """Enable or disable SSH service"""
     tools.toggle_ssh()
