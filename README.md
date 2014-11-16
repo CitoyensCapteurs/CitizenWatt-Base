@@ -7,9 +7,10 @@ This is the code running on the base (Raspberry Pi) for the CitizenWatt project.
 
 1. Write a Raspbian SD card.
 2. Run the scripts in the `system` folder to install the necessary packages.
-3. Run `make` to compile the `receive` program (needs extra librf24)
-4. Use supervisord with the conf file in the `system` dir to handles the startup of the services.
-4. (bis) Alternatively, launch `receive` (to actually receive the data), `process.py` (to receive the data from `receive` and store them in database) and the main script, `visu.py` which will serve the visualization.
+3. Init submodules with git submodule init` et `git submodule update`.
+4. Run `make` to compile the `receive` program (needs extra librf24)
+5. Use supervisord with the conf file in the `system` dir to handles the startup of the services.
+6. (bis) Alternatively, launch `receive` (to actually receive the data), `process.py` (to receive the data from `receive` and store them in database) and the main script, `visu.py` which will serve the visualization.
 
 ## API documentation
 
