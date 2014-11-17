@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Exit if error is detected
+set -e
+
+# Restart Supervisord
+/usr/bin/supervisorctl restart all
+
+#DEBHELPER#
+
