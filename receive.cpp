@@ -57,8 +57,8 @@ int main() {
     // Get the address to listen on
     std::ifstream config_addr;
     config_addr.open("~/.config/citizenwatt/base_address", std::ios::in);
-    std::ifstream nrf_power;
-    nrf_power.open("~/.config/citizenwatt/nrf_power", std::ios::in);
+    std::ifstream config_power;
+    config_power.open("~/.config/citizenwatt/nrf_power", std::ios::in);
     uint64_t addr;
     if (config_addr.is_open()) {
         config_addr >> addr;
@@ -68,33 +68,34 @@ int main() {
         addr = default_addr;
     }
     uint64_t power;
-    if (nrf_power.is_open()) {
-        nrf_power >> power;
-        nrf_power.close();
+    rf24_pa_dbm_e nrf_power;
+    if (config_power.is_open()) {
+        config_power >> power;
+        config_power.close();
         switch (power) {
             case 0:
-                power = RF24_PA_MIN;
+                nrf_power = RF24_PA_MIN;
                 break;
 
             case 1:
-                power = RF24_PA_LOW;
+                nrf_power = RF24_PA_LOW;
                 break;
 
             case 2:
-                power = RF24_PA_MED;
+                nrf_power = RF24_PA_HIGH;
                 break;
 
             case 3:
-                power = RF24_PA_HIGH;
+                nrf_power = RF24_PA_MAX;
                 break;
 
             default:
-                power = NRF_DEFAULT_PA_LEVEL;
+                nrf_power = NRF_DEFAULT_PA_LEVEL;
                 break;
         }
     }
     else {
-        power = NRF_DEFAULT_PA_LEVEL;
+        nrf_power = NRF_DEFAULT_PA_LEVEL;
     }
 
     // Initialize nRF
@@ -111,7 +112,7 @@ int main() {
     // Ensure auto ACK is enabled
     radio.setAutoAck(1);
     // Use the best PA level
-    radio.setPALevel(power);
+    radio.setPALevel(nrf_power);
     // Open reading pipe
     radio.openReadingPipe(1, addr);
 
@@ -140,7 +141,7 @@ int main() {
             write(fd, payload, sizeof(payload));
             // Maybe needed ? fflush(fd)
         }
-	sleep(2);
+	    sleep(2);
     }
     close(fd);
 }
