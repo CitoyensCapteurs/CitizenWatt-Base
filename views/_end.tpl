@@ -1,4 +1,4 @@
-            
+
             <div class="clearfix pre-footer"><div/>
             <footer>
                 <p>
@@ -9,7 +9,7 @@
                     % end
                 </p>
                 <p>
-                    Licence GNU GPL | <a href="http://www.citizenwatt.paris/">CitizenWatt</a>
+                    Adresse alternative&nbsp;: <a href="{{ ip_address }}">{{ ip_address }}</a> | Licence GNU GPL | <a href="http://www.citizenwatt.paris/">CitizenWatt</a>
                 </p>
             </footer>
         </div>
