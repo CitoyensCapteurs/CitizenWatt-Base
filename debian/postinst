@@ -4,7 +4,7 @@
 set -e
 
 # Restart Supervisord
-/usr/bin/supervisorctl restart all
+supervisorctl restart all
 
 #DEBHELPER#
 
