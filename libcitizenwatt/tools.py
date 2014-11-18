@@ -61,7 +61,8 @@ def is_day_night_rate(db, provider=None):
     that such a distinction is useless)
     """
     if provider is None:
-        provider = db.query(database.Provider).filter_by(current=1).first().__dict__
+        provider = to_dict(db.query(database.Provider).filter_by(current=1).first())
+
     ds = provider['day_slope_watt_euros']
     dc = provider['day_constant_watt_euros']
     ns = provider['night_slope_watt_euros']
@@ -220,7 +221,7 @@ def update_providers(url_energy_providers, fetch, db):
                                         current=provider['current'],
                                         threshold=int(provider["threshold"]))
         db.add(provider_db)
-    return providers
+    return [to_dict(i) for i in db.query(database.Provider).all()]
 
 
 def ssh_status():

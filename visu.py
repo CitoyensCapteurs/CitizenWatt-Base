@@ -905,7 +905,7 @@ def settings_post(db):
     db.commit()
 
     try:
-        if tools.is_day_night_rate(db, provider):
+        if tools.is_day_night_rate(db, tools.to_dict(provider)):
             start_night_rate = 0
         else:
             start_night_rate = raw_start_night_rate.split(":")
@@ -922,7 +922,7 @@ def settings_post(db):
         settings_json.update({"err": error})
         return settings_json
     try:
-        if tools.is_day_night_rate(db, provider):
+        if tools.is_day_night_rate(db, tools.to_dict(provider)):
             end_night_rate = 0
         else:
             end_night_rate = raw_end_night_rate.split(":")
@@ -1234,15 +1234,15 @@ def install_post(db):
 if __name__ == '__main__':
     SimpleTemplate.defaults["get_url"] = app.get_url
     SimpleTemplate.defaults["API_URL"] = app.get_url("index")
-    FNULL = open(os.devnull, 'w')
-    try:
-        SimpleTemplate.defaults["ip_address"] = "http://"+subprocess.check_output(["hostname", "-I"], stderr=FNULL).decode('utf-8').strip()
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        SimpleTemplate.defaults["ip_address"] = "http://citizenwatt.local"
-    try:
-        SimpleTemplate.defaults["version"] = subprocess.check_output(["dpkg", "-l", "citizenwatt-visu"], stderr=FNULL).decode('utf-8').strip()
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        SimpleTemplate.defaults["version"] = "0.3-1"
+    with open(os.devnull, 'w') as FNULL:
+        try:
+            SimpleTemplate.defaults["ip_address"] = "http://"+subprocess.check_output(["hostname", "-I"], stderr=FNULL).decode('utf-8').strip()
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            SimpleTemplate.defaults["ip_address"] = "http://citizenwatt.local"
+        try:
+            SimpleTemplate.defaults["version"] = subprocess.check_output(["dpkg", "-l", "citizenwatt-visu"], stderr=FNULL).decode('utf-8').strip()
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            SimpleTemplate.defaults["version"] = "0.3-1"
 
     SimpleTemplate.defaults["valid_session"] = lambda: session_manager.get_session()['valid']
     run(app, host="0.0.0.0", port=config.get("port"), debug=config.get("debug"),
