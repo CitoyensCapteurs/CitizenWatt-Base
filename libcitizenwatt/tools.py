@@ -59,6 +59,8 @@ def is_day_night_rate(db, provider=None):
     """
     Returns true if night and day rates are distincts, false otherwise (meaning
     that such a distinction is useless)
+
+    provider should be None or a dict.
     """
     if provider is None:
         provider = to_dict(db.query(database.Provider).filter_by(current=1).first())
