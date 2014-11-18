@@ -1234,11 +1234,15 @@ def install_post(db):
 if __name__ == '__main__':
     SimpleTemplate.defaults["get_url"] = app.get_url
     SimpleTemplate.defaults["API_URL"] = app.get_url("index")
+    FNULL = open(os.devnull, 'w')
     try:
-        FNULL = open(os.devnull, 'w')
         SimpleTemplate.defaults["ip_address"] = "http://"+subprocess.check_output(["hostname", "-I"], stderr=FNULL).decode('utf-8').strip()
-    except subprocess.CalledProcessError:
+    except (FileNotFoundError, subprocess.CalledProcessError):
         SimpleTemplate.defaults["ip_address"] = "http://citizenwatt.local"
+    try:
+        SimpleTemplate.defaults["version"] = subprocess.check_output(["dpkg", "-l", "citizenwatt-visu"], stderr=FNULL).decode('utf-8').strip()
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        SimpleTemplate.defaults["version"] = "0.3-1"
 
     SimpleTemplate.defaults["valid_session"] = lambda: session_manager.get_session()['valid']
     run(app, host="0.0.0.0", port=config.get("port"), debug=config.get("debug"),
