@@ -756,7 +756,7 @@ def reset_timer(sensor, db):
 
 
 @app.route("/toggle_ssh", name="toggle_ssh", apply=valid_user())
-def toggle_ssh(state, db):
+def toggle_ssh(db):
     """Enable or disable SSH service"""
     tools.toggle_ssh()
     redirect("/settings")
@@ -1236,7 +1236,7 @@ if __name__ == '__main__':
     SimpleTemplate.defaults["API_URL"] = app.get_url("index")
     try:
         FNULL = open(os.devnull, 'w')
-        SimpleTemplate.defaults["ip_address"] = "http://"+str(subprocess.check_output(["hostname", "-I"], stderr=FNULL))
+        SimpleTemplate.defaults["ip_address"] = "http://"+subprocess.check_output(["hostname", "-I"], stderr=FNULL).decode('utf-8').strip()
     except subprocess.CalledProcessError:
         SimpleTemplate.defaults["ip_address"] = "http://citizenwatt.local"
 

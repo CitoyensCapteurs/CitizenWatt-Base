@@ -128,7 +128,7 @@
                     </p>
                     <p class="form-help">
                         Version actuelle : 0.3-1<br/>
-                        La mise à jour n'est pas encore automatique. Utilisez ce bouton pour déclancher la mise à jour.<br/>
+                        La mise à jour n'est pas encore automatique. Utilisez ce bouton pour déclencher la mise à jour.<br/>
                         Elle prendra 3 à 5 minutes, environ.
                     </p>
                 </article>
