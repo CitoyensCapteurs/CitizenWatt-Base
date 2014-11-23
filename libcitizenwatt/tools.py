@@ -239,14 +239,14 @@ def ssh_status():
 def toggle_ssh():
     """Start / stop SSH service."""
     status = ssh_status()
-    if status is True:
+    if status is False:
         # Start the service
         try:
             subprocess.call(["sudo", "/etc/init.d/ssh", "start"])
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
-    elif status is False:
+    elif status is True:
         # Stop it
         try:
             subprocess.call(["sudo", "/etc/init.d/ssh", "stop"])
