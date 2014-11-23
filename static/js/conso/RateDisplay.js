@@ -25,7 +25,7 @@ var RateDisplay = function() {
 					break;
 
 				case 'none':
-					alert('none');
+					new_rate = 'day';
 			}
 			rate = new_rate;
 		}

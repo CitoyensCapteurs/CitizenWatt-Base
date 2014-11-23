@@ -1240,7 +1240,7 @@ if __name__ == '__main__':
         except (FileNotFoundError, subprocess.CalledProcessError):
             SimpleTemplate.defaults["ip_address"] = "http://citizenwatt.local"
         try:
-            SimpleTemplate.defaults["version"] = subprocess.check_output(["dpkg", "-l", "citizenwatt-visu"], stderr=FNULL).decode('utf-8').strip()
+            SimpleTemplate.defaults["version"] = subprocess.check_output("dpkg -s citizenwatt-visu | grep Version | sed 's/Version: //'", stderr=FNULL).decode('utf-8').strip()
         except (FileNotFoundError, subprocess.CalledProcessError):
             SimpleTemplate.defaults["version"] = "0.3-1"
 
