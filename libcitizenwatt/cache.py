@@ -169,7 +169,7 @@ def do_cache_group_id(sensor, watt_euros, id1, id2, step, db,
         data = None
     if time2 is not None:
         # Store in cache
-        if time2 < datetime.datetime.now().timestamp():
+        if time2 > datetime.datetime.now().timestamp():
             # If new measures are to come, short lifetime (basically timestep)
             r.set(watt_euros + "_" + str(sensor) + "_" + "by_id" + "_" +
                   str(id1) + "_" + str(id2) + "_" +
@@ -304,7 +304,7 @@ def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
     if len(data) == 0:
         data = None
     # Store in cache
-    if time2 < datetime.datetime.now().timestamp():
+    if time2 > datetime.datetime.now().timestamp():
         # If new measures are to come, short lifetime (basically timestep)
         r.setex(watt_euros + "_" + str(sensor) + "_" + "by_time" + "_" +
                 str(time1) + "_" + str(time2) + "_" + str(step),
