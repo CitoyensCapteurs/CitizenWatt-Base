@@ -184,6 +184,43 @@ def get_nrf_power():
         return False
 
 
+nrf_speed_dict = {"250k": 0, "1M": 1, "2M": 2}
+
+def update_nrf_speed(nrf_speed):
+    """
+    Update the speed for the nrf stored in
+    ~/.config/citizenwatt/nrf_speed
+    """
+    path = os.path.expanduser("~/.config/citizenwatt/nrf_speed")
+    with open(path, "w+") as fh:
+        fh.write(str(nrf_speed_dict[nrf_speed]))
+
+    """ Then, restart receive """
+    try:
+        subprocess.call(["sudo", "supervisorctl", "restart", "receive"])
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
+
+def get_nrf_speed():
+    """
+    Get the speed for the nrf stored in
+    ~/.config/citizenwatt/nrf_speed
+
+    Returns false if an error happened.
+    """
+    path = os.path.expanduser("~/.config/citizenwatt/nrf_speed")
+    try:
+        nrf_speed = 0
+        with open(path, "r") as fh:
+            nrf_speed = int(fh.read())
+        return [name for name, index in nrf_speed_dict.items()
+                if index == nrf_speed][0]
+    except FileNotFoundError:
+        return False
+
+
 def update_providers(url_energy_providers, fetch, db):
     """Updates the available providers. Simply returns them without updating if
     fetch is False.

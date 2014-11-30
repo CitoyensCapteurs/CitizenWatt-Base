@@ -25,7 +25,7 @@ const bool DEBUG = true;
 // Speed for the nrf module
 // RF24_250KBPS / RF24_1MBPS / RF24_2MBPS
 // Reduce it to improve reliability
-const rf24_datarate_e NRF_SPEED = RF24_1MBPS;
+const rf24_datarate_e NRF_DEFAULT_SPEED = RF24_250KBPS;
 
 // PreAmplifier level for the nRF
 // Lower this to reduce power consumption. This will reduce range.
@@ -57,8 +57,11 @@ int main() {
     // Get the address to listen on
     std::ifstream config_addr;
     config_addr.open("~/.config/citizenwatt/base_address", std::ios::in);
+    std::ifstream config_speed;
+    config_speed.open("~/.config/citizenwatt/nrf_speed", std::ios::in);
     std::ifstream config_power;
     config_power.open("~/.config/citizenwatt/nrf_power", std::ios::in);
+
     uint64_t addr;
     if (config_addr.is_open()) {
         config_addr >> addr;
@@ -67,6 +70,36 @@ int main() {
     else {
         addr = default_addr;
     }
+
+    // Get the speed setting
+    uint64_t speed;
+    rf24_datarate_e nrf_speed;
+    if (config_speed.is_open()) {
+        config_speed >> speed;
+        config_speed.close();
+        switch (speed) {
+            case 0:
+                nrf_speed = RF24_250KBPS;
+                break;
+
+            case 1:
+                nrf_speed = RF24_1MBPS;
+                break;
+
+            case 2:
+                nrf_speed = RF24_2MBPS;
+                break;
+
+            default:
+                nrf_speed = NRF_DEFAULT_SPEED;
+                break;
+        }
+    }
+    else {
+        nrf_speed = NRF_DEFAULT_SPEED;
+    }
+
+    // Get the power setting
     uint64_t power;
     rf24_pa_dbm_e nrf_power;
     if (config_power.is_open()) {
@@ -106,7 +139,7 @@ int main() {
     // Reduce payload size to improve reliability
     radio.setPayloadSize(16);
     // Set the datarate
-    radio.setDataRate(NRF_SPEED);
+    radio.setDataRate(nrf_speed);
     // Use the largest CRC
     radio.setCRCLength(RF24_CRC_16);
     // Ensure auto ACK is enabled
