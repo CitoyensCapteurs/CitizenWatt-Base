@@ -805,6 +805,7 @@ def settings(db):
             "aes_key": '-'.join([str(i) for i in
                                  json.loads(sensor_cw["aes_key"])]),
             "nrf_power": tools.get_nrf_power(),
+            "nrf_speed": tools.get_nrf_speed(),
             "ssh_status": tools.ssh_status()}
 
 
@@ -859,6 +860,8 @@ def settings_post(db):
     raw_aes_key = request.forms.get("aes_key")
 
     raw_nrf_power = request.forms.get("nrf_power")
+    raw_nrf_speed = request.forms.get("nrf_speed")
+
 
     try:
         base_address_int = int(raw_base_address.strip("L"), 16)
@@ -898,6 +901,19 @@ def settings_post(db):
 
     if raw_nrf_power != tools.get_nrf_power():
         tools.update_nrf_power(raw_nrf_power)
+
+    try:
+        assert(raw_nrf_speed in tools.nrf_speed_dict)
+    except AssertionError:
+        error = {"title": "Format invalide",
+                 "content": ("Les deux mots de passe doient " +
+                             "être identiques.")}
+        settings_json = settings(db)
+        settings_json.update({"err": error})
+        return settings_json
+
+    if raw_nrf_speed != tools.get_nrf_speed():
+        tools.update_nrf_speed(raw_nrf_speed)
 
     (db.query(database.Sensor)
      .filter_by(name="CitizenWatt")
@@ -1083,7 +1099,8 @@ def install(db):
             "end_night_rate": '',
             "base_address": '',
             "aes_key": '',
-            "nrf_power": 'high'}
+            "nrf_power": 'high',
+            "nrf_speed": '250k'}
 
 
 @app.route("/install",
@@ -1112,6 +1129,7 @@ def install_post(db):
     raw_base_address = request.forms.get("base_address")
     raw_aes_key = request.forms.get("aes_key")
     raw_nrf_power = request.forms.get("nrf_power")
+    raw_nrf_speed = request.forms.get("nrf_speed")
     raw_provider = request.forms.get("provider")
 
     ret = {"login": login,
@@ -1122,7 +1140,8 @@ def install_post(db):
            "end_night_rate": raw_end_night_rate,
            "base_address": raw_base_address,
            "aes_key": raw_aes_key,
-           "nrf_power": raw_nrf_power}
+           "nrf_power": raw_nrf_power,
+           "nrf_speed": raw_nrf_speed}
 
     try:
         base_address_int = int(raw_base_address.strip("L"), 16)
@@ -1153,6 +1172,16 @@ def install_post(db):
         ret.update({"err": error})
         return ret
     tools.update_nrf_power(raw_nrf_power)
+
+    try:
+        assert(raw_nrf_speed in tools.nrf_speed_dict)
+    except AssertionError:
+        error = {"title": "Format invalide",
+                 "content": ("La vitesse indiquée pour le nRF est " +
+                             "invalide. ")}
+        ret.update({"err": error})
+        return ret
+    tools.update_nrf_speed(raw_nrf_speed)
 
     (db.query(database.Sensor)
      .filter_by(name="CitizenWatt")

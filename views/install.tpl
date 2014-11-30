@@ -86,6 +86,15 @@
                     </p>
 
                     <p class="form-item">
+                        <label for="nrf_speed">Vitesse du nRF&nbsp;: </label>
+                        <select name="nrf_speed" id="nrf_speed">
+                            <option value="250k" {{! 'selected="selected"' if nrf_speed is "250k" else ''}}>Lent (plus fiable)</option>
+                            <option value="1M" {{! 'selected="selected"' if nrf_speed is "1M" else ''}}>Normal</option>
+                            <option value="2M" {{! 'selected="selected"' if nrf_speed is "2M" else ''}}>Rapide (peu fiable)</option>
+                        </select>
+                    </p>
+
+                    <p class="form-item">
                         <input type="submit" value="Installer"/>
                     </p>
                 </form>
