@@ -807,7 +807,9 @@ def settings(db):
             "aes_key": '-'.join([str(i) for i in
                                  json.loads(sensor_cw["aes_key"])]),
             "nrf_power": tools.get_nrf_power(),
-            "ssh_status": tools.ssh_status()}
+            "ssh_status": tools.ssh_status(),
+            "need_rate_info": tools.is_day_night_rate(db)
+           }
 
 
 @app.route("/settings",
