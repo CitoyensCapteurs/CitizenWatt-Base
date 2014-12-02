@@ -745,6 +745,8 @@ def index():
 def conso(db):
     """Conso view"""
     provider = db.query(database.Provider).filter_by(current=1).first()
+    if provider is None:
+        provider = db.query(database.Provider).first()
     return {"provider": provider.name}
 
 
