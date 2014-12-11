@@ -1244,9 +1244,9 @@ if __name__ == '__main__':
         except (FileNotFoundError, subprocess.CalledProcessError):
             SimpleTemplate.defaults["ip_address"] = "http://citizenwatt.local"
         try:
-            SimpleTemplate.defaults["version"] = subprocess.check_output("dpkg -s citizenwatt-visu | grep Version | sed 's/Version: //'", stderr=FNULL).decode('utf-8').strip()
+            SimpleTemplate.defaults["version"] = subprocess.check_output("dpkg -s citizenwatt-visu | grep Version | sed 's/Version: //'", stderr=FNULL, shell=True).decode('utf-8').strip()
         except (FileNotFoundError, subprocess.CalledProcessError):
-            SimpleTemplate.defaults["version"] = "0.3-1"
+            SimpleTemplate.defaults["version"] = "Inconnue"
 
     SimpleTemplate.defaults["valid_session"] = lambda: session_manager.get_session()['valid']
     run(app, host="0.0.0.0", port=config.get("port"), debug=config.get("debug"),
