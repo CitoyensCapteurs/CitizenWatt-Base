@@ -63,7 +63,10 @@ def is_day_night_rate(db, provider=None):
     provider should be None or a dict.
     """
     if provider is None:
-        provider = to_dict(db.query(database.Provider).filter_by(current=1).first())
+        provider = db.query(database.Provider).filter_by(current=1).first()
+        if provider is None:
+            provider = db.query(database.Provider).first()
+        provider = to_dict(provider)
 
     ds = provider['day_slope_watt_euros']
     dc = provider['day_constant_watt_euros']

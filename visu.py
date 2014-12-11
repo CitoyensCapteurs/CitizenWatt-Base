@@ -745,6 +745,8 @@ def index():
 def conso(db):
     """Conso view"""
     provider = db.query(database.Provider).filter_by(current=1).first()
+    if provider is None:
+        provider = db.query(database.Provider).first()
     return {"provider": provider.name}
 
 
@@ -805,8 +807,14 @@ def settings(db):
             "aes_key": '-'.join([str(i) for i in
                                  json.loads(sensor_cw["aes_key"])]),
             "nrf_power": tools.get_nrf_power(),
+<<<<<<< HEAD
             "nrf_speed": tools.get_nrf_speed(),
             "ssh_status": tools.ssh_status()}
+=======
+            "ssh_status": tools.ssh_status(),
+            "need_rate_info": tools.is_day_night_rate(db)
+           }
+>>>>>>> dev
 
 
 @app.route("/settings",
@@ -1269,9 +1277,9 @@ if __name__ == '__main__':
         except (FileNotFoundError, subprocess.CalledProcessError):
             SimpleTemplate.defaults["ip_address"] = "http://citizenwatt.local"
         try:
-            SimpleTemplate.defaults["version"] = subprocess.check_output("dpkg -s citizenwatt-visu | grep Version | sed 's/Version: //'", stderr=FNULL).decode('utf-8').strip()
+            SimpleTemplate.defaults["version"] = subprocess.check_output("dpkg -s citizenwatt-visu | grep Version | sed 's/Version: //'", stderr=FNULL, shell=True).decode('utf-8').strip()
         except (FileNotFoundError, subprocess.CalledProcessError):
-            SimpleTemplate.defaults["version"] = "0.3-1"
+            SimpleTemplate.defaults["version"] = "Inconnue"
 
     SimpleTemplate.defaults["valid_session"] = lambda: session_manager.get_session()['valid']
     run(app, host="0.0.0.0", port=config.get("port"), debug=config.get("debug"),
