@@ -6,7 +6,8 @@ Database models for SQLAlchemy
 
 from sqlalchemy import Column, Float
 from sqlalchemy import ForeignKey, Integer, Text, VARCHAR
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.schema import Index
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import relationship
 
 
@@ -35,7 +36,10 @@ class Measure(Base):
                        ForeignKey("sensors.id", ondelete="CASCADE"),
                        nullable=False)
     value = Column(Float)
-    timestamp = Column(Integer, index=True)
+    timestamp = Column(Integer)
+    @declared_attr
+    def __table_args__(cls):
+        return (Index('idx_%s' % cls.__tablename__, 'sensor_id', 'timestamp'),)
     night_rate = Column(Integer)  # Boolean, 1 if night_rate
 
 

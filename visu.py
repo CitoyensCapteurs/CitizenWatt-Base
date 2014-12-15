@@ -824,7 +824,7 @@ def settings_post(db):
     password = request.forms.get("password").strip()
     password_confirm = request.forms.get("password_confirm")
 
-    if password:
+    if password and password_confirm:
         if password == password_confirm:
             password = (config.get("salt") +
                         hashlib.sha256(password.encode('utf-8')).hexdigest())
