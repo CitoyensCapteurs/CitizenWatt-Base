@@ -236,7 +236,7 @@ def do_cache_times(sensor, watt_euros, time1, time2, db, force_refresh=False):
 
 
 def do_cache_group_timestamp(sensor, watt_euros, time1, time2, step, db,
-                             force_refresh=True):
+                             force_refresh=False):
     """
     Computes the cache (if needed) for the API call
     /api/<sensor:int>/get/<watt_euros:re:watts|kwatthours|euros>/by_time/<time1:float>/<time2:float>/<step:float>
