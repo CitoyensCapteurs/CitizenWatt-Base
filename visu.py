@@ -1035,7 +1035,8 @@ def login_post(db):
             "login": login,
             "err": {
                 "title": "Identifiants incorrects.",
-                "content": ("Aucun utilisateur n'est enregistré à ce nom."
+                "content": ("Aucun utilisateur n'est enregistré à ce couple " +
+                            "identifiant / mot de passe."
                             if user else "Mot de passe erroné.")
             }
         }
