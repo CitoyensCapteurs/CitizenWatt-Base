@@ -1087,6 +1087,7 @@ def install(db):
             "end_night_rate": '',
             "base_address": '',
             "aes_key": '',
+            "need_rate_info": tools.is_day_night_rate(db),
             "nrf_power": 'high'}
 
 
