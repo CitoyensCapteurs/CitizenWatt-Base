@@ -357,7 +357,7 @@ var Graph = function(unit, max_value) {
 				return dateutils.getStringDay(i);
 
 			case 'month':
-				return i;
+				return i + 1;
 		}
 	};
 
