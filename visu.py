@@ -37,6 +37,7 @@ plugin = sqlalchemy.Plugin(
     keyword='db',
     create=True,
     commit=True,
+    readonly=config.get("readonly"),
     use_kwargs=False
 )
 app.install(plugin)

@@ -47,6 +47,7 @@ class Config():
         self.set("username", "citizenwatt")
         self.set("password", "citizenwatt")
         self.set("database", "citizenwatt")
+        self.set("readonly", False)
         self.set("host", "localhost")
         self.set("debug", False)
         self.set("url_energy_providers",

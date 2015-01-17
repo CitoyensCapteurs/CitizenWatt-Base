@@ -74,7 +74,7 @@ class SQLAlchemyPlugin(object):
     api = 2
 
     def __init__(self, engine, metadata=None,
-                 keyword='db', commit=True, create=False, use_kwargs=False, create_session=None):
+                 keyword='db', commit=True, create=False, readonly=False, use_kwargs=False, create_session=None):
         '''
         :param engine: SQLAlchemy engine created with `create_engine` function
         :param metadata: SQLAlchemy metadata. It is required only if `create=True`
@@ -96,6 +96,7 @@ class SQLAlchemyPlugin(object):
         self.create = create
         self.commit = commit
         self.use_kwargs = use_kwargs
+        self.readonly = readonly
 
     def setup(self, app):
         ''' Make sure that other installed plugins don't affect the same
@@ -110,6 +111,10 @@ class SQLAlchemyPlugin(object):
                 self.name += '_%s' % self.keyword
         if self.create and not self.metadata:
             raise bottle.PluginError('Define metadata value to create database.')
+
+    def abort_ro(self, *args, **kwargs):
+        print("No writing allowed!")
+        return
 
     def apply(self, callback, route):
         # hack to support bottle v0.9.x
@@ -139,6 +144,8 @@ class SQLAlchemyPlugin(object):
 
         def wrapper(*args, **kwargs):
             kwargs[keyword] = session = self.create_session(bind=self.engine)
+            if self.readonly:
+                session.flush = self.abort_ro
             try:
                 rv = callback(*args, **kwargs)
                 if commit:
