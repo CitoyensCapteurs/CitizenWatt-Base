@@ -82,3 +82,13 @@ class User(Base):
     # beginning of day
     start_night_rate = Column(Integer)
     end_night_rate = Column(Integer)
+
+
+class Counter(Base):
+    """Aggregates measures"""
+    __tablename__ = "counters"
+    id = Column(Integer, primary_key=True)
+    value = Column(Float)        # Current counter value
+    start_time = Column(Integer) # In seconds (timestamp)
+    end_time = Column(Integer)   # In seconds (timestamp)
+

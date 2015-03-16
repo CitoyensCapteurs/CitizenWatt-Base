@@ -16,6 +16,7 @@ import time
 
 from libcitizenwatt import database
 from libcitizenwatt import tools
+from libcitizenwatt import counters
 from Crypto.Cipher import AES
 from libcitizenwatt.config import Config
 from sqlalchemy import create_engine
@@ -101,11 +102,13 @@ try:
             else:
                 try:
                     db = create_session()
+                    now = datetime.datetime.now().timestamp()
                     measure_db = database.Measure(sensor_id=sensor.id,
                                                    value=power,
-                                                   timestamp=datetime.datetime.now().timestamp(),
+                                                   timestamp=now,
                                                    night_rate=get_rate_type(db))
                     db.add(measure_db)
+                    counters.add_measure(db, now, power)
                     sensor.last_timer = timer
                     (db.query(database.Sensor)
                      .filter_by(name="CitizenWatt")
