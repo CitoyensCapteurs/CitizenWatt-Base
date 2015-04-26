@@ -11,6 +11,7 @@ import re
 from libcitizenwatt import cache
 from libcitizenwatt import database
 from libcitizenwatt import tools
+from libcitizenwatt import redisdatabase
 from bottle import abort, Bottle, SimpleTemplate, static_file
 from bottle import redirect, request, run
 from bottle.ext import sqlalchemy

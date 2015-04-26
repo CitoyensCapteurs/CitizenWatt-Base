@@ -12,6 +12,14 @@ This is the code running on the base (Raspberry Pi) for the CitizenWatt project.
 5. Use supervisord with the conf file in the `system` dir to handles the startup of the services.
 6. (bis) Alternatively, launch `receive` (to actually receive the data), `process.py` (to receive the data from `receive` and store them in database) and the main script, `visu.py` which will serve the visualization.
 
+## Simulation
+
+If you only want to run the web interface without any underlying sensor, you do not need to run though every installation steps.
+
+Thus, you can test the user interface on your computer.
+
+First, make sure you have successfully installed Python 3, PostgreSQL and Redis.
+
 ## API documentation
 
 This is a list of all the endpoints available in the API. You should authenticate yourself to use the API. For this purpose, use a POST request with `login` and `password` fields.
